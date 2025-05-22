@@ -12,6 +12,7 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
         $user = Auth::user();
@@ -36,14 +37,17 @@ class CategoryController extends Controller
             'categories' => ['array'],
             'categories.*' => ['nullable', 'string', 'min:4']
         ]);
-
-        foreach($request->categories as $category) {
+        $categories = array_filter(
+            array_map('trim', $request->categories), // Trim each item
+            fn($category) => $category !== ''        // Filter out empty strings
+        );
+        foreach ($categories as $category) {
             Category::create([
                 'name' => $category,
                 'user_id' => Auth()->user()->id
             ]);
         }
-        return redirect()->route('categories.index')->with('success', 'Categories (' . implode(', ',$request->categories) . ') created successfully!');
+        return redirect()->route('categories.index')->with('success', 'Categories (' . implode(', ', $categories) . ') created successfully!');
     }
 
     /**
@@ -68,7 +72,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $old_name = $category->name;
-        $category->update(['name' => $request->name]);   
+        $category->update(['name' => $request->name]);
         return redirect()->route('categories.index')->with('success', 'Category(' . $old_name . ') is changed to (' . $category->name . ') successfully!');
     }
 

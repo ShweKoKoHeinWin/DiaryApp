@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DiaryController;
 use App\Http\Controllers\EmotionController;
 use App\Http\Controllers\HomeController;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -15,15 +16,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
         Route::post('/store', [CategoryController::class, 'store'])->name('categories.store');
-        Route::post('/{category}/update', [CategoryController::class, 'update'])->name('categories.update');
-        Route::delete('/{category}/delete', [CategoryController::class, 'destroy'])->name('categories.delete');
+        Route::post('/{category}/update', [CategoryController::class, 'update'])->name('categories.update')->can('update', 'category');
+        Route::delete('/{category}/delete', [CategoryController::class, 'destroy'])->name('categories.delete')->can('delete', 'category');
     });
 
     Route::prefix('/emotions')->group(function () {
         Route::get('/', [EmotionController::class, 'index'])->name('emotions.index');
         Route::post('/store', [EmotionController::class, 'store'])->name('emotions.store');
-        Route::post('/{emotion}/update', [EmotionController::class, 'update'])->name('emotions.update');
-        Route::delete('/{emotion}/delete', [EmotionController::class, 'destroy'])->name('emotions.delete');
+        Route::post('/{emotion}/update', [EmotionController::class, 'update'])->name('emotions.update')->can('update', 'emotion');
+        Route::delete('/{emotion}/delete', [EmotionController::class, 'destroy'])->name('emotions.delete')->can('delete', 'emotion');
     });
 
 

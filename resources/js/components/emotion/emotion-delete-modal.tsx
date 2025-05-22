@@ -1,8 +1,8 @@
-import { CategoryProp } from '@/types/types';
+import { CategoryProp, EmotionProp } from '@/types/types';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export function CategoryDeleteModal({ setIsDeleterOpen, category }: { setIsDeleterOpen: (bool: boolean) => void; category: CategoryProp }) {
+export function EmotionDeleteModal({ setIsDeleterOpen, emotion }: { setIsDeleterOpen: (bool: boolean) => void; emotion: EmotionProp }) {
     const [deleting, setDeleting] = useState(false);
     const closeModal = () => {
         router.reload({ only: ['errors'] });
@@ -12,7 +12,7 @@ export function CategoryDeleteModal({ setIsDeleterOpen, category }: { setIsDelet
     const handleDelete = (e: React.FormEvent) => {
         e.preventDefault();
         setDeleting(true)
-        router.delete(route('categories.delete', category.id), {
+        router.delete(route('emotions.delete', emotion.id), {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
@@ -32,9 +32,9 @@ export function CategoryDeleteModal({ setIsDeleterOpen, category }: { setIsDelet
                     <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                         <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div className="border-b border-gray-900/10 pb-12 text-center">
-                                <h2 className="text-base/7 font-semibold text-gray-900">Delete Category</h2>
+                                <h2 className="text-base/7 font-semibold text-gray-900">Delete Emotion</h2>
 
-                                <p className="text-sm font-semibold text-gray-700">Are you sure to delete this category ({category.name})?</p>
+                                <p className="text-sm font-semibold text-gray-700">Are you sure to delete this category ({emotion.name})?</p>
                             </div>
                         </div>
                         <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">

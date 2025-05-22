@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Emotion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class EmotionController extends Controller
 {
@@ -11,7 +14,9 @@ class EmotionController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $emotions = $user->emotions;
+        return Inertia::render('emotions', compact('emotions'));
     }
 
     /**
@@ -27,7 +32,12 @@ class EmotionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'emoji' => 'required',
+        ]);
+        $emotion = Emotion::create(['name' => $request->name, 'emoji' => $request->emoji, 'user_id' => Auth::user()->id]);
+        return redirect()->route('emotions.index')->with('success', 'Emotion (' . $emotion->name . ') is created successfully.');
     }
 
     /**
@@ -49,16 +59,22 @@ class EmotionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Emotion $emotion)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'emoji' => 'required',
+        ]);
+        $emotion->update(['name' => $request->name, 'emoji' => $request->emoji]);
+        return redirect()->route('emotions.index')->with('success', 'Emotion is updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Emotion $emotion)
     {
-        //
+        $emotion->delete();
+        return redirect()->route('emotions.index')->with('success', 'Emotion (' . $emotion->name . ') is deleted successfully.');
     }
 }
