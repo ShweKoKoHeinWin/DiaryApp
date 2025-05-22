@@ -28,6 +28,7 @@ export interface SharedData {
     auth: Auth;
     ziggy: Config & { location: string };
     sidebarOpen: boolean;
+    success: string;
     [key: string]: unknown;
 }
 
@@ -40,4 +41,10 @@ export interface User {
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+
+export interface MessageProps {
+    text: string,
+    type: 'success' | 'error'
 }

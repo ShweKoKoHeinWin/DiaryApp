@@ -19,4 +19,5 @@ class Category extends Model
     {
         return $this->belongsToMany(Diary::class);
     }
+    
 }
