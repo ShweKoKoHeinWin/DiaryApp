@@ -37,7 +37,7 @@ class EmotionController extends Controller
             'emoji' => 'required',
         ]);
         $emotion = Emotion::create(['name' => $request->name, 'emoji' => $request->emoji, 'user_id' => Auth::user()->id]);
-        return redirect()->route('emotions.index')->with('success', 'Emotion (' . $emotion->name . ') is created successfully.');
+        return redirect()->back()->with('success', 'Emotion (' . $emotion->name . ') is created successfully.');
     }
 
     /**

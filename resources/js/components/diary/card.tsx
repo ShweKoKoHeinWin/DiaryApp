@@ -1,0 +1,240 @@
+import { Button } from '@/components/ui/button';
+import { DiaryCardData } from '@/types/types';
+import { Link, router } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
+import { useState } from 'react';
+import ShareModal from '../share/share-modal';
+import { Badge } from '../ui/badge';
+import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+
+export function CardItem({ card, collections }: { card: DiaryCardData }) {
+    const [newCollection, setNewCollection] = useState<string>('');
+    const [showAllCategories, setShowAllCategories] = useState(false);
+    const [showShareBox, setShowShareBox] = useState(false);
+    const [showCollections, setShowCollections] = useState(false);
+    const [selectedCollelctions, setSelectedCollections] = useState<number[]>(card.collections?.sort().map((c) => c.id));
+    const maxVisibleCategories = 2;
+    const allCollectionIds = collections.map((c) => c.id).sort();
+
+    const handleCollectionBox = (isOpen: boolean) => {
+        if (!isOpen) {
+            router.put(route('diaries.collections', card.id), {
+                collections: selectedCollelctions,
+            });
+        }
+        setShowCollections(isOpen);
+    };
+
+    const handleCollectionSubmit = (e) => {
+        e.preventDefault();
+        if (!newCollection) return;
+
+        router.post(
+            route('collections.store'),
+            {
+                title: newCollection,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => setNewCollection(''),
+            },
+        );
+    };
+
+    const handleCollectionChange = (id: number, checked: boolean) => {
+        setSelectedCollections((prev) => {
+            if (checked) {
+                return [...prev, id];
+            }
+            return prev.filter((colId) => colId !== id);
+        });
+    };
+
+    return (
+        <Card className="relative h-64 w-full overflow-hidden">
+            <CardContent className="flex h-full flex-col px-4">
+                {/* 3-dot menu in top right */}
+                <div className="flex items-center justify-between">
+                    <span className="text-xs">{format(card.createdAt, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-auto">
+                            <Link href={route('diaries.edit', card.id)}>
+                                <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+                            </Link>
+                            <Link
+                                href={route('diaries.delete', card.id)}
+                                method="delete"
+                                preserveScroll
+                                onBefore={() => confirm('Are you sure to delete the diary?')}
+                                className="w-full"
+                            >
+                                <DropdownMenuItem className="cursor-pointer">Delete</DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem className="cursor-pointer">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="flex w-full cursor-pointer items-center gap-0"
+                                    onClick={() => setShowCollections(true)}
+                                >
+                                    <span className="mr-2">Add To Collections</span>
+                                    <ArrowRight className="h-3.5 w-3.5" />
+                                </Button>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                <Dialog open={showCollections} onOpenChange={handleCollectionBox}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex justify-between">
+                                <span>Collections</span>
+                                <label htmlFor="allcollections" className="mr-5 flex items-center justify-center gap-2">
+                                    <Checkbox
+                                        id="allcollections"
+                                        checked={
+                                            selectedCollelctions.length === allCollectionIds.length &&
+                                            selectedCollelctions.sort().every((val, index) => val === allCollectionIds[index])
+                                        }
+                                        onCheckedChange={(checked) => {
+                                            if (checked === true) {
+                                                setSelectedCollections(allCollectionIds);
+                                            } else {
+                                                setSelectedCollections([]);
+                                            }
+                                        }}
+                                    />
+                                    <span>Select All</span>
+                                </label>
+                            </DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription aria-describedby={undefined}></DialogDescription>
+                        <ul className="h-50 max-w-md list-inside list-none space-y-1 overflow-y-scroll rounded-2xl border-2 bg-gray-900/5 p-4">
+                            {collections.map((collection) => (
+                                <li key={collection.id}>
+                                    <div className="inline-block w-[90%]">
+                                        <Label
+                                            className="flex items-center justify-between gap-2 rounded-xl bg-amber-300 p-3"
+                                            htmlFor={`collection-${collection.id}`}
+                                        >
+                                            {collection.title}
+                                            <Checkbox
+                                                id={`collection-${collection.id}`}
+                                                checked={selectedCollelctions.includes(collection.id)}
+                                                onCheckedChange={(checked) => handleCollectionChange(collection.id, checked === true)}
+                                            />
+                                        </Label>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <form className="flex items-center justify-center gap-4" onSubmit={handleCollectionSubmit}>
+                            <Input
+                                type="text"
+                                placeholder="Collection Name"
+                                className="pl-8"
+                                value={newCollection}
+                                onChange={(e) => setNewCollection(e.target.value)}
+                            />
+                            <button type="submit" className="rounded-2xl bg-blue-600 px-4 py-2 text-gray-200 hover:bg-blue-500">
+                                <PlusSquare size={20} />
+                            </button>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+                {/* Title with truncation */}
+                <Link href={route('diaries.show', card.id)} className="rich-text-editor-container">
+                    <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>
+
+                    {/* Content with truncation */}
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">{card.list_content}</p>
+                </Link>
+
+                {/* Categories row with overflow handling */}
+                <div className="mt-4 flex items-center gap-1 overflow-hidden">
+                    {card.categories.slice(0, maxVisibleCategories).map((category, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                            {category.name}
+                        </Badge>
+                    ))}
+
+                    {card.categories.length > maxVisibleCategories && (
+                        <>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 p-0" onClick={() => setShowAllCategories(true)}>
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+
+                            <Dialog open={showAllCategories} onOpenChange={setShowAllCategories}>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>Categories</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        {card.categories.map((category, index) => (
+                                            <Badge key={index} variant="outline">
+                                                {category.name}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </>
+                    )}
+                </div>
+
+                {/* Footer with metadata */}
+                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                        {card.emotion?.emoji ?? ''}
+                        <span className="ml-2">{card.emotion?.name ?? ''}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger className="flex cursor-pointer items-center">
+                                    <Paperclip className="mr-1 h-3.5 w-3.5" />
+                                    <span>{card.fileCount.total}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
+                                        {Object.keys(card.fileCount.types).map((key) => (
+                                            <li key={key}>
+                                                {card.fileCount.types[key]} {key}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                            onClick={() => setShowShareBox(true)}
+                        >
+                            <CornerUpRight className="h-3.5 w-3.5" />
+                            <span>{card.shareCount}</span>
+                        </Button>
+                        <ShareModal diary={card} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}

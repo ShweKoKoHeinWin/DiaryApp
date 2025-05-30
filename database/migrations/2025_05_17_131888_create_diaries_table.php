@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->foreignIdFor(Emotion::class)
+                ->nullable()
                 ->constrained()
                 ->nullOnDelete();
             $table->text('content');

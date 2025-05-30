@@ -79,4 +79,39 @@ class User extends Authenticatable
     // public function sharedItems() : HasMany {
     //     return $this->hasMany(User::class, 'receiver_id');
     // }
+
+     public function sentShares(): HasMany
+    {
+        return $this->hasMany(SharedItem::class, 'owner_id');
+    }
+
+    // As receiver
+    public function receivedShares(): HasMany
+    {
+        return $this->hasMany(SharedItem::class, 'receiver_id');
+    }
+
+    // Get all shared diaries user has sent
+    public function sharedDiaries(): HasMany
+    {
+        return $this->sentShares()->where('shareable_type', Diary::class);
+    }
+
+    // Get all shared collections user has sent
+    public function sharedCollections(): HasMany
+    {
+        return $this->sentShares()->where('shareable_type', Collection::class);
+    }
+
+    // Get received diaries
+    public function receivedDiaries(): HasMany
+    {
+        return $this->receivedShares()->where('shareable_type', Diary::class);
+    }
+
+    // Get received collections
+    public function receivedCollections(): HasMany
+    {
+        return $this->receivedShares()->where('shareable_type', Collection::class);
+    }
 }

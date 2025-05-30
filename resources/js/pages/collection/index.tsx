@@ -1,32 +1,40 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import CardListingPage from '@/components/collection/card-list';
+import { CollectionModal } from '@/components/collection/collection-create-modal';
+import { CollectionFilterPanel } from '@/components/collection/collection-filter-panel';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { BreadcrumbItem } from '@/types';
+import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
+import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Collections',
-        href: '/dashboard',
+        href: route('collections.index'),
     },
 ];
 
-export default function Welcome() {
-    const { auth } = usePage<SharedData>().props;
+const endPoint = route('collections.index');
 
+const index = (
+    {filterSort, collections}
+) => {
+    console.log(collections);
+    
+    const [filterProp, setFilterProp] = useState<FilterProp>({});
+    const [sortProp, setSortProp] = useState<SortProp>({});
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Collections" />
+
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+                <CollectionFilterPanel setIsOpen={setIsOpen} filterProp={filterProp} setFilterProp={setFilterProp} sortProp={sortProp} setSortProp={setSortProp} endPoint={endPoint} />
+                {isOpen && <CollectionModal setIsOpen={setIsOpen} />}
+                <CardListingPage collections={collections} groupBy={sortProp.type} groupOrder={sortProp.order}  />
             </div>
         </AppLayout>
     );
-}
+};
+
+export default index;

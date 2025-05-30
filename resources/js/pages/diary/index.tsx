@@ -1,7 +1,12 @@
-import { PlaceholderPattern } from "@/components/ui/placeholder-pattern";
-import AppLayout from "@/layouts/app-layout";
-import { BreadcrumbItem } from "@/types";
-import { Head } from "@inertiajs/react";
+// import CardListingPage from '@/components/diary/card-list';
+// import {DiaryFilterPanel} from '@/components/diary/diary-filter-panel';
+import CardListingPage from '@/components/diary/card-list';
+import { DiaryFilterPanel } from '@/components/diary/diary-filter-panel';
+import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
+import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
+import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,20 +15,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const index = () => {
+const endPoint = route('diaries.index');
+
+const index = ({filterSort, diaries, categories, emotions, collections}) => {
+    console.log(diaries);
+    
+    const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
+    const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries" />
+
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+                <DiaryFilterPanel filterProp={filterProp} setFilterProp={setFilterProp} sortProp={sortProp} setSortProp={setSortProp} endPoint={endPoint} categories={categories} emotions={emotions} />
+                
+                <CardListingPage diaries={diaries} groupBy={sortProp.type} groupOrder={sortProp.order} collections={collections} />
             </div>
         </AppLayout>
     );

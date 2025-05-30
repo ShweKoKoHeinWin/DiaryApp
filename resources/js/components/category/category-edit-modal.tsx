@@ -28,16 +28,16 @@ export function CategoryEditModal({ setIsEditerOpen, category }: { setIsEditerOp
                         onSubmit={handleSubmit}
                         className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
                     >
-                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="bg-white dark:bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div className="space-y-12">
                                 <div className="border-b border-gray-900/10 pb-12">
-                                    <h2 className="text-base/7 font-semibold text-gray-900">Edit Category</h2>
+                                    <h2 className="text-base/7 font-semibold text-gray-900 dark:text-gray-200">Edit Category</h2>
 
                                     <div className="mt-5">
                                         <input
                                             name="category"
                                             value={data.name}
-                                            className="block min-w-0 w-full grow rounded-2xl border-2 border-blue-400 py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
+                                            className="block min-w-0 w-full grow rounded-2xl border-2 border-blue-400 py-1.5 pr-3 pl-1 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
                                             onChange={(e) => setData('name', e.target.value)}
                                         />
                                         {errors.name && <p>{errors.name}</p>}
@@ -45,7 +45,7 @@ export function CategoryEditModal({ setIsEditerOpen, category }: { setIsEditerOp
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                             <button
                                 disabled={processing}
                                 type="submit"

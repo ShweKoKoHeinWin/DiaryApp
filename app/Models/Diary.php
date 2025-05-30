@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Diary extends Model
 {
@@ -24,19 +25,19 @@ class Diary extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category() : BelongsToMany
+    public function categories() : BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'diary_category');
     }
 
-    public function emotion() : BelongsToMany
+    public function emotion() : BelongsTo
     {
-        return $this->belongsToMany(Emotion::class);
+        return $this->belongsTo(Emotion::class);
     }
 
     public function collections()
     {
-        return $this->belongsToMany(Collection::class);
+        return $this->belongsToMany(Collection::class, 'collection_diary');
     }
 
     public function files() : HasMany
@@ -44,4 +45,8 @@ class Diary extends Model
         return $this->hasMany(Files::class);
     }
 
+    public function sharedItems(): MorphMany
+    {
+        return $this->morphMany(SharedItem::class, 'shareable');
+    }
 }

@@ -157,3 +157,26 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+/* In your global CSS file or a dedicated RichTextEditor.css */
+
+/* Ensure lists have markers and indentation */
+.rich-text-editor-container .editor-content ul {
+  list-style-type: disc; /* For bullet points */
+  padding-left: 20px;   /* Or adjust as needed for indentation */
+  margin-bottom: 0.5em; /* Add some spacing */
+}
+
+.rich-text-editor-container .editor-content ol {
+  list-style-type: decimal; /* For numbered lists */
+  padding-left: 20px;     /* Or adjust as needed for indentation */
+  margin-bottom: 0.5em;   /* Add some spacing */
+}
+
+/* Important: If 'prose' is overriding it, you might need !important */
+/* For example, if you see list-style: none being applied by prose */
+/* .rich-text-editor-container .editor-content ul {
+  list-style-type: disc !important;
+  padding-left: 20px !important;
+} */

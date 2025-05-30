@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->string('caption');
+            $table->string('caption')->nullable();
             $table->string('path');
             $table->string('type');
             $table->foreignIdFor(Diary::class)

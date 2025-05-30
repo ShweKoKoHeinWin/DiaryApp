@@ -76,7 +76,7 @@ export default function Emotions({ emotions }: { emotions: EmotionProp[] }) {
                             type="text"
                             id="input-group-1"
                             className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                            placeholder="name@flowbite.com"
+                            placeholder="Name"
                         />
                     </div>
                     <button
@@ -131,8 +131,8 @@ export default function Emotions({ emotions }: { emotions: EmotionProp[] }) {
                                 ))
                             ) : (
                                 <tr>
-                                    <th colSpan={2} className="p-4 text-center">
-                                        There is no categories right now.
+                                    <th colSpan={3} className="p-4 text-center">
+                                        There is no emotions right now.
                                     </th>
                                 </tr>
                             )}

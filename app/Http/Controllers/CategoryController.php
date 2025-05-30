@@ -47,7 +47,7 @@ class CategoryController extends Controller
                 'user_id' => Auth()->user()->id
             ]);
         }
-        return redirect()->route('categories.index')->with('success', 'Categories (' . implode(', ', $categories) . ') created successfully!');
+        return redirect()->back()->with('success', 'Categories (' . implode(', ', $categories) . ') created successfully!');
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\DiaryController;
 use App\Http\Controllers\EmotionController;
 use App\Http\Controllers\HomeController;
@@ -30,10 +31,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('/diaries')->group(function () {
         Route::get('/', [DiaryController::class, 'index'])->name('diaries.index');
+        Route::get('/create', [DiaryController::class, 'create'])->name('diaries.create');
         Route::post('/store', [DiaryController::class, 'store'])->name('diaries.store');
+        Route::get('/{diary}/edit', [DiaryController::class, 'edit'])->name('diaries.edit');
         Route::post('/{diary}/update', [DiaryController::class, 'update'])->name('diaries.update');
+        Route::get('/{diary}', [DiaryController::class, 'show'])->name('diaries.show');
         Route::delete('/{diary}/delete', [DiaryController::class, 'destroy'])->name('diaries.delete');
+
+        Route::put('/{diary}/collections', [DiaryController::class, 'collections'])->name('diaries.collections');
+        Route::put('/{diary}/shares', [DiaryController::class, 'shares'])->name('diaries.shares');
     });
+
+    Route::prefix('/collections')->group(function () {
+        Route::get('/', [CollectionController::class, 'index'])->name('collections.index');
+        Route::get('/create', [CollectionController::class, 'create'])->name('collections.create');
+        Route::post('/store', [CollectionController::class, 'store'])->name('collections.store');
+        Route::get('/{collection}/edit', [CollectionController::class, 'edit'])->name('collections.edit');
+        Route::post('/{collection}/update', [CollectionController::class, 'update'])->name('collections.update');
+        Route::get('/{collection}', [CollectionController::class, 'show'])->name('collections.show');
+        Route::delete('/{collection}/delete', [CollectionController::class, 'destroy'])->name('collections.delete');
+    });
+
+    Route::get('/files', function() {
+
+    })->name('files.index');
+
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
