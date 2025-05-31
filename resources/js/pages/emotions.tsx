@@ -3,7 +3,7 @@ import { EmotionDeleteModal } from '@/components/emotion/emotion-delete-modal';
 import { EmotionEditModal } from '@/components/emotion/emotion-edit-modal';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, type SharedData } from '@/types';
-import { EmotionProp } from '@/types/types';
+import { EmotionDetailProp } from '@/types/types';
 import { Head, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Edit, Plus, Search, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -15,20 +15,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Emotions({ emotions }: { emotions: EmotionProp[] }) {
+export default function Emotions({ emotions }: { emotions: EmotionDetailProp[] }) {
     const [query, setQuery] = useState<string>('');
-    const [filteredEmotions, setFilteredEmotions] = useState<EmotionProp[]>([]);
-    const [sortAsc, setSortAsc] = useState(true);
-    const [sortedEmotions, setSortedEmotions] = useState<EmotionProp[]>([]);
 
-    const { auth } = usePage<SharedData>().props;
-    const [isOpen, setIsOpen] = useState(false);
-    const [isEditerOpen, setIsEditerOpen] = useState(false);
-    const [selectedEmotion, setSelectedEmotion] = useState<EmotionProp | undefined>();
-    const [isDeleterOpen, setIsDeleterOpen] = useState(false);
+    const [sortedEmotions, setSortedEmotions] = useState<EmotionDetailProp[]>([]);
+    const [filteredEmotions, setFilteredEmotions] = useState<EmotionDetailProp[]>([]);
+
+    const [sortAsc, setSortAsc] = useState<boolean>(true);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isEditerOpen, setIsEditerOpen] = useState<boolean>(false);
+    const [isDeleterOpen, setIsDeleterOpen] = useState<boolean>(false);
+
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionDetailProp | undefined>();
 
     useEffect(() => {
-        let filtered = [...emotions].filter((emotion) => emotion.name.toLowerCase().includes(query.toLowerCase()));
+        let filtered: EmotionDetailProp[] = [...emotions].filter((emotion: EmotionDetailProp) => emotion.name.toLowerCase().includes(query.toLowerCase()));
         setFilteredEmotions(filtered);
     }, [emotions, query]);
 
@@ -45,12 +46,12 @@ export default function Emotions({ emotions }: { emotions: EmotionProp[] }) {
         setSortedEmotions(sorted);
     }, [filteredEmotions, sortAsc]);
 
-    const handleEdit = (emotion: EmotionProp) => {
+    const handleEdit = (emotion: EmotionDetailProp) => {
         setSelectedEmotion(emotion);
         setIsEditerOpen(true);
         setIsDeleterOpen(false);
     };
-    const handleDelete = (emotion: EmotionProp) => {
+    const handleDelete = (emotion: EmotionDetailProp) => {
         setSelectedEmotion(emotion);
         setIsDeleterOpen(true);
         setIsEditerOpen(false);
@@ -104,7 +105,7 @@ export default function Emotions({ emotions }: { emotions: EmotionProp[] }) {
                         </thead>
                         <tbody>
                             {sortedEmotions.length > 0 ? (
-                                sortedEmotions.map((emotion: EmotionProp, i) => (
+                                sortedEmotions.map((emotion: EmotionDetailProp, i) => (
                                     <tr key={emotion.id} className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
                                         <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
                                             {emotion.emoji}

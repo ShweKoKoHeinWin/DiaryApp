@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { CategoryProp, DiaryFormProp, EmotionProp } from '@/types/types';
+import { CategoryProp, DiaryFormProp } from '@/types/types';
 import { Head, useForm } from '@inertiajs/react';
 import 'flowbite';
 import { Check, Plus } from 'lucide-react';

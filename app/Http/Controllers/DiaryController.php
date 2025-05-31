@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\DiaryResource;
+use App\Http\Resources\Diary\DiaryDetailResource;
+use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Diary;
@@ -85,18 +86,27 @@ class DiaryController extends Controller
                 # code...
                 break;
         }
-
-        $paginated = $diaries->paginate(20);
-        $diaries = DiaryResource::collection($paginated);
+        $perPage = 1;
+        $limit = $perPage;
+        if($request->filled('page')) {
+            $limit = $perPage * $request->input('page');
+        }
+        $paginated = $diaries->take($limit)->get();
+        $diaries = DiaryListItemResource::collection($paginated);
         return Inertia::render('diary/index', compact('filterSort', 'diaries', 'categories', 'emotions', 'collections'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $user = Auth::user();
-        $categories = $user->categories()->orderBy('name')->get();
-        $emotions = $user->emotions()->orderBy('name')->get();
-        return Inertia::render('diary/create', compact('categories', 'emotions'));
+        $categories = Category::where('user_id', $user->id)->orderBy('name')->get();
+        $emotions = Emotion::where('user_id', $user->id)->orderBy('name')->get();
+
+        $collection = null;
+        if ($request->filled('collection')) {
+            $collection = Collection::findOrFail($request->input('collection'));
+        }
+        return Inertia::render('diary/create', compact('categories', 'emotions', 'collection'));
     }
 
     public function store(Request $request)
@@ -134,6 +144,7 @@ class DiaryController extends Controller
             }
             DB::commit();
         } catch (Exception $e) {
+            dd($e);
             DB::rollBack();
         }
         return redirect()->route('diaries.index');
@@ -142,16 +153,16 @@ class DiaryController extends Controller
     public function edit(Diary $diary)
     {
         $user = Auth::user();
-        $categories = $user->categories()->orderBy('name')->get();
-        $emotions = $user->emotions()->orderBy('name')->get();
-        $diary = new DiaryResource($diary);
+        $categories = Category::where('user_id', $user->id)->orderBy('name')->get();
+        $emotions = Emotion::where('user_id', $user->id)->orderBy('name')->get();
+        $diary = new DiaryDetailResource($diary);
         return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions'));
     }
 
     public function show(Diary $diary)
     {
         return Inertia::render('diary/show', [
-            'diary' => new DiaryResource($diary)
+            'diary' => new DiaryDetailResource($diary)
         ]);
     }
 
@@ -225,15 +236,15 @@ class DiaryController extends Controller
             foreach ($diary->files as $file) {
                 $files[] = $file->path;
             }
-            $diary->categories()->delete();
+            $diary->categories()->detach();
+            $diary->collections()->detach();
             $diary->sharedItems()->delete();
-            $diary->collections()->delete();
             $diary->files()->delete();
-            
+
             $diary->delete();
             DB::commit();
-        } catch (\Throwable $th) {
-
+        } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
         }
         foreach ($files as $file) {

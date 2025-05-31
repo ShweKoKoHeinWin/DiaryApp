@@ -3,22 +3,25 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { PlusSquare, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
 
 const ShareModal = ({
-    diary,
+    url,
+    card,
     showShareBox,
     setShowShareBox,
 }: {
-    sharedUsers: string[];
+    url: string;
+    card: DiaryListingItemProp | DiaryDetailProp;
     showShareBox: boolean;
     setShowShareBox: (isOpen: boolean) => void;
 }) => {
-    const [receivers, setReceivers] = useState<string[]>(diary?.receivers.length > 0 ? diary?.receivers.map((r) => r.email) : ['']);
+    const [receivers, setReceivers] = useState<string[]>(card?.shares?.length > 0 ? card?.shares.map((s) => s.email) : ['']);
 
     const handleSharedBox = (isOpen: boolean) => {
         if (!isOpen) {
             router.put(
-                route('diaries.shares', diary.id),
+                url,
                 {
                     receivers,
                 },

@@ -18,12 +18,19 @@ class CollectionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'created_at' => $this->created_at,
             'description' => $this->description ?? '',
             'image' =>  asset(Storage::url(str_replace('public/', '', $this->cover_image))),
+            'shares' => $this->sharedItems()->with('receiver')->latest()->get()?->map(function ($share) {
+                return [
+                    'id' => $share->id,
+                    'email' => $share->email,
+                    'receiver' => $share->receiver()->select('id', 'name')->get(),
+                ];
+            }),
+            'title' => $this->title,
             'user' => $this->user,
-            'createdAt' => $this->created_at,
-            'shareCount' => 10,
+            'diary_count' => $this->diaries->count(),
         ];
     }
 }

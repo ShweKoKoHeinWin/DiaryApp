@@ -21,7 +21,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();
-            $table->text('content');
+            $table->text('content')->nullable();
             $table->timestamps();
         });
     }

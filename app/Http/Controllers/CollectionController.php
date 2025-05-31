@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CollectionResource;
+use App\Http\Resources\Diary\DiaryListItemResource;
+use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Emotion;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -19,7 +25,7 @@ class CollectionController extends Controller
         $user = Auth::user();
         $filterSort = [];
         $collections = CollectionResource::collection(Collection::where('user_id', $user->id)->paginate(20));
-        
+
         return Inertia::render('collection/index', compact('collections', 'filterSort'));
     }
 
@@ -37,7 +43,7 @@ class CollectionController extends Controller
         DB::beginTransaction();
         try {
             $path = '';
-            if($request->hasFile('image')) {
+            if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('collection', 'public');
             }
             $collection = Collection::create([
@@ -56,9 +62,77 @@ class CollectionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Collection $collection, Request $request)
     {
-        //
+        $user = Auth::user();
+        $diaries = $collection->diaries()->with('categories', 'emotion', 'user', 'files');
+        $categories = Category::where('user_id', $user->id)->select('id', 'name')->get();
+        $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
+        $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
+        $filterSort = ['filters' => [], 'sorting' => []];
+        if ($request->filled('startDate') && $request->filled('endDate')) {
+            $start = Carbon::parse($request->input('startDate'))->startOfDay();
+            $end = Carbon::parse($request->input('endDate'))->endOfDay();
+            $diaries->whereBetween('diaries.created_at', [$start, $end]);
+            $filterSort['filters']['startDate'] = $request->input('startDate');
+            $filterSort['filters']['endDate'] = $request->input('endDate');
+        } else if ($request->filled('startDate')) {
+            $start = Carbon::parse($request->input('startDate'))->startOfDay();
+            $diaries->where('diaries.created_at', '>=', $start);
+            $filterSort['filters']['startDate'] = $request->input('startDate');
+        } else if ($request->filled('endDate')) {
+            $end = Carbon::parse($request->input('endDate'))->endOfDay();
+            $diaries->where('diaries.created_at', '<=', $end);
+            $filterSort['filters']['endDate'] = $request->input('endDate');
+        }
+
+
+        if ($request->filled('emotion') && $request->input('emotion') != 0) {
+            $diaries->where('emotion_id', $request->input('emotion'));
+            $filterSort['filters']['emotion'] = $request->input('emotion');
+        }
+
+        if ($request->filled('categories')) {
+            $diaries->whereHas('categories', function ($q) use ($request) {
+                $q->whereIn('categories.id', $request->input("categories"));
+            });
+            $filterSort['filters']['categories'] = $request->input('categories');
+        }
+        if ($request->filled('query')) {
+            $diaries->where('title', 'LIKE', '%' . $request->input('query') . '%');
+            $filterSort['filters']['query'] = $request->input('query');
+        }
+
+        switch ($request->input('sortBy', 'date')) {
+            case 'date':
+                $diaries->orderBy('created_at', $request->input('sortOrder', 'desc'));
+                $filterSort['sorting']['type'] = 'date';
+                $filterSort['sorting']['order'] = $request->input('sortOrder', 'desc');
+                break;
+
+            case 'title':
+                $diaries->orderBy('title', $request->input('sortOrder', 'asc'));
+                $filterSort['sorting']['type'] = 'title';
+                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
+                break;
+
+            case 'category':
+                $diaries->select('diaries.*')
+                    ->leftJoin('diary_category', 'diaries.id', '=', 'diary_category.diary_id')
+                    ->leftJoin('categories', 'categories.id', '=', 'diary_category.category_id')
+                    ->orderBy('categories.name', $request->input('sortOrder', 'asc'));
+                $filterSort['sorting']['type'] = 'category';
+                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
+                break;
+
+            default:
+                # code...
+                break;
+        }
+        $collection = new CollectionResource($collection);
+        $paginated = $diaries->paginate(20);
+        $diaries = DiaryListItemResource::collection($paginated);
+        return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories'));
     }
 
     /**
@@ -83,5 +157,27 @@ class CollectionController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function shares(Collection $collection, Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $collection->sharedItems()->delete();
+
+            foreach ($request->input('receivers') as $receiver) {
+                if ($receiver) {
+                    $collection->sharedItems()->create([
+                        'owner_id' => Auth::user()->id,
+                        'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,
+                        'email' => $receiver,
+                    ]);
+                }
+            }
+            DB::commit();
+            return redirect()->back()->with('success', "Collection's shared users updated successfully.");
+        } catch (Exception $e) {
+            DB::rollBack();
+        }
     }
 }

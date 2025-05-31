@@ -1,13 +1,13 @@
-import { CategoryProp, EmotionProp } from '@/types/types';
+import { CategoryProp, EmotionDetailProp } from '@/types/types';
 import { router, useForm } from '@inertiajs/react';
 
-export function EmotionEditModal({ setIsEditerOpen, emotion }: { setIsEditerOpen: (bool: boolean) => void; emotion: EmotionProp }) {
+export function EmotionEditModal({ setIsEditerOpen, emotion }: { setIsEditerOpen: (bool: boolean) => void; emotion: EmotionDetailProp }) {
     const closeModal = () => {
         router.reload({ only: ['errors'] });
         setIsEditerOpen(false);
     };
 
-    const { data, setData, post, processing, errors } = useForm({ name: emotion.name, emoji: emotion.emoji });
+    const { data, setData, post, processing, errors } = useForm({ name: emotion.name, emoji: emotion.emoji ?? '' });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

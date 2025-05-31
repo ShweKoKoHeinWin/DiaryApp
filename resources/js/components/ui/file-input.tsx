@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { DiaryOldFileProp } from "@/types/types"
+import { OldFileProp } from "@/types/types"
 
 export interface FileWithCaption {
   id: string
@@ -53,10 +53,10 @@ export function FileUpload({
       return true
     })
 
-    if (files.length + validFiles.length > maxFiles) {
-      alert(`You can only upload up to ${maxFiles} files.`)
-      return
-    }
+    // if (files.length + validFiles.length > maxFiles) {
+    //   alert(`You can only upload up to ${maxFiles} files.`)
+    //   return
+    // }
 
     const filesWithCaptions: FileWithCaption[] = await Promise.all(
       validFiles.map(async (file) => ({
@@ -192,13 +192,17 @@ export function FileUpload({
         onClick={() => files.length < maxFiles && fileInputRef.current?.click()}
       >
         <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground mb-1">
+        {/* <p className="text-sm text-muted-foreground mb-1">
           {files.length >= maxFiles
             ? `Maximum ${maxFiles} files reached`
             : "Drag and drop files here, or click to select"}
+        </p> */}
+        <p className="text-sm text-muted-foreground mb-1">
+            Drag and drop files here, or click to select
         </p>
         <p className="text-xs text-muted-foreground">
-          Max {Math.round(maxSize / 1024 / 1024)}MB per file • {maxFiles - files.length} slots remaining
+          Max {Math.round(maxSize / 1024 / 1024)}MB per file 
+          {/* • {maxFiles - files.length} slots remaining */}
         </p>
 
         <input
@@ -217,7 +221,7 @@ export function FileUpload({
         <div className="space-y-3">
           <Label className="text-sm font-medium">Old Files ({existingFiles.length})</Label>
           <div className="grid gap-3">
-            {existingFiles.map((fileItem: DiaryOldFileProp) => {
+            {existingFiles.map((fileItem: OldFileProp) => {
               const FileIcon = getFileIcon(null, fileItem.type);
 
               return (
@@ -257,7 +261,7 @@ export function FileUpload({
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 flex-shrink-0"
-                            onClick={() => setExistingFiles(JSON.stringify(existingFiles.filter((f: DiaryOldFileProp) => f.id != fileItem.id)))}
+                            onClick={() => setExistingFiles(JSON.stringify(existingFiles.filter((f: OldFileProp) => f.id != fileItem.id)))}
                           >
                             <X className="h-4 w-4" />
                             <span className="sr-only">Remove file</span>
@@ -268,8 +272,8 @@ export function FileUpload({
                         <div className="mt-2">
                           <Input
                             placeholder="Add a caption (optional)"
-                            value={fileItem.caption}
-                            onChange={(e) => setExistingFiles(JSON.stringify([...existingFiles.map((f: DiaryOldFileProp) => {
+                            value={fileItem.caption ?? ''}
+                            onChange={(e) => setExistingFiles(JSON.stringify([...existingFiles.map((f: OldFileProp) => {
                               if(f.id == fileItem.id) {
                                 return {...f, caption: e.target.value}
                               }

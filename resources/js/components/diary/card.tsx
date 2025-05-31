@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { DiaryCardData } from '@/types/types';
+import { CollectionProp, DiaryListingItemProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
@@ -14,14 +14,14 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-export function CardItem({ card, collections }: { card: DiaryCardData }) {
+export function CardItem({ card, collections }: { card: DiaryListingItemProp, collections: CollectionProp[] }) {
     const [newCollection, setNewCollection] = useState<string>('');
-    const [showAllCategories, setShowAllCategories] = useState(false);
-    const [showShareBox, setShowShareBox] = useState(false);
-    const [showCollections, setShowCollections] = useState(false);
     const [selectedCollelctions, setSelectedCollections] = useState<number[]>(card.collections?.sort().map((c) => c.id));
     const maxVisibleCategories = 2;
-    const allCollectionIds = collections.map((c) => c.id).sort();
+    const allCollectionIds = collections.map((c: CollectionProp) => c.id).sort();
+    const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
+    const [showShareBox, setShowShareBox] = useState<boolean>(false);
+    const [showCollections, setShowCollections] = useState<boolean>(false);
 
     const handleCollectionBox = (isOpen: boolean) => {
         if (!isOpen) {
@@ -32,7 +32,7 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
         setShowCollections(isOpen);
     };
 
-    const handleCollectionSubmit = (e) => {
+    const handleCollectionSubmit = (e: any) => {
         e.preventDefault();
         if (!newCollection) return;
 
@@ -63,7 +63,7 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.createdAt, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
@@ -122,7 +122,7 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
                                 </label>
                             </DialogTitle>
                         </DialogHeader>
-                        <DialogDescription aria-describedby={undefined}></DialogDescription>
+                        <DialogDescription aria-describedby="dialog-description"></DialogDescription>
                         <ul className="h-50 max-w-md list-inside list-none space-y-1 overflow-y-scroll rounded-2xl border-2 bg-gray-900/5 p-4">
                             {collections.map((collection) => (
                                 <li key={collection.id}>
@@ -161,7 +161,7 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>
 
                     {/* Content with truncation */}
-                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">{card.list_content}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">{card.content}</p>
                 </Link>
 
                 {/* Categories row with overflow handling */}
@@ -190,6 +190,7 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
                                             </Badge>
                                         ))}
                                     </div>
+                                    <DialogDescription aria-describedby="dialog-description"></DialogDescription>
                                 </DialogContent>
                             </Dialog>
                         </>
@@ -204,23 +205,25 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger className="flex cursor-pointer items-center">
-                                    <Paperclip className="mr-1 h-3.5 w-3.5" />
-                                    <span>{card.fileCount.total}</span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
-                                        {Object.keys(card.fileCount.types).map((key) => (
-                                            <li key={key}>
-                                                {card.fileCount.types[key]} {key}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        {card.files.total > 0 && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger className="flex cursor-pointer items-center">
+                                        <Paperclip className="mr-1 h-3.5 w-3.5" />
+                                        <span>{card.files.total}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
+                                            {Object.keys(card.files.countsByTypes).map((key) => (
+                                                <li key={key}>
+                                                    {card.files.countsByTypes[key]} {key}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
 
                         <Button
                             variant="ghost"
@@ -229,9 +232,9 @@ export function CardItem({ card, collections }: { card: DiaryCardData }) {
                             onClick={() => setShowShareBox(true)}
                         >
                             <CornerUpRight className="h-3.5 w-3.5" />
-                            <span>{card.shareCount}</span>
+                            <span>{card.shares.length}</span>
                         </Button>
-                        <ShareModal diary={card} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
+                        <ShareModal url={route('diaries.shares', card.id)} card={card} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
                     </div>
                 </div>
             </CardContent>

@@ -15,7 +15,7 @@ class EmotionController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $emotions = $user->emotions;
+        $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji', 'created_at')->latest()->get();
         return Inertia::render('emotions', compact('emotions'));
     }
 

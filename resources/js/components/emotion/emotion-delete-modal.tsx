@@ -1,9 +1,9 @@
-import { CategoryProp, EmotionProp } from '@/types/types';
+import { CategoryProp, EmotionDetailProp } from '@/types/types';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export function EmotionDeleteModal({ setIsDeleterOpen, emotion }: { setIsDeleterOpen: (bool: boolean) => void; emotion: EmotionProp }) {
-    const [deleting, setDeleting] = useState(false);
+export function EmotionDeleteModal({ setIsDeleterOpen, emotion }: { setIsDeleterOpen: (bool: boolean) => void; emotion: EmotionDetailProp }) {
+    const [deleting, setDeleting] = useState<boolean>(false);
     const closeModal = () => {
         router.reload({ only: ['errors'] });
         setIsDeleterOpen(false);

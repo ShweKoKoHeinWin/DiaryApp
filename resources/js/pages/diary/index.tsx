@@ -4,7 +4,8 @@ import CardListingPage from '@/components/diary/card-list';
 import { DiaryFilterPanel } from '@/components/diary/diary-filter-panel';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
+import { CategoryProp, DiaryListingItemProp, EmotionDetailProp } from '@/types/types';
+
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -17,11 +18,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const endPoint = route('diaries.index');
 
-const index = ({filterSort, diaries, categories, emotions, collections}) => {
+const index = ({filterSort, diaries, categories, emotions, collections}: {
+    diaries: {data: DiaryListingItemProp[]},
+    categories: CategoryProp[],
+    emotions: EmotionDetailProp[],
+}) => {
     console.log(diaries);
     
-    const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
-    const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
+    const [filterProp, setFilterProp] = useState(filterSort.filters);
+    const [sortProp, setSortProp] = useState(filterSort.sorting);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries" />

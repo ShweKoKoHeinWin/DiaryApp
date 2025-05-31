@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CategoryProp, EmotionProp, FilterProp, SortProp } from '@/types/types';
+import { CategoryProp, EmotionDetailProp, FilterProp, SortProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 
@@ -47,7 +47,8 @@ export function DiaryFilterPanel({
     setSortProp,
     endPoint,
     categories,
-    emotions
+    emotions,
+    diaryCreateUrl = route('diaries.create'),
 }: {
     filterProp: FilterProp;
     setFilterProp: React.Dispatch<React.SetStateAction<FilterProp>>;
@@ -55,7 +56,8 @@ export function DiaryFilterPanel({
     setSortProp: (sort: SortProp) => void;
     endPoint: string;
     categories: CategoryProp[],
-    emotions: EmotionProp[]
+    emotions: EmotionDetailProp[],
+    diaryCreateUrl: string;
 }) {
     const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     const hasMounted = useRef(false);
@@ -437,7 +439,7 @@ export function DiaryFilterPanel({
                     )}
                 </div>
 
-                <Link href={route('diaries.create')}>
+                <Link href={diaryCreateUrl}>
                     <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
                         <Plus className="h-4 w-4" />
                         Create

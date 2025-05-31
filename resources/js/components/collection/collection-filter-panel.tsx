@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CategoryProp, EmotionProp, FilterProp, SortProp } from '@/types/types';
+import { CategoryProp, FilterProp, SortProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 

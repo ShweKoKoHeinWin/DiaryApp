@@ -1,14 +1,13 @@
 import ShareModal from '@/components/share/share-modal';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { DiaryCardData } from '@/types/types';
+import { DiaryDetailProp } from '@/types/types';
 import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import 'flowbite';
-import { Calendar, Download, Edit, File, Image, Share2, Users, VideoIcon } from 'lucide-react';
+import { Calendar, Download, Edit, File, Image, NotebookText, Share2, Users, VideoIcon } from 'lucide-react';
 import { useState } from 'react';
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,7 +20,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const show = ({ diary }: { diary: DiaryCardData }) => {
+const show = ({ diary }: { diary: DiaryDetailProp }) => {
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
 
     const getFileTypeColor = (type: string) => {
@@ -76,36 +75,6 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                     </Button>
                 </Link>
             </div>
-            {/* <div className="rich-text-editor-container flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <h2 className="text-2xl font-bold">{diary.title}</h2>
-
-                <p className="editor-content rounded-2xl border-2 p-3 font-semibold" dangerouslySetInnerHTML={{ __html: diary.content ?? '' }}></p>
-
-                <div className="flex flex-wrap items-center">
-                    {diary.categories?.map((cat) => (
-                        <Badge key={cat.id} variant="outline" className="text-xs">
-                            {cat.name}
-                        </Badge>
-                    ))}
-                </div>
-
-                <div>
-                    {diary.files?.map((file) => (
-                        <figure key={file.id} className="relative mb-3 rounded-2xl border p-3">
-                            {rendarFilePreview(file)}
-                            <a
-                                href={file.path}
-                                target="_blank"
-                                className="absolute top-0 right-0 translate-x-[-50%] translate-y-[50%] rounded-2xl bg-gray-300 p-3 text-blue-600 underline duration-300 hover:bg-amber-200"
-                                download
-                            >
-                                <Download size={20} />
-                            </a>
-                            <figcaption>{file.caption}</figcaption>
-                        </figure>
-                    ))}
-                </div>
-            </div> */}
 
             <div className="mx-auto w-full space-y-6 p-6">
                 {/* Header Section */}
@@ -123,12 +92,20 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                                 <div className="text-muted-foreground flex items-center gap-4 text-sm">
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
-                                        {format(diary.createdAt, 'd - M - yyyy (EEEE)')}
+                                        {format(diary.created_at, 'd - M - yyyy (EEEE)')}
                                     </div>
-                                    <div className="flex items-center gap-1">
-                                        <Users className="h-4 w-4" />
-                                        Shared with {diary.shareCount} people
-                                    </div>
+                                    {diary.shares?.length > 0 && (
+                                        <div className="flex items-center gap-1">
+                                            <Users className="h-4 w-4" />
+                                            Shared with {diary.shares?.length} people
+                                        </div>
+                                    )}
+                                    {diary.collections?.length > 0 && (
+                                        <div className="flex items-center gap-1">
+                                            <NotebookText className="h-4 w-4" />
+                                            Listed in {diary.collections?.length} collections
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <Button
@@ -140,7 +117,7 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Share
                             </Button>
-                            <ShareModal diary={diary} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
+                            <ShareModal url={route('diaries.shares', diary.id)} card={diary} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
                         </div>
                     </CardHeader>
                 </Card>
@@ -154,9 +131,9 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                         <CardContent>
                             <div className="flex flex-wrap gap-2">
                                 {diary.categories.map((category, index) => (
-                                    <Badge key={index} variant="secondary" className="px-3 py-1">
+                                    <div key={index} className="rounded-2xl bg-amber-300 px-3 py-1 text-gray-800">
                                         {category.name}
-                                    </Badge>
+                                    </div>
                                 ))}
                             </div>
                         </CardContent>
@@ -166,6 +143,9 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                 {/* Content */}
                 {diary?.content && (
                     <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Content</CardTitle>
+                        </CardHeader>
                         <CardContent className="rich-text-editor-container">
                             <div className="editor-content" dangerouslySetInnerHTML={{ __html: diary.content }}></div>
                         </CardContent>
@@ -202,14 +182,14 @@ const show = ({ diary }: { diary: DiaryCardData }) => {
                 )}
 
                 {/* Shared Users */}
-                {diary.receivers.length > 0 && (
+                {diary.shares.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg">Shared With ({diary.shareCount} people) </CardTitle>
+                            <CardTitle className="text-lg">Shared With ({diary.shares.length} people) </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <ul className="list-inside list-decimal rounded-2xl">
-                                {diary?.receivers.map((user, index) => (
+                                {diary?.shares.map((user, index) => (
                                     <li key={index} className="flex items-center gap-3">
                                         <div className="flex-1">
                                             <p className="text-md font-medium">{user.name}</p>

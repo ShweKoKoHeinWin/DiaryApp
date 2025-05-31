@@ -18,22 +18,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Categories({ categories }: { categories: CategoryProp[] }) {
     const [query, setQuery] = useState<string>('');
     const [filteredCategories, setFilteredCategories] = useState<CategoryProp[]>([]);
-    const [sortAsc, setSortAsc] = useState(true);
     const [sortedCategories, setSortedCategories] = useState<CategoryProp[]>([]);
-
-    const { auth } = usePage<SharedData>().props;
-    const [isOpen, setIsOpen] = useState(false);
-    const [isEditerOpen, setIsEditerOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<CategoryProp>();
-    const [isDeleterOpen, setIsDeleterOpen] = useState(false);
+    
+    const [sortAsc, setSortAsc] = useState<boolean>(true);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [isEditerOpen, setIsEditerOpen] = useState<boolean>(false);
+    const [isDeleterOpen, setIsDeleterOpen] = useState<boolean>(false);
 
     useEffect(() => {
-        let filtered = [...categories].filter((category) => category.name.toLowerCase().includes(query.toLowerCase()));
+        let filtered: CategoryProp[] = [...categories].filter((category: CategoryProp) => category.name.toLowerCase().includes(query.toLowerCase()));
         setFilteredCategories(filtered);
     }, [categories, query]);
 
     useEffect(() => {
-        let sorted = [...filteredCategories].sort((a, b) => {
+        let sorted: CategoryProp[] = [...filteredCategories].sort((a, b) => {
             const nameA = a.name.toLowerCase();
             const nameB = b.name.toLowerCase();
             if (sortAsc) {

@@ -1,30 +1,25 @@
-import { DiaryCardData } from '@/types/types';
+import { CollectionProp, DiaryListingItemProp, SortOrderProp, SortTypeProp } from '@/types/types';
 import { format, parse } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CardItem } from './card';
+import { router } from '@inertiajs/react';
 
 // Mock data function to simulate API calls
-const fetchCards = (page: number, limit: number) => {
-    return new Promise<Array<DiaryCardData>>((resolve) => {
-        setTimeout(() => {
-            const newCards = Array.from({ length: limit }, (_, i) => ({
-                id: page * limit + i,
-                title: `Card ${page * limit + i + 1} with a potentially long title that might need truncation`,
-                content: `This is the content for card ${page * limit + i + 1}. It contains detailed information that should be truncated after a certain number of words to maintain the card's fixed size.`,
-                categories: ['Technology', 'Programming', 'React', 'Next.js', 'UI/UX', 'Design'].slice(0, ((page * limit + i) % 6) + 1), // Vary the number of categories
-                emotion: ['happy', 'sad', 'neutral', 'excited'][Math.floor(Math.random() * 4)],
-                createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
-                shareCount: Math.floor(Math.random() * 100),
-                fileCount: Math.floor(Math.random() * 10),
-            }));
-            resolve(newCards);
-        }, 800); // Simulate network delay
-    });
-};
 
-export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' , diaries, collections}) {
-    const [cards, setCards] = useState<DiaryCardData[]>(diaries.data);
+
+export default function CardListingPage({
+    groupBy = 'date',
+    groupOrder = 'desc',
+    diaries,
+    collections,
+}: {
+    groupBy: SortTypeProp;
+    groupOrder: SortOrderProp;
+    diaries: DiaryListingItemProp[] 
+    collections: CollectionProp[];
+}) {    
+    const [cards, setCards] = useState<DiaryListingItemProp[]>(diaries);
     const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -32,40 +27,36 @@ export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' 
     const limit = 8; // Number of cards to load per page
 
     useEffect(() => {
-        setCards(diaries.data);
-    }, [diaries.data])
+        setCards(diaries);
+    }, [diaries]);
 
-    const loadMoreCards = useCallback(async () => {
-        if (loading || !hasMore) return;
 
-        setLoading(true);
-        try {
-            const newCards = await fetchCards(page, limit);
-
-            // Simulate end of data after 5 pages
-            if (page >= 4 || newCards.length === 0) {
-                setHasMore(false);
-            } else {
-                setCards((prevCards) => [...prevCards, ...newCards]);
-                setPage((prevPage) => prevPage + 1);
-            }
-        } catch (error) {
-            console.error('Error loading cards:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, loading, hasMore]);
-
-    useEffect(() => {
-        // Load initial cards
-        // loadMoreCards();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && hasMore && !loading) {
                     // loadMoreCards();
+                    setLoading(true);
+                    // router.get(route('diaries.index'),{
+                    //     data: {
+                    //         page: 2,
+                    //     },
+                        
+                    // }, {
+                    //     onSuccess: () => setCards(prev => [...prev, ...diaries.data]),
+                    //     preserveScroll: true,
+                    //     preserveState: true
+                    // });
+
+                    router.reload({
+                        data: {
+                            page: 2,
+                        }
+                    })
+                    setLoading(false);
+                    console.log(cards);
+                    
                 }
             },
             { threshold: 1.0 },
@@ -80,12 +71,12 @@ export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' 
                 observer.unobserve(loaderRef.current);
             }
         };
-    }, [loadMoreCards, hasMore, loading]);
+    }, [hasMore, loading]);
 
     const groupedCards = useMemo(() => {
-        const map: Record<string, DiaryCardData[]> = {};
+        const map: Record<string, DiaryListingItemProp[]> = {};
         switch (groupBy) {
-            case 'title':                
+            case 'title':
                 for (const card of cards) {
                     const key = card.title.charAt(0).toUpperCase();
                     if (!map[key]) map[key] = [];
@@ -95,16 +86,25 @@ export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' 
 
             case 'category':
                 for (const card of cards) {
-                    for (const category of card.categories) {
-                        if (!map[category.name]) map[category.name] = [];
-                        map[category.name].push(card);
+                    if (card.categories.length > 0) {
+                        for (const category of card.categories) {
+                            if (!map[category.name]) map[category.name] = [];
+                            if (!map[category.name].some((c) => c.id === card.id)) {
+                                map[category.name].push(card);
+                            }
+                        }
+                    } else {
+                        if (!map['Uncategorized']) map['Uncategorized'] = [];
+                        if (!map['Uncategorized'].some((c) => c.id === card.id)) {
+                            map['Uncategorized'].push(card);
+                        }
                     }
                 }
                 break;
 
             case 'date':
                 for (const card of cards) {
-                    const key = format(card.createdAt, 'd - M - yyyy (EEEE)');
+                    const key = format(card.created_at, 'd - M - yyyy (EEEE)');
                     if (!map[key]) map[key] = [];
                     map[key].push(card);
                 }
@@ -123,7 +123,7 @@ export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' 
                 return groupOrder === 'asc' ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
             }
         });
-        const sortedMap: Record<string, DiaryCardData[]> = {};
+        const sortedMap: Record<string, DiaryListingItemProp[]> = {};
         for (const [key, value] of sortedEntries) {
             sortedMap[key] = value;
         }
@@ -132,24 +132,21 @@ export default function CardListingPage({ groupBy = 'date', groupOrder = 'desc' 
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="mb-8 text-3xl font-bold">Diaries ({diaries.meta.total})</h1>
+            {/* <h1 className="mb-8 text-3xl font-bold">Diaries ({diaries.meta.total})</h1> */}
 
-            {/* {groupedCards.map((card) => (
-                    <CardItem key={card.id} card={card} />
-                    ))} */}
             {Object.entries(groupedCards).map(([group, items]) => (
                 <div key={group} className="mb-4">
                     <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {items.map((card) => (
-                            <div key={card.id} className="col-span-1">
+                        {items.map((card: DiaryListingItemProp) => (
+                            <div key={group + card.id} className="col-span-1">
                                 <CardItem card={card} collections={collections} />
                             </div>
                         ))}
                     </div>
                 </div>
             ))}
-
+            
             <div ref={loaderRef} className="mt-4 flex items-center justify-center py-8">
                 {loading && <Loader2 className="h-8 w-8 animate-spin text-gray-500" />}
                 {!hasMore && cards.length > 0 && <p className="text-gray-500">No more cards to load</p>}

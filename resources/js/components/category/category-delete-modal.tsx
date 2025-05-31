@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export function CategoryDeleteModal({ setIsDeleterOpen, category }: { setIsDeleterOpen: (bool: boolean) => void; category: CategoryProp }) {
-    const [deleting, setDeleting] = useState(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
     const closeModal = () => {
         router.reload({ only: ['errors'] });
         setIsDeleterOpen(false);

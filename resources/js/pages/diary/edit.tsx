@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { CategoryProp, DiaryCardData, DiaryFormProp, DiaryOldFileProp, EmotionProp, FileWithCaption } from '@/types/types';
+import { CategoryProp, DiaryDetailProp, DiaryFormProp, EmotionDetailProp, NewFilesProp } from '@/types/types';
 import { Head, useForm } from '@inertiajs/react';
 import 'flowbite';
 import { Check, Plus } from 'lucide-react';
@@ -21,7 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('diaries.index'),
     },
     {
-        title: 'Diaries Create',
+        title: 'Edit',
         href: route('diaries.create'),
     },
 ];
@@ -36,7 +36,7 @@ const resetFormData = {
     captions: [],
 };
 
-const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emotions: EmotionProp[]; diary: DiaryCardData }) => {
+const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emotions: EmotionDetailProp[]; diary: DiaryDetailProp }) => {
     const [isCategoryCreate, setIsCategoryCreate] = useState(false);
     const [isEmotionCreate, setIsEmotionCreate] = useState(false);
     const { data, setData, post, processing, errors } = useForm<DiaryFormProp>({
@@ -45,12 +45,12 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
         categories: diary.categories.map((d: CategoryProp) => d.id),
         emotion: diary.emotion?.id,
         files: [],
-        existingFiles: JSON.stringify(diary.files) ?? '[]',
+        existingFiles: diary.files ? JSON.stringify(diary.files) : '[]',
         captions: [],
     });
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [files, setFiles] = useState<FileWithCaption[]>([]);
+    const [files, setFiles] = useState<NewFilesProp[]>([]);
 
     const handleChange = (content: string) => {
         setData('content', content);
@@ -64,7 +64,7 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
     useEffect(() => {
         setData(
             'captions',
-            files.map((file: FileWithCaption) => file.caption),
+            files.map((file: NewFilesProp) => file.caption),
         );
         setData('files', [...files.map((file: any) => file.file)]);
     }, [files]);
@@ -101,7 +101,7 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="content">Content</Label>
                         <RichTextEditor
                             placeholder="Start writing your content here..."
                             defaultValue={data.content}
@@ -183,7 +183,7 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
                             <SelectValue placeholder="Select an emotion" />
                         </SelectTrigger>
                         <SelectContent>
-                            {emotions.map((emotion: EmotionProp) => (
+                            {emotions.map((emotion: EmotionDetailProp) => (
                                 <SelectItem key={emotion.id} value={`${emotion.id}`}>
                                     <div className="flex items-center gap-2">
                                         {emotion.emoji && <span>{emotion.emoji}</span>}
@@ -200,7 +200,7 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
                 <div className="space-y-2">
                     <Label>Attachments</Label>
                     <FileUpload
-                        existingFiles={JSON.parse(data.existingFiles)}
+                        existingFiles={JSON.parse(data.existingFiles ?? '[]')}
                         setExistingFiles={setExistingFiles}
                         files={files}
                         onChange={setFiles}
