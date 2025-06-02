@@ -5,6 +5,7 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\DiaryController;
 use App\Http\Controllers\EmotionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShareController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +43,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{diary}/shares', [DiaryController::class, 'shares'])->name('diaries.shares');
     });
 
+    Route::prefix('/shares')->group(function () {
+        Route::put('/multishare', [ShareController::class, 'multishare'])->name('shares.multishare');
+    });
+
     Route::prefix('/collections')->group(function () {
         Route::get('/', [CollectionController::class, 'index'])->name('collections.index');
         Route::get('/create', [CollectionController::class, 'create'])->name('collections.create');
@@ -51,6 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{collection}/delete', [CollectionController::class, 'destroy'])->name('collections.delete');
 
         Route::put('/{collection}/shares', [CollectionController::class, 'shares'])->name('collections.shares');
+        Route::put('/{collection}/diaries/remove', [CollectionController::class, 'removeDiaries'])->name('collections.diaries.remove');
+        Route::put('/diaries/add', [CollectionController::class, 'addDiaries'])->name('collections.diaries.add');
+
 
     });
 

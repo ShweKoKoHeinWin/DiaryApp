@@ -21,7 +21,7 @@
 export interface FilterProp {
     startDate?: Date | null;
     endDate?: Date | null;
-    categories?: number[] | null;
+    categories?: string[] | null;
     emotion?: number;
     query?: string;
 }
@@ -58,6 +58,11 @@ export interface CategoryProp {
     id: number;
     name: string;
     created_at: Date;
+}
+
+export interface CollectionShortProp {
+    id: number;
+    title: string;
 }
 
 export interface CollectionProp {

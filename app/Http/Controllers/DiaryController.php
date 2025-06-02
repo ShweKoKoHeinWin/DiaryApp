@@ -75,6 +75,7 @@ class DiaryController extends Controller
 
             case 'category':
                 $diaries->select('diaries.*')
+                    ->distinct()
                     ->leftJoin('diary_category', 'diaries.id', '=', 'diary_category.diary_id')
                     ->leftJoin('categories', 'categories.id', '=', 'diary_category.category_id')
                     ->orderBy('categories.name', $request->input('sortOrder', 'asc'));
@@ -86,13 +87,15 @@ class DiaryController extends Controller
                 # code...
                 break;
         }
-        $perPage = 1;
-        $limit = $perPage;
-        if($request->filled('page')) {
-            $limit = $perPage * $request->input('page');
-        }
-        $paginated = $diaries->take($limit)->get();
+        $page = $request->input('page', 1);
+
+        $paginated = $diaries->paginate(15, ['*'], 'page', $page);
         $diaries = DiaryListItemResource::collection($paginated);
+
+        // if ($request->expectsJson()) {
+        //     return DiaryListItemResource::collection($paginated)->response();
+        // }
+
         return Inertia::render('diary/index', compact('filterSort', 'diaries', 'categories', 'emotions', 'collections'));
     }
 
@@ -104,7 +107,7 @@ class DiaryController extends Controller
 
         $collection = null;
         if ($request->filled('collection')) {
-            $collection = Collection::findOrFail($request->input('collection'));
+            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
         }
         return Inertia::render('diary/create', compact('categories', 'emotions', 'collection'));
     }
@@ -147,22 +150,39 @@ class DiaryController extends Controller
             dd($e);
             DB::rollBack();
         }
-        return redirect()->route('diaries.index');
+        $collection = null;
+        if ($request->filled('collection')) {
+            $collection = Collection::where('user_id', $user->id)->where('id', $request->input('collection'))->first();
+            if ($collection) {
+                $diary->collections()->sync($collection->id);
+                return redirect()->route('collections.show', ['collection' => $collection->id])->with('success', 'Diary is created successfully.');
+            }
+        }
+        return redirect()->route('diaries.index', ['collection' => $collection?->id])->with('success', 'Diary is created successfully.');
     }
 
-    public function edit(Diary $diary)
+    public function edit(Diary $diary, Request $request)
     {
         $user = Auth::user();
         $categories = Category::where('user_id', $user->id)->orderBy('name')->get();
         $emotions = Emotion::where('user_id', $user->id)->orderBy('name')->get();
         $diary = new DiaryDetailResource($diary);
-        return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions'));
+        $collection = null;
+        if ($request->filled('collection')) {
+            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+        }
+        return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions', 'collection'));
     }
 
-    public function show(Diary $diary)
+    public function show(Diary $diary, Request $request)
     {
+        $collection = null;
+        if ($request->filled('collection')) {
+            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+        }
         return Inertia::render('diary/show', [
-            'diary' => new DiaryDetailResource($diary)
+            'diary' => new DiaryDetailResource($diary),
+            'collection' => $collection
         ]);
     }
 
@@ -222,7 +242,11 @@ class DiaryController extends Controller
                 'content' => $request->input('content'),
             ]);
             DB::commit();
-            return redirect()->route('diaries.show', $diary->id)->with('success', 'Diary is updated successfully.');
+            $collection = null;
+            if ($request->filled('collection')) {
+                $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+            }
+            return redirect()->route('diaries.show', ['diary' => $diary->id, 'collection' => $collection?->id])->with('success', 'Diary is updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
         }

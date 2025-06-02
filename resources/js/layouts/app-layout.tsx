@@ -22,7 +22,7 @@ export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
     return (
         <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
             {alerts.length > 0 && (
-                <div className='fixed top-10 right-10'>
+                <div className='fixed top-10 right-10 z-1000'>
                     {alerts.map((msg, index) => (
                         <div
                             key={index}

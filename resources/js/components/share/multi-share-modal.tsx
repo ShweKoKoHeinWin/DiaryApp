@@ -3,20 +3,25 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { PlusSquare, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
 
-const ShareModal = ({
+const MultiShareModal = ({
     url,
-    card,
     showShareBox,
     setShowShareBox,
+    selectedCards,
+    cardType,
+    setIsCardSelecting,
+    setSelectedCards,
 }: {
     url: string;
-    card: DiaryListingItemProp | DiaryDetailProp;
     showShareBox: boolean;
     setShowShareBox: (isOpen: boolean) => void;
+    selectedCards: number[];
+    cardType: 'diary' | 'collection';
+    setIsCardSelecting: (val: boolean) => void;
+    setSelectedCards: (val: number[]) => void;
 }) => {
-    const [receivers, setReceivers] = useState<string[]>(card?.shares?.length > 0 ? card?.shares.map((s) => s.email) : ['']);
+    const [receivers, setReceivers] = useState<string[]>(['']);
 
     const handleSharedBox = (isOpen: boolean) => {
         if (!isOpen) {
@@ -24,10 +29,17 @@ const ShareModal = ({
                 url,
                 {
                     receivers,
+                    selectedCards,
+                    cardType,
                 },
                 {
                     preserveScroll: true,
                     preserveState: true,
+                    onSuccess: () => {
+                        setIsCardSelecting(false);
+                        setSelectedCards([]);
+                        router.reload();
+                    },
                 },
             );
         }
@@ -60,7 +72,7 @@ const ShareModal = ({
                                 value={user}
                                 className="flex-1 rounded-2xl border-2 border-blue-400 py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:text-gray-200"
                             />
-                            <div className="h-6 w-6" onClick={e => setReceivers(receivers.filter((_, i) => i !== idx))}>
+                            <div className="h-6 w-6">
                                 <Trash className="text-red-600" />
                             </div>
                         </li>
@@ -80,4 +92,4 @@ const ShareModal = ({
     );
 };
 
-export default ShareModal;
+export default MultiShareModal;

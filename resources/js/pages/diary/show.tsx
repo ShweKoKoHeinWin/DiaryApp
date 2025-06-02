@@ -3,25 +3,50 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { DiaryDetailProp } from '@/types/types';
+import { CollectionShortProp, DiaryDetailProp } from '@/types/types';
 import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
-import 'flowbite';
-import { Calendar, Download, Edit, File, Image, NotebookText, Share2, Users, VideoIcon } from 'lucide-react';
-import { useState } from 'react';
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Diaries',
-        href: route('diaries.index'),
-    },
-    {
-        title: 'Show',
-        href: '',
-    },
-];
+import { ArrowLeft, Calendar, Download, Edit, File, Image, NotebookText, Share2, Users, VideoIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const show = ({ diary }: { diary: DiaryDetailProp }) => {
+const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: CollectionShortProp }) => {
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
+    const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
+        {
+            title: 'Diaries',
+            href: route('diaries.index'),
+        },
+        {
+            title: diary.title,
+            href: route('diaries.show', diary.id),
+        },
+        {
+            title: 'Edit',
+            href: route('diaries.edit', diary.id),
+        },
+    ]);
+    useEffect(() => {
+        if (collection) {
+            setBreadCrumbs([
+                {
+                    title: `Collection (${collection.title})`,
+                    href: route('collections.show', collection.id),
+                },
+                {
+                    title: 'Diaries',
+                    href: route('collections.show', collection.id),
+                },
+                {
+                    title: diary.title,
+                    href: route('diaries.show', diary.id),
+                },
+                {
+                    title: 'Edit',
+                    href: route('diaries.edit', diary.id),
+                },
+            ]);
+        }
+    }, []);
 
     const getFileTypeColor = (type: string) => {
         switch (type) {
@@ -67,13 +92,37 @@ const show = ({ diary }: { diary: DiaryDetailProp }) => {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries - Show" />
-            <div className="flex justify-end px-6 pt-4">
-                <Link href={route('diaries.edit', diary.id)}>
-                    <Button variant="outline" className="cursor-pointer bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                        <Edit className="h-4 w-4" />
-                        Edit
-                    </Button>
-                </Link>
+            <div className={`flex justify-between items-center px-6 pt-4`}>
+                {collection ? (
+                    <Link href={route('collections.show', collection.id)}>
+                        <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to collection
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href={route('diaries.index')}>
+                        <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to diaries
+                        </Button>
+                    </Link>
+                )}
+                {collection ? (
+                    <Link href={route('diaries.edit', { diary: diary.id, collection: collection.id })}>
+                        <Button variant="outline" className="cursor-pointer bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                            <Edit className="h-4 w-4" />
+                            Edit
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href={route('diaries.edit', diary.id)}>
+                        <Button variant="outline" className="cursor-pointer bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                            <Edit className="h-4 w-4" />
+                            Edit
+                        </Button>
+                    </Link>
+                )}
             </div>
 
             <div className="mx-auto w-full space-y-6 p-6">
@@ -83,10 +132,10 @@ const show = ({ diary }: { diary: DiaryDetailProp }) => {
                         <div className="flex items-start justify-between">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-3xl">{diary.emotion.emoji}</span>
+                                    <span className="text-3xl">{diary.emotion?.emoji}</span>
                                     <div>
                                         <CardTitle className="text-2xl font-bold">{diary.title}</CardTitle>
-                                        <p className="text-muted-foreground mt-1 text-sm">Feeling {diary.emotion.name}</p>
+                                        {diary.emotion?.name && <p className="text-muted-foreground mt-1 text-sm">Feeling {diary.emotion?.name}</p>}
                                     </div>
                                 </div>
                                 <div className="text-muted-foreground flex items-center gap-4 text-sm">
@@ -117,7 +166,12 @@ const show = ({ diary }: { diary: DiaryDetailProp }) => {
                                 <Share2 className="mr-2 h-4 w-4" />
                                 Share
                             </Button>
-                            <ShareModal url={route('diaries.shares', diary.id)} card={diary} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
+                            <ShareModal
+                                url={route('diaries.shares', diary.id)}
+                                card={diary}
+                                showShareBox={showShareBox}
+                                setShowShareBox={setShowShareBox}
+                            />
                         </div>
                     </CardHeader>
                 </Card>

@@ -10,21 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { CategoryProp, DiaryDetailProp, DiaryFormProp, EmotionDetailProp, NewFilesProp } from '@/types/types';
-import { Head, useForm } from '@inertiajs/react';
-import 'flowbite';
-import { Check, Plus } from 'lucide-react';
+import { CategoryProp, CollectionShortProp, DiaryDetailProp, DiaryFormProp, EmotionDetailProp, NewFilesProp } from '@/types/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Check, Plus } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Diaries',
-        href: route('diaries.index'),
-    },
-    {
-        title: 'Edit',
-        href: route('diaries.create'),
-    },
-];
 
 const resetFormData = {
     title: '',
@@ -36,7 +25,17 @@ const resetFormData = {
     captions: [],
 };
 
-const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emotions: EmotionDetailProp[]; diary: DiaryDetailProp }) => {
+const edit = ({
+    categories,
+    emotions,
+    diary,
+    collection,
+}: {
+    categories: CategoryProp[];
+    emotions: EmotionDetailProp[];
+    diary: DiaryDetailProp;
+    collection: CollectionShortProp;
+}) => {
     const [isCategoryCreate, setIsCategoryCreate] = useState(false);
     const [isEmotionCreate, setIsEmotionCreate] = useState(false);
     const { data, setData, post, processing, errors } = useForm<DiaryFormProp>({
@@ -48,9 +47,47 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
         existingFiles: diary.files ? JSON.stringify(diary.files) : '[]',
         captions: [],
     });
-
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [files, setFiles] = useState<NewFilesProp[]>([]);
+
+    const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
+        {
+            title: 'Diaries',
+            href: route('diaries.index'),
+        },
+        {
+            title: diary.title,
+            href: route('diaries.show', diary.id),
+        },
+        {
+            title: 'Edit',
+            href: route('diaries.edit', diary.id),
+        },
+    ]);
+
+    // if inside a collection update breadcrumb
+    useEffect(() => {
+        if (collection) {
+            setBreadCrumbs([
+                {
+                    title: `Collection (${collection.title})`,
+                    href: route('collections.show', collection.id),
+                },
+                {
+                    title: 'Diaries',
+                    href: route('collections.show', collection.id),
+                },
+                {
+                    title: diary.title,
+                    href: route('diaries.show', diary.id),
+                },
+                {
+                    title: 'Edit',
+                    href: route('diaries.edit', diary.id),
+                },
+            ]);
+        }
+    }, []);
 
     const handleChange = (content: string) => {
         setData('content', content);
@@ -59,7 +96,7 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
         e.preventDefault();
         console.log(data);
 
-        post(route('diaries.update', diary.id));
+        post(route('diaries.update', { diary: diary.id, collection: collection?.id }));
     };
     useEffect(() => {
         setData(
@@ -74,6 +111,21 @@ const edit = ({ categories, emotions, diary }: { categories: CategoryProp[]; emo
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries" />
+            {collection ? (
+                <Link href={route('collections.show', collection.id)} className="mt-6 ml-6">
+                    <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to collection
+                    </Button>
+                </Link>
+            ) : (
+                <Link href={route('diaries.index')} className="mt-6 ml-6">
+                    <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to diaries
+                    </Button>
+                </Link>
+            )}
             {/* Category and Emotion Create Modals */}
             {isCategoryCreate && <CategoryModal setIsOpen={setIsCategoryCreate} />}
             {isEmotionCreate && <EmotionModal setIsOpen={setIsEmotionCreate} />}

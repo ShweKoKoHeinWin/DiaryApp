@@ -57,7 +57,7 @@ export function DiaryFilterPanel({
     endPoint: string;
     categories: CategoryProp[],
     emotions: EmotionDetailProp[],
-    diaryCreateUrl: string;
+    diaryCreateUrl?: string;
 }) {
     const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     const hasMounted = useRef(false);
@@ -93,19 +93,19 @@ export function DiaryFilterPanel({
     const resetFilters = () => setFilterProp({});
 
     //  Category handle functions - START
-    const handleCategoryChange = (id: number, checked: boolean) => {
+    const handleCategoryChange = (id: string, checked: boolean) => {
         setFilterProp((prev: FilterProp) => {
             let prevCat = prev.categories || [];
             return {
                 ...prev,
-                categories: checked ? [...prevCat, id] : prevCat.filter((catId: number) => catId !== id),
+                categories: checked ? [...prevCat, id] : prevCat.filter((catId: string) => catId !== id),
             };
         });
     };
 
     const handleSelectAllCategories = (selectAll: boolean) => {
         if (selectAll) {
-            setFilterProp({ ...filterProp, categories: categories.map((cat) => cat.id) });
+            setFilterProp({ ...filterProp, categories: categories.map((cat) => `${cat.id}`) });
         } else {
             setFilterProp({ ...filterProp, categories: [] });
         }
@@ -159,8 +159,8 @@ export function DiaryFilterPanel({
                         <div key={category.id} className="flex items-center space-x-2">
                             <Checkbox
                                 id={`category-${category.id}`}
-                                checked={filterProp.categories ? filterProp.categories.includes(category.id) : false}
-                                onCheckedChange={(checked) => handleCategoryChange(category.id, checked === true)}
+                                checked={filterProp.categories ? filterProp.categories.includes(`${category.id}`) : false}
+                                onCheckedChange={(checked) => handleCategoryChange(`${category.id}`, checked === true)}
                             />
                             <Label htmlFor={`category-${category.id}`}>{category.name}</Label>
                         </div>
@@ -255,7 +255,7 @@ export function DiaryFilterPanel({
                 )}
                 {filterProp.emotion && filterProp.emotion != 0 && (
                     <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>Emotion: </span>
+                        <span>Emotion: 1</span>
                         <Button
                             variant="ghost"
                             size="icon"

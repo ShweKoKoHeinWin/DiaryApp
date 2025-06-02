@@ -1,0 +1,219 @@
+import { Button } from '@/components/ui/button';
+import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
+import { Link } from '@inertiajs/react';
+import { format } from 'date-fns';
+import { ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
+import { useRef, useState } from 'react';
+import ShareModal from '../share/share-modal';
+import { Badge } from '../ui/badge';
+import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+
+export function CollectionDiaryCardItem({
+    card,
+    collection,
+    isCardSelecting,
+    setIsCardSelecting,
+    selectedCards,
+    setSelectedCards,
+}: {
+    card: DiaryListingItemProp;
+    collection: CollectionShortProp;
+    isCardSelecting: boolean;
+    setIsCardSelecting: (val: boolean) => void;
+    selectedCards: number[];
+    setSelectedCards: (val: number[]) => void;
+}) {
+    const maxVisibleCategories = 2;
+    const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
+    const [showShareBox, setShowShareBox] = useState<boolean>(false);
+    const pressStartTime = useRef<number | null>(null);
+    const [blockEvent, setBlockEvent] = useState(false);
+    const preventEventOnLongPress = (e: any, callback: () => void = () => {}) => {
+        if (blockEvent) {
+            e.preventDefault();
+            setBlockEvent(false);
+        } else {
+            callback();
+        }
+    };
+    return (
+        <Card className="relative h-64 w-full overflow-hidden">
+            {isCardSelecting && (
+                <label className="absolute top-0 left-0 block h-full w-full bg-gray-500/50 p-2">
+                    <Checkbox
+                        className="bg-amber-500"
+                        id={`card-${card.id}`}
+                        checked={selectedCards.length > 0 ? selectedCards.includes(card.id) : false}
+                        onCheckedChange={(checked) => {
+                            if (checked === true) {
+                                setSelectedCards([...new Set([...selectedCards, card.id])]);
+                            } else {
+                                setSelectedCards(selectedCards.filter((id) => id !== card.id));
+                            }
+                        }}
+                    />
+                </label>
+            )}
+            <CardContent
+                className="flex h-full flex-col px-4"
+                onMouseDown={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onMouseUp={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+                onTouchStart={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onTouchEnd={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+            >
+                {/* 3-dot menu in top right */}
+                <div className="flex items-center justify-between">
+                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-auto">
+                            <Link
+                                href={route('diaries.edit', {
+                                    diary: card.id,
+                                    collection: collection.id,
+                                })}
+                            >
+                                <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+                            </Link>
+                            <Link
+                                href={route('diaries.delete', card.id)}
+                                method="delete"
+                                preserveScroll
+                                onBefore={() => confirm('Are you sure to delete the diary?')}
+                                className="w-full"
+                            >
+                                <DropdownMenuItem className="cursor-pointer">Delete</DropdownMenuItem>
+                            </Link>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                {/* Title with truncation */}
+                <Link
+                    onClick={(e) => {
+                        preventEventOnLongPress(e);
+                    }}
+                    href={route('diaries.show', { diary: card.id, collection: collection.id })}
+                    className="rich-text-editor-container"
+                >
+                    <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>
+
+                    {/* Content with truncation */}
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">{card.content}</p>
+                </Link>
+
+                {/* Categories row with overflow handling */}
+                <div className="mt-4 flex items-center gap-1 overflow-hidden">
+                    {card.categories.slice(0, maxVisibleCategories).map((category, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                            {category.name}
+                        </Badge>
+                    ))}
+
+                    {card.categories.length > maxVisibleCategories && (
+                        <>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 p-0" onClick={(e) => setShowAllCategories(true)}>
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+
+                            <Dialog open={showAllCategories} onOpenChange={setShowAllCategories}>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>Categories</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        {card.categories.map((category, index) => (
+                                            <Badge key={index} variant="outline">
+                                                {category.name}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                    <DialogDescription aria-describedby="dialog-description"></DialogDescription>
+                                </DialogContent>
+                            </Dialog>
+                        </>
+                    )}
+                </div>
+
+                {/* Footer with metadata */}
+                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                        {card.emotion?.emoji ?? ''}
+                        <span className="ml-2">{card.emotion?.name ?? ''}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {card.files.total > 0 && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger className="flex cursor-pointer items-center">
+                                        <Paperclip className="mr-1 h-3.5 w-3.5" />
+                                        <span>{card.files.total}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
+                                            {Object.keys(card.files.countsByTypes).map((key) => (
+                                                <li key={key}>
+                                                    {card.files.countsByTypes[key]} {key}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                            onClick={(e) => {
+                                preventEventOnLongPress(e, () => {
+                                    setShowShareBox(true);
+                                });
+                            }}
+                        >
+                            <CornerUpRight className="h-3.5 w-3.5" />
+                            <span>{card.shares.length}</span>
+                        </Button>
+                        <ShareModal
+                            url={route('diaries.shares', card.id)}
+                            card={card}
+                            showShareBox={showShareBox}
+                            setShowShareBox={setShowShareBox}
+                        />
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}

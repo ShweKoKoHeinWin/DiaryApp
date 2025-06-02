@@ -6,6 +6,7 @@ use App\Http\Resources\CollectionResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
 use Exception;
@@ -130,8 +131,13 @@ class CollectionController extends Controller
                 break;
         }
         $collection = new CollectionResource($collection);
-        $paginated = $diaries->paginate(20);
+        $page = $request->input('page', 1);
+        $paginated = $diaries->paginate(10, ['*'], 'page', $page);
         $diaries = DiaryListItemResource::collection($paginated);
+
+        if ($request->expectsJson()) {
+            return DiaryListItemResource::collection($paginated)->response();
+        }
         return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories'));
     }
 
@@ -179,5 +185,41 @@ class CollectionController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
         }
+    }
+
+    public function removeDiaries(Request $request, Collection $collection)
+    {
+        foreach ($request->input('diaries', []) as $diary) {
+            $collection->diaries()->detach($diary);
+        }
+        return redirect()->back()->with('success', 'Diaris are removed successfully.');
+    }
+
+    public function addDiaries(Request $request)
+    {
+        $request->validate([
+            'collections' => ['required', 'array'],
+            'collections.*' => ['nullable', 'integer'],
+            'diaries' => ['required', 'array'],
+            'diaries.*' => ['required', 'integer'],
+        ]);
+        if (empty(array_filter($request->collections))) {
+            return redirect()->back()->with('error', 'No Collections to add.');
+        }
+        $user = Auth::user();
+        $diaryIdsToAdd = Diary::where('user_id', $user->id)
+            ->whereIn('id', $request->diaries)
+            ->pluck('id')
+            ->toArray();
+
+        $collections = Collection::where('user_id', $user->id)
+            ->whereIn('id', array_filter($request->collections))
+            ->get();
+
+        foreach ($collections as $collection) {
+            $collection->diaries()->syncWithoutDetaching($diaryIdsToAdd);
+        }
+
+        return redirect()->back()->with('success', 'Diaris are added successfully.');
     }
 }

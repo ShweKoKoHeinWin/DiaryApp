@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { CollectionProp, DiaryListingItemProp } from '@/types/types';
+import { CollectionProp, CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
@@ -14,20 +14,27 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-export function CardItem({ card, collections }: { card: DiaryListingItemProp, collections: CollectionProp[] }) {
+export function CardItem({ card, collections }: { card: DiaryListingItemProp; collections: CollectionShortProp[] }) {
     const [newCollection, setNewCollection] = useState<string>('');
     const [selectedCollelctions, setSelectedCollections] = useState<number[]>(card.collections?.sort().map((c) => c.id));
     const maxVisibleCategories = 2;
-    const allCollectionIds = collections.map((c: CollectionProp) => c.id).sort();
+    const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const [showCollections, setShowCollections] = useState<boolean>(false);
 
     const handleCollectionBox = (isOpen: boolean) => {
         if (!isOpen) {
-            router.put(route('diaries.collections', card.id), {
-                collections: selectedCollelctions,
-            });
+            router.put(
+                route('diaries.collections', card.id),
+                {
+                    collections: selectedCollelctions,
+                },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                },
+            );
         }
         setShowCollections(isOpen);
     };
@@ -234,7 +241,12 @@ export function CardItem({ card, collections }: { card: DiaryListingItemProp, co
                             <CornerUpRight className="h-3.5 w-3.5" />
                             <span>{card.shares.length}</span>
                         </Button>
-                        <ShareModal url={route('diaries.shares', card.id)} card={card} showShareBox={showShareBox} setShowShareBox={setShowShareBox} />
+                        <ShareModal
+                            url={route('diaries.shares', card.id)}
+                            card={card}
+                            showShareBox={showShareBox}
+                            setShowShareBox={setShowShareBox}
+                        />
                     </div>
                 </div>
             </CardContent>

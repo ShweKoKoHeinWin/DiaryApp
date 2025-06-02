@@ -10,21 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { CategoryProp, DiaryFormProp, EmotionDetailProp, NewFilesProp } from '@/types/types';
+import { CategoryProp, CollectionShortProp, DiaryFormProp, EmotionDetailProp, NewFilesProp } from '@/types/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import 'flowbite';
 import { ArrowLeft, Check, Plus } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Diaries',
-        href: route('diaries.index'),
-    },
-    {
-        title: 'Create',
-        href: route('diaries.create'),
-    },
-];
 
 const initialFormData = {
     title: '',
@@ -35,25 +24,68 @@ const initialFormData = {
     captions: [],
 };
 
-const create = ({ categories, emotions, collection }: { categories: CategoryProp[]; emotions: EmotionDetailProp[], collection: any }) => {
+const create = ({
+    categories,
+    emotions,
+    collection,
+}: {
+    categories: CategoryProp[];
+    emotions: EmotionDetailProp[];
+    collection: CollectionShortProp;
+}) => {
     const [isCategoryCreate, setIsCategoryCreate] = useState(false);
     const [isEmotionCreate, setIsEmotionCreate] = useState(false);
     const { data, setData, post, processing, errors } = useForm<DiaryFormProp>(initialFormData);
     const [files, setFiles] = useState<NewFilesProp[]>([]);
+
+    const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
+        {
+            title: 'Diaries',
+            href: route('diaries.index'),
+        },
+        {
+            title: 'Create',
+            href: route('diaries.create'),
+        },
+    ]);
+
+    // if inside a collection update breadcrumb
+    useEffect(() => {
+        if (collection) {
+            setBreadCrumbs([
+                {
+                    title: `Collection (${collection.title})`,
+                    href: route('collections.show', collection.id),
+                },
+                // {
+                //     title: 'Diaries',
+                //     href: route('diaries.index'),
+                // },
+                {
+                    title: 'Diary Create',
+                    href: route('diaries.create'),
+                },
+            ]);
+        }
+    }, []);
 
     const handleChange = (content: string) => {
         setData('content', content);
     };
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        post(route('diaries.store'));
+        post(
+            route('diaries.store', {
+                collection: collection?.id,
+            }),
+        );
     };
     useEffect(() => {
         setData(
             'captions',
-            files.map((file:any) => file.caption),
+            files.map((file: any) => file.caption),
         );
-        setData('files', [...files.map((file:any) => file.file)]);
+        setData('files', [...files.map((file: any) => file.file)]);
     }, [files]);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,15 +94,21 @@ const create = ({ categories, emotions, collection }: { categories: CategoryProp
             {isCategoryCreate && <CategoryModal setIsOpen={setIsCategoryCreate} />}
             {isEmotionCreate && <EmotionModal setIsOpen={setIsEmotionCreate} />}
 
-            {
-                collection && 
-                <Link href={route('collections.show', collection.id)} className='ml-6 mt-6'>
+            {collection ? (
+                <Link href={route('collections.show', collection.id)} className="mt-6 ml-6">
                     <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
                         <ArrowLeft className="h-4 w-4" />
                         Back to collection
                     </Button>
                 </Link>
-            }
+            ) : (
+                <Link href={route('diaries.index')} className="mt-6 ml-6">
+                    <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to diaries
+                    </Button>
+                </Link>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6 p-6">
                 <div className="space-y-4">
@@ -95,7 +133,6 @@ const create = ({ categories, emotions, collection }: { categories: CategoryProp
                             className="w-full"
                         />
                         {errors[`content`] && <p className="text-sm text-red-600">{errors[`content`]}</p>}
-
                     </div>
                 </div>
 
