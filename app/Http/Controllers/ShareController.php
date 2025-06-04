@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Collection;
 use App\Models\Diary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,39 +21,28 @@ class ShareController extends Controller
             'selectedCards.*' => ['nullable', 'integer'],
         ]);
         $user = Auth::user();
-        switch ($request->input('cardType', 'diary')) {
-            case 'diary':
-                $count = 0;
-                foreach ($request->input('selectedCards') as $id) {
-                    $diary = Diary::where('user_id', $user->id)->where('id', $id)->first();
-                    if ($diary) {
-                        $shared = false;
-                        foreach ($request->input('receivers') as $email) {
-                            $exist = $diary->sharedItems()->where('email', $email)->where('shareable_type', Diary::class)->where('shareable_id', $diary->id)->exists();
+        $CardClass = $request->input('cardType') === 'diary' ? Diary::class : Collection::class;
+        $count = 0;
+        foreach ($request->input('selectedCards') as $id) {
+            $card = $CardClass::where('user_id', $user->id)->where('id', $id)->first();
+            if ($card) {
+                $shared = false;
+                foreach ($request->input('receivers') as $email) {
+                    $exist = $card->sharedItems()->where('email', $email)->where('shareable_type', $CardClass)->where('shareable_id', $card->id)->exists();
 
-                            if (!$exist && $email) {
-                                $shared = true;
-                                $diary->sharedItems()->create([
-                                    'owner_id'       => $user->id,
-                                    'email'          => $email,
-                                    'shareable_type' => Diary::class,
-                                    'shareable_id'   => $diary->id,
-                                ]);
-                            }
-                        }
-                        if($shared) $count++;
+                    if (!$exist && $email) {
+                        $shared = true;
+                        $card->sharedItems()->create([
+                            'owner_id'       => $user->id,
+                            'email'          => $email,
+                            'shareable_type' => $CardClass,
+                            'shareable_id'   => $card->id,
+                        ]);
                     }
                 }
-                return redirect()->back()->with('success', "{$count} diaries are shared.");
-                break;
-
-            case 'collection':
-
-                break;
-
-            default:
-                # code...
-                break;
+                if ($shared) $count++;
+            }
         }
+        return redirect()->back()->with('success', "{$count} {$request->input('cardType')} shared.");
     }
 }

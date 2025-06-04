@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filter\DiaryFilter;
 use App\Http\Resources\CollectionResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
@@ -70,74 +71,13 @@ class CollectionController extends Controller
         $categories = Category::where('user_id', $user->id)->select('id', 'name')->get();
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
-        $filterSort = ['filters' => [], 'sorting' => []];
-        if ($request->filled('startDate') && $request->filled('endDate')) {
-            $start = Carbon::parse($request->input('startDate'))->startOfDay();
-            $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $diaries->whereBetween('diaries.created_at', [$start, $end]);
-            $filterSort['filters']['startDate'] = $request->input('startDate');
-            $filterSort['filters']['endDate'] = $request->input('endDate');
-        } else if ($request->filled('startDate')) {
-            $start = Carbon::parse($request->input('startDate'))->startOfDay();
-            $diaries->where('diaries.created_at', '>=', $start);
-            $filterSort['filters']['startDate'] = $request->input('startDate');
-        } else if ($request->filled('endDate')) {
-            $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $diaries->where('diaries.created_at', '<=', $end);
-            $filterSort['filters']['endDate'] = $request->input('endDate');
-        }
-
-
-        if ($request->filled('emotion') && $request->input('emotion') != 0) {
-            $diaries->where('emotion_id', $request->input('emotion'));
-            $filterSort['filters']['emotion'] = $request->input('emotion');
-        }
-
-        if ($request->filled('categories')) {
-            $diaries->whereHas('categories', function ($q) use ($request) {
-                $q->whereIn('categories.id', $request->input("categories"));
-            });
-            $filterSort['filters']['categories'] = $request->input('categories');
-        }
-        if ($request->filled('query')) {
-            $diaries->where('title', 'LIKE', '%' . $request->input('query') . '%');
-            $filterSort['filters']['query'] = $request->input('query');
-        }
-
-        switch ($request->input('sortBy', 'date')) {
-            case 'date':
-                $diaries->orderBy('created_at', $request->input('sortOrder', 'desc'));
-                $filterSort['sorting']['type'] = 'date';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'desc');
-                break;
-
-            case 'title':
-                $diaries->orderBy('title', $request->input('sortOrder', 'asc'));
-                $filterSort['sorting']['type'] = 'title';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
-                break;
-
-            case 'category':
-                $diaries->select('diaries.*')
-                    ->leftJoin('diary_category', 'diaries.id', '=', 'diary_category.diary_id')
-                    ->leftJoin('categories', 'categories.id', '=', 'diary_category.category_id')
-                    ->orderBy('categories.name', $request->input('sortOrder', 'asc'));
-                $filterSort['sorting']['type'] = 'category';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
-                break;
-
-            default:
-                # code...
-                break;
-        }
+        
+        [$diaries, $filterSort] = DiaryFilter::getDiariesByFilter($request, $diaries);
+        
         $collection = new CollectionResource($collection);
-        $page = $request->input('page', 1);
-        $paginated = $diaries->paginate(10, ['*'], 'page', $page);
-        $diaries = DiaryListItemResource::collection($paginated);
-
-        if ($request->expectsJson()) {
-            return DiaryListItemResource::collection($paginated)->response();
-        }
+        // if ($request->expectsJson()) {
+        //     return DiaryListItemResource::collection($paginated)->response();
+        // }
         return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories'));
     }
 
@@ -152,9 +92,17 @@ class CollectionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Collection $collection)
     {
-        //
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'nullable|string'
+        ]);
+        $collection->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description')
+        ]);
+        return redirect()->back()->with('success', 'Collection is updated Successfully.');
     }
 
     /**

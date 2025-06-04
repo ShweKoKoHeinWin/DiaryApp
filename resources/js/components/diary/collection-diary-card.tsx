@@ -30,6 +30,8 @@ export function CollectionDiaryCardItem({
     const maxVisibleCategories = 2;
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
+
+    // Long Press mode 
     const pressStartTime = useRef<number | null>(null);
     const [blockEvent, setBlockEvent] = useState(false);
     const preventEventOnLongPress = (e: any, callback: () => void = () => {}) => {
@@ -45,7 +47,7 @@ export function CollectionDiaryCardItem({
             {isCardSelecting && (
                 <label className="absolute top-0 left-0 block h-full w-full bg-gray-500/50 p-2">
                     <Checkbox
-                        className="bg-amber-500"
+                        className="bg-white"
                         id={`card-${card.id}`}
                         checked={selectedCards.length > 0 ? selectedCards.includes(card.id) : false}
                         onCheckedChange={(checked) => {

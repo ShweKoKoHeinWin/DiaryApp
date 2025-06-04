@@ -23,23 +23,6 @@ import { CategoryProp, EmotionDetailProp, FilterProp, SortProp } from '@/types/t
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 
-// Sample data for categories and emotions
-// const categories = [
-//     { id: 1, label: 'Work' },
-//     { id: 2, label: 'Personal' },
-//     { id: 3, label: 'Education' },
-//     { id: 4, label: 'Health' },
-//     { id: 5, label: 'Finance' },
-// ];
-
-// const emotions = [
-//     { id: 1, label: 'Happy' },
-//     { id: 2, label: 'Sad' },
-//     { id: 3, label: 'Excited' },
-//     { id: 4, label: 'Anxious' },
-//     { id: 5, label: 'Neutral' },
-// ];
-
 export function DiaryFilterPanel({
     filterProp,
     setFilterProp,
@@ -253,7 +236,7 @@ export function DiaryFilterPanel({
                         </Button>
                     </div>
                 )}
-                {filterProp.emotion && filterProp.emotion != 0 && (
+                {(filterProp.emotion && filterProp.emotion != 0) && (
                     <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
                         <span>Emotion: 1</span>
                         <Button
@@ -358,7 +341,7 @@ export function DiaryFilterPanel({
                             <RotateCcw className="h-4 w-4" />
                             <span className="sr-only">Reset filters</span>
                         </Button>
-                    ) : <Button variant='ghost'><div className='w-4 h-4'></div></Button>}
+                    ) : <div className='w-9 h-9'></div>}
                 </div>
 
                 {/* Filters - Mobile */}
@@ -368,11 +351,11 @@ export function DiaryFilterPanel({
                             <Button variant="outline" className="gap-1">
                                 <Filter className="h-4 w-4" />
                                 Filters
-                                {activeFiltersCount > 0 && (
+                                {activeFiltersCount > 0 ? (
                                     <span className="bg-primary text-primary-foreground ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
                                         {activeFiltersCount}
                                     </span>
-                                )}
+                                ) : <span className="ml-1 h-5 w-5"></span>}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
@@ -435,7 +418,7 @@ export function DiaryFilterPanel({
                             <span className="sr-only">Reset filters</span>
                         </Button>
                     ) : (
-                        <Button variant='ghost'><div className='w-4 h-4'></div></Button>
+                        <div className='w-9 h-9'></div>
                     )}
                 </div>
 

@@ -1,16 +1,27 @@
+import DiaryCollectionModal from '@/components/diary/diary-collection-modal';
 import ShareModal from '@/components/share/share-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { CollectionShortProp, DiaryDetailProp } from '@/types/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, Download, Edit, File, Image, NotebookText, Share2, Users, VideoIcon } from 'lucide-react';
+import { ArrowLeft, Calendar, Download, Edit, File, Image, NotebookText, Share2, Trash, Users, VideoIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: CollectionShortProp }) => {
+const show = ({
+    diary,
+    collection,
+    collections,
+}: {
+    diary: DiaryDetailProp;
+    collection: CollectionShortProp;
+    collections: CollectionShortProp[];
+}) => {
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
+    const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
+    const [showCollections, setShowCollections] = useState<boolean>(false);
     const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
         {
             title: 'Diaries',
@@ -38,11 +49,11 @@ const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: Colle
                 },
                 {
                     title: diary.title,
-                    href: route('diaries.show', diary.id),
+                    href: route('diaries.show', { diary: diary.id, collection: collection.id }),
                 },
                 {
-                    title: 'Edit',
-                    href: route('diaries.edit', diary.id),
+                    title: 'show',
+                    href: route('diaries.show', diary.id),
                 },
             ]);
         }
@@ -92,7 +103,7 @@ const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: Colle
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries - Show" />
-            <div className={`flex justify-between items-center px-6 pt-4`}>
+            <div className={`flex items-center justify-between px-6 pt-4`}>
                 {collection ? (
                     <Link href={route('collections.show', collection.id)}>
                         <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
@@ -108,21 +119,51 @@ const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: Colle
                         </Button>
                     </Link>
                 )}
-                {collection ? (
-                    <Link href={route('diaries.edit', { diary: diary.id, collection: collection.id })}>
-                        <Button variant="outline" className="cursor-pointer bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                            <Edit className="h-4 w-4" />
-                            Edit
-                        </Button>
-                    </Link>
-                ) : (
-                    <Link href={route('diaries.edit', diary.id)}>
-                        <Button variant="outline" className="cursor-pointer bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                            <Edit className="h-4 w-4" />
-                            Edit
-                        </Button>
-                    </Link>
-                )}
+                <div className="flex items-center justify-center gap-3">
+                    {collection ? (
+                        <>
+                            <Link href={route('diaries.edit', { diary: diary.id, collection: collection.id })}>
+                                <Button variant="secondary" className="cursor-pointer">
+                                    <Edit className="h-4 w-4" />
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="destructive"
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                    if (confirm('Are you sure to delete the diary?')) {
+                                        router.delete(route('diaries.delete', { diary: diary.id, collection: collection.id }));
+                                    }
+                                }}
+                            >
+                                <Trash />
+                                Delete
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href={route('diaries.edit', diary.id)}>
+                                <Button variant="secondary" className="cursor-pointer">
+                                    <Edit className="h-4 w-4" />
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="destructive"
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                    if (confirm('Are you sure to delete the diary?')) {
+                                        router.delete(route('diaries.delete', diary.id));
+                                    }
+                                }}
+                            >
+                                <Trash />
+                                Delete
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
 
             <div className="mx-auto w-full space-y-6 p-6">
@@ -157,21 +198,39 @@ const show = ({ diary, collection }: { diary: DiaryDetailProp; collection: Colle
                                     )}
                                 </div>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="flex w-auto cursor-pointer items-center gap-0 p-1"
-                                onClick={() => setShowShareBox(true)}
-                            >
-                                <Share2 className="mr-2 h-4 w-4" />
-                                Share
-                            </Button>
-                            <ShareModal
-                                url={route('diaries.shares', diary.id)}
-                                card={diary}
-                                showShareBox={showShareBox}
-                                setShowShareBox={setShowShareBox}
-                            />
+                            <div className="flex items-center justify-end gap-3">
+                                <Button
+                                    variant="secondary"
+                                    size="icon"
+                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                    onClick={() => setShowCollections(true)}
+                                >
+                                    <NotebookText />
+                                    <span className="mr-2">Collections</span>
+                                </Button>
+                                <DiaryCollectionModal
+                                    showCollections={showCollections}
+                                    setShowCollections={setShowCollections}
+                                    diary={diary}
+                                    allCollectionIds={allCollectionIds}
+                                    collections={collections}
+                                />
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                    onClick={() => setShowShareBox(true)}
+                                >
+                                    <Share2 className="mr-2 h-4 w-4" />
+                                    Share
+                                </Button>
+                                <ShareModal
+                                    url={route('diaries.shares', diary.id)}
+                                    card={diary}
+                                    showShareBox={showShareBox}
+                                    setShowShareBox={setShowShareBox}
+                                />
+                            </div>
                         </div>
                     </CardHeader>
                 </Card>

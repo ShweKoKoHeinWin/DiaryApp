@@ -10,16 +10,14 @@ const MultiShareModal = ({
     setShowShareBox,
     selectedCards,
     cardType,
-    setIsCardSelecting,
-    setSelectedCards,
+    cancelSelectMode
 }: {
     url: string;
     showShareBox: boolean;
     setShowShareBox: (isOpen: boolean) => void;
     selectedCards: number[];
     cardType: 'diary' | 'collection';
-    setIsCardSelecting: (val: boolean) => void;
-    setSelectedCards: (val: number[]) => void;
+    cancelSelectMode: () => void
 }) => {
     const [receivers, setReceivers] = useState<string[]>(['']);
 
@@ -36,8 +34,7 @@ const MultiShareModal = ({
                     preserveScroll: true,
                     preserveState: true,
                     onSuccess: () => {
-                        setIsCardSelecting(false);
-                        setSelectedCards([]);
+                        cancelSelectMode();
                         router.reload();
                     },
                 },

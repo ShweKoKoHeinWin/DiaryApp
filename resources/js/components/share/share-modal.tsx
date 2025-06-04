@@ -3,7 +3,7 @@ import { DialogDescription } from '@radix-ui/react-dialog';
 import { PlusSquare, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
+import { CollectionProp, DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
 
 const ShareModal = ({
     url,
@@ -12,7 +12,7 @@ const ShareModal = ({
     setShowShareBox,
 }: {
     url: string;
-    card: DiaryListingItemProp | DiaryDetailProp;
+    card: DiaryListingItemProp | DiaryDetailProp | CollectionProp;
     showShareBox: boolean;
     setShowShareBox: (isOpen: boolean) => void;
 }) => {

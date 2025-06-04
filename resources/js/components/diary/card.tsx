@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
-import { CollectionProp, CollectionShortProp, DiaryListingItemProp } from '@/types/types';
+import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
@@ -13,61 +13,95 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import TitleCreateModal from '../collection/title-create-modal';
+import DiaryCollectionModal from './diary-collection-modal';
 
-export function CardItem({ card, collections }: { card: DiaryListingItemProp; collections: CollectionShortProp[] }) {
-    const [newCollection, setNewCollection] = useState<string>('');
-    const [selectedCollelctions, setSelectedCollections] = useState<number[]>(card.collections?.sort().map((c) => c.id));
+export function CardItem({
+    card,
+    collection,
+    collections,
+    isCardSelecting,
+    setIsCardSelecting,
+    selectedCards,
+    setSelectedCards,
+    cancelSelectMode,
+}: {
+    card: DiaryListingItemProp;
+    collection?: CollectionShortProp;
+    collections: CollectionShortProp[];
+    isCardSelecting: boolean;
+    setIsCardSelecting: (val: boolean) => void;
+    selectedCards: number[];
+    setSelectedCards: (val: number[]) => void;
+    cancelSelectMode: () => void;
+}) {
     const maxVisibleCategories = 2;
     const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const [showCollections, setShowCollections] = useState<boolean>(false);
 
-    const handleCollectionBox = (isOpen: boolean) => {
-        if (!isOpen) {
-            router.put(
-                route('diaries.collections', card.id),
-                {
-                    collections: selectedCollelctions,
-                },
-                {
-                    preserveScroll: true,
-                    preserveState: true,
-                },
-            );
+    
+
+    // Long Press mode
+    const pressStartTime = useRef<number | null>(null);
+    const [blockEvent, setBlockEvent] = useState(false);
+    const preventEventOnLongPress = (e: any, callback: () => void = () => {}) => {
+        if (blockEvent) {
+            e.preventDefault();
+            setBlockEvent(false);
+        } else {
+            callback();
         }
-        setShowCollections(isOpen);
-    };
-
-    const handleCollectionSubmit = (e: any) => {
-        e.preventDefault();
-        if (!newCollection) return;
-
-        router.post(
-            route('collections.store'),
-            {
-                title: newCollection,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onSuccess: () => setNewCollection(''),
-            },
-        );
-    };
-
-    const handleCollectionChange = (id: number, checked: boolean) => {
-        setSelectedCollections((prev) => {
-            if (checked) {
-                return [...prev, id];
-            }
-            return prev.filter((colId) => colId !== id);
-        });
     };
 
     return (
         <Card className="relative h-64 w-full overflow-hidden">
-            <CardContent className="flex h-full flex-col px-4">
+            {isCardSelecting && (
+                <label className="absolute top-0 left-0 block h-full w-full bg-gray-500/50 p-2">
+                    <Checkbox
+                        className="bg-white"
+                        id={`card-${card.id}`}
+                        checked={selectedCards.length > 0 ? selectedCards.includes(card.id) : false}
+                        onCheckedChange={(checked) => {
+                            if (checked === true) {
+                                setSelectedCards([...new Set([...selectedCards, card.id])]);
+                            } else {
+                                setSelectedCards(selectedCards.filter((id) => id !== card.id));
+                            }
+                        }}
+                    />
+                </label>
+            )}
+            <CardContent
+                className="flex h-full flex-col px-4"
+                onMouseDown={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onMouseUp={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+                onTouchStart={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onTouchEnd={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+            >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
                     <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
@@ -105,66 +139,15 @@ export function CardItem({ card, collections }: { card: DiaryListingItemProp; co
                     </DropdownMenu>
                 </div>
 
-                <Dialog open={showCollections} onOpenChange={handleCollectionBox}>
-                    <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                            <DialogTitle className="flex justify-between">
-                                <span>Collections</span>
-                                <label htmlFor="allcollections" className="mr-5 flex items-center justify-center gap-2">
-                                    <Checkbox
-                                        id="allcollections"
-                                        checked={
-                                            selectedCollelctions.length === allCollectionIds.length &&
-                                            selectedCollelctions.sort().every((val, index) => val === allCollectionIds[index])
-                                        }
-                                        onCheckedChange={(checked) => {
-                                            if (checked === true) {
-                                                setSelectedCollections(allCollectionIds);
-                                            } else {
-                                                setSelectedCollections([]);
-                                            }
-                                        }}
-                                    />
-                                    <span>Select All</span>
-                                </label>
-                            </DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription aria-describedby="dialog-description"></DialogDescription>
-                        <ul className="h-50 max-w-md list-inside list-none space-y-1 overflow-y-scroll rounded-2xl border-2 bg-gray-900/5 p-4">
-                            {collections.map((collection) => (
-                                <li key={collection.id}>
-                                    <div className="inline-block w-[90%]">
-                                        <Label
-                                            className="flex items-center justify-between gap-2 rounded-xl bg-amber-300 p-3"
-                                            htmlFor={`collection-${collection.id}`}
-                                        >
-                                            {collection.title}
-                                            <Checkbox
-                                                id={`collection-${collection.id}`}
-                                                checked={selectedCollelctions.includes(collection.id)}
-                                                onCheckedChange={(checked) => handleCollectionChange(collection.id, checked === true)}
-                                            />
-                                        </Label>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                        <form className="flex items-center justify-center gap-4" onSubmit={handleCollectionSubmit}>
-                            <Input
-                                type="text"
-                                placeholder="Collection Name"
-                                className="pl-8"
-                                value={newCollection}
-                                onChange={(e) => setNewCollection(e.target.value)}
-                            />
-                            <button type="submit" className="rounded-2xl bg-blue-600 px-4 py-2 text-gray-200 hover:bg-blue-500">
-                                <PlusSquare size={20} />
-                            </button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                <DiaryCollectionModal showCollections={showCollections} setShowCollections={setShowCollections} diary={card} allCollectionIds={allCollectionIds} collections={collections} />
                 {/* Title with truncation */}
-                <Link href={route('diaries.show', card.id)} className="rich-text-editor-container">
+                <Link
+                    onClick={(e) => {
+                        preventEventOnLongPress(e);
+                    }}
+                    href={route('diaries.show', card.id)}
+                    className="rich-text-editor-container"
+                >
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>
 
                     {/* Content with truncation */}

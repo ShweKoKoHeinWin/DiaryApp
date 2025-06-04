@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filter\DiaryFilter;
 use App\Http\Resources\Diary\DiaryDetailResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
@@ -26,71 +27,7 @@ class DiaryController extends Controller
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
         $diaries = Diary::query()->with('categories', 'emotion', 'user', 'files');
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
-        $filterSort = ['filters' => [], 'sorting' => []];
-        if ($request->filled('startDate') && $request->filled('endDate')) {
-            $start = Carbon::parse($request->input('startDate'))->startOfDay();
-            $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $diaries->whereBetween('diaries.created_at', [$start, $end]);
-            $filterSort['filters']['startDate'] = $request->input('startDate');
-            $filterSort['filters']['endDate'] = $request->input('endDate');
-        } else if ($request->filled('startDate')) {
-            $start = Carbon::parse($request->input('startDate'))->startOfDay();
-            $diaries->where('diaries.created_at', '>=', $start);
-            $filterSort['filters']['startDate'] = $request->input('startDate');
-        } else if ($request->filled('endDate')) {
-            $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $diaries->where('diaries.created_at', '<=', $end);
-            $filterSort['filters']['endDate'] = $request->input('endDate');
-        }
-
-
-        if ($request->filled('emotion') && $request->input('emotion') != 0) {
-            $diaries->where('emotion_id', $request->input('emotion'));
-            $filterSort['filters']['emotion'] = $request->input('emotion');
-        }
-
-        if ($request->filled('categories')) {
-            $diaries->whereHas('categories', function ($q) use ($request) {
-                $q->whereIn('categories.id', $request->input("categories"));
-            });
-            $filterSort['filters']['categories'] = $request->input('categories');
-        }
-        if ($request->filled('query')) {
-            $diaries->where('title', 'LIKE', '%' . $request->input('query') . '%');
-            $filterSort['filters']['query'] = $request->input('query');
-        }
-
-        switch ($request->input('sortBy', 'date')) {
-            case 'date':
-                $diaries->orderBy('created_at', $request->input('sortOrder', 'desc'));
-                $filterSort['sorting']['type'] = 'date';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'desc');
-                break;
-
-            case 'title':
-                $diaries->orderBy('title', $request->input('sortOrder', 'asc'));
-                $filterSort['sorting']['type'] = 'title';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
-                break;
-
-            case 'category':
-                $diaries->select('diaries.*')
-                    ->distinct()
-                    ->leftJoin('diary_category', 'diaries.id', '=', 'diary_category.diary_id')
-                    ->leftJoin('categories', 'categories.id', '=', 'diary_category.category_id')
-                    ->orderBy('categories.name', $request->input('sortOrder', 'asc'));
-                $filterSort['sorting']['type'] = 'category';
-                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
-                break;
-
-            default:
-                # code...
-                break;
-        }
-        $page = $request->input('page', 1);
-
-        $paginated = $diaries->paginate(15, ['*'], 'page', $page);
-        $diaries = DiaryListItemResource::collection($paginated);
+        [$diaries, $filterSort] = DiaryFilter::getDiariesByFilter($request, $diaries);
 
         // if ($request->expectsJson()) {
         //     return DiaryListItemResource::collection($paginated)->response();
@@ -176,13 +113,16 @@ class DiaryController extends Controller
 
     public function show(Diary $diary, Request $request)
     {
+        $user = Auth::user();
         $collection = null;
         if ($request->filled('collection')) {
             $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
         }
+        $collections = Collection::select('id', 'title')->where('user_id', $user->id)->get();
         return Inertia::render('diary/show', [
             'diary' => new DiaryDetailResource($diary),
-            'collection' => $collection
+            'collection' => $collection,
+            'collections' => $collections
         ]);
     }
 
@@ -252,7 +192,7 @@ class DiaryController extends Controller
         }
     }
 
-    public function destroy(Diary $diary)
+    public function destroy(Diary $diary, Request $request)
     {
         DB::beginTransaction();
         $files = [];
@@ -276,6 +216,20 @@ class DiaryController extends Controller
                 Storage::disk('public')->delete($file);
             }
         }
+        // If previous url is show page redirect to index
+        $previousUrl = url()->previous();
+        $diaryShowUrl = route('diaries.show', $diary->id, false); // relative URL
+
+        if (str_contains($previousUrl, $diaryShowUrl)) {
+            return redirect()->route('diaries.index')->with('success', 'Diary deleted.');
+        }
+        if ($request->filled('collection')) {
+            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+            if($collection) {
+                return redirect()->route('collections.show', $collection->id)->with('success', 'Diary deleted.');
+            }
+        }
+        return redirect()->back()->with('success', 'Diary deleted.');
     }
 
     public function collections(Diary $diary, Request $request)

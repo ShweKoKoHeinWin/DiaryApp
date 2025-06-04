@@ -1,17 +1,85 @@
 import { Button } from '@/components/ui/button';
+import { CollectionProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { BookOpenText, CornerUpRight, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-export function CardItem({ card }) {
+export function CardItem({
+    card,
+    isCardSelecting,
+    setIsCardSelecting,
+    selectedCards,
+    setSelectedCards,
+}: {
+    card: CollectionProp;
+    isCardSelecting: boolean;
+    setIsCardSelecting: (val: boolean) => void;
+    selectedCards: number[];
+    setSelectedCards: (val: number[]) => void;
+}) {
     const [showShareBox, setShowShareBox] = useState(false);
-
+    // Long Press mode
+    const pressStartTime = useRef<number | null>(null);
+    const [blockEvent, setBlockEvent] = useState(false);
+    const preventEventOnLongPress = (e: any, callback: () => void = () => {}) => {
+        if (blockEvent) {
+            e.preventDefault();
+            setBlockEvent(false);
+        } else {
+            callback();
+        }
+    };
     return (
         <Card className="relative h-50 w-full overflow-hidden">
-            <CardContent className="flex h-full flex-col px-4">
+            {isCardSelecting && (
+                <label className="absolute top-0 left-0 block h-full w-full bg-gray-500/50 p-2">
+                    <Checkbox
+                        className="bg-white"
+                        id={`card-${card.id}`}
+                        checked={selectedCards.length > 0 ? selectedCards.includes(card.id) : false}
+                        onCheckedChange={(checked) => {
+                            if (checked === true) {
+                                setSelectedCards([...new Set([...selectedCards, card.id])]);
+                            } else {
+                                setSelectedCards(selectedCards.filter((id) => id !== card.id));
+                            }
+                        }}
+                    />
+                </label>
+            )}
+            <CardContent
+                className="flex h-full flex-col px-4"
+                onMouseDown={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onMouseUp={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+                onTouchStart={(e) => {
+                    pressStartTime.current = Date.now();
+                    setBlockEvent(false);
+                }}
+                onTouchEnd={() => {
+                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    if (pressedTime > 800) {
+                        setBlockEvent(true);
+                        setIsCardSelecting(true);
+                        setSelectedCards([...new Set([...selectedCards, card.id])]);
+                    }
+                    pressStartTime.current = null;
+                }}
+            >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
                     <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
@@ -39,7 +107,13 @@ export function CardItem({ card }) {
                 </div>
 
                 {/* Title with truncation */}
-                <Link href={route('collections.show', card.id)} className="rich-text-editor-container">
+                <Link
+                    href={route('collections.show', card.id)}
+                    className="rich-text-editor-container"
+                    onClick={(e) => {
+                        preventEventOnLongPress(e);
+                    }}
+                >
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>
 
                     {/* Description with truncation */}
@@ -49,7 +123,7 @@ export function CardItem({ card }) {
                 {/* Footer with metadata */}
                 <div className="mt-auto flex items-center justify-between pt-4 text-xs text-gray-500">
                     <div className="flex items-center gap-1">
-                        {card.diary_count} <BookOpenText className="h-5 w-5"/> 
+                        {card.diary_count} <BookOpenText className="h-5 w-5" />
                     </div>
                     <div className="flex items-center gap-3">
                         <Button

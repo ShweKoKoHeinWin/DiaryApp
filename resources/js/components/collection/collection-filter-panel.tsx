@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CategoryProp, FilterProp, SortProp } from '@/types/types';
+import { FilterProp, SortProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 
@@ -61,7 +61,6 @@ export function CollectionFilterPanel({
                 query: filterProp.query,
                 startDate: filterProp.startDate,
                 endDate: filterProp.endDate,
-                categories: filterProp.categories,
                 emotion: filterProp.emotion,
                 sortBy: sortProp.type,
                 sortOrder: sortProp.order,
@@ -143,40 +142,6 @@ export function CollectionFilterPanel({
                         </Button>
                     </div>
                 )}
-                {filterProp.categories && filterProp.categories.length > 0 && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>Categories: {filterProp.categories.length}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { categories, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove categories filter</span>
-                        </Button>
-                    </div>
-                )}
-                {filterProp.emotion && filterProp.emotion != 0 && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>Emotion: </span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { emotion, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove emotions filter</span>
-                        </Button>
-                    </div>
-                )}
             </div>
         );
     };
@@ -247,14 +212,6 @@ export function CollectionFilterPanel({
                                     {sortProp.type === 'date' && sortProp.order === 'asc' && <Check className="h-4 w-4" />}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setSortProp({ type: 'category', order: 'asc' })} className="justify-between">
-                                    Category (A-Z)
-                                    {sortProp.type === 'category' && sortProp.order === 'asc' && <Check className="h-4 w-4" />}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setSortProp({ type: 'category', order: 'desc' })} className="justify-between">
-                                    Category (Z-A)
-                                    {sortProp.type === 'category' && sortProp.order === 'desc' && <Check className="h-4 w-4" />}
-                                </DropdownMenuItem>
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -265,7 +222,7 @@ export function CollectionFilterPanel({
                             <RotateCcw className="h-4 w-4" />
                             <span className="sr-only">Reset filters</span>
                         </Button>
-                    ) : <Button variant='ghost'><div className='w-4 h-4'></div></Button>}
+                    ) : <div className='w-4 h-4'></div>}
                 </div>
 
                 {/* Filters - Mobile */}
@@ -323,14 +280,7 @@ export function CollectionFilterPanel({
                                     {sortProp.type === 'date' && sortProp.order === 'asc' && <Check className="h-4 w-4" />}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setSortProp({ type: 'category', order: 'asc' })} className="justify-between">
-                                    Category (A-Z)
-                                    {sortProp.type === 'category' && sortProp.order === 'asc' && <Check className="h-4 w-4" />}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setSortProp({ type: 'category', order: 'desc' })} className="justify-between">
-                                    Category (Z-A)
-                                    {sortProp.type === 'category' && sortProp.order === 'desc' && <Check className="h-4 w-4" />}
-                                </DropdownMenuItem>
+                                
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -342,7 +292,7 @@ export function CollectionFilterPanel({
                             <span className="sr-only">Reset filters</span>
                         </Button>
                     ) : (
-                        <Button variant='ghost'><div className='w-4 h-4'></div></Button>
+                        <Button variant='ghost' style={{visibility: 'hidden'}}><div className='w-4 h-4'></div></Button>
                     )}
                 </div>
 

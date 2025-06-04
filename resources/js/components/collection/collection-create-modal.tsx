@@ -8,7 +8,11 @@ import { Check, Trash, Trash2Icon, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import RichTextEditor from '../ui/rich-editor';
 
-const initialFormData = {
+const initialFormData: {
+  title: string;
+  description: string;
+  image: File | null;
+} = {
     title: '',
     description: '',
     image: null,

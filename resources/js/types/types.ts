@@ -72,6 +72,7 @@ export interface CollectionProp {
     // image?: string | null;
     shares: any[],
     diary_count: number;
+    created_at: Date;
 }
 
 export interface DiaryCollectionBoxProp {
