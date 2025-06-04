@@ -47,38 +47,7 @@ export default function CardListingPage({
                     </div>
                 ))}
             </div>
-            {/* <div className="mt-6 flex justify-center gap-2">
-                {collections.meta.total > 0 &&
-                    collections.meta.links.map((link, index) => {
-                        // Build new URL with all filters
-                        const buildUrlWithParams = (rawUrl: string | null) => {
-                            if (!rawUrl) return '#';
-                            const url = new URL(rawUrl, window.location.origin);
-
-                            url.searchParams.set('query', filterProp.query ?? '');
-                            url.searchParams.set('startDate', filterProp.startDate ?? '');
-                            url.searchParams.set('endDate', filterProp.endDate ?? '');
-                            url.searchParams.set('sortBy', sortProp.type ?? '');
-                            url.searchParams.set('sortOrder', sortProp.order ?? '');
-
-                            return url.pathname + url.search; // keep it relative for Inertia
-                        };
-
-                        return link.url ? (
-                            <Link
-                                key={index}
-                                href={buildUrlWithParams(link.url)}
-                                className={`rounded border px-3 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
-                            >
-                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
-                            </Link>
-                        ) : (
-                            <span key={index} className="px-3 py-1 text-gray-400">
-                                {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
-                            </span>
-                        );
-                    })}
-            </div> */}
+            
             <Pagination data={collections} urlParamConfig={[{'query': filterProp.query, 'startDate': filterProp.startDate, 'endDate': filterProp.endDate, 'sortBy': sortProp.type, 'sortOrder': sortProp.order}]} />
         </div>
     );

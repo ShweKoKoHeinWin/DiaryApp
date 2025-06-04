@@ -36,10 +36,8 @@ export default function CardListingPage({
     const [cards, setCards] = useState<DiaryListingItemProp[]>(diaries.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
     const [selectedCards, setSelectedCards] = useState<number[]>([]);
-    const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const [showCollectionAddBox, setShowCollectionAddBox] = useState<boolean>(false);
     const [selectedCollections, setSelectedCollections] = useState<number[]>([]);
-    const [showSelectBox, setShowSelectBox] = useState<boolean>(false);
     const { errors } = usePage().props;
 
     const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();

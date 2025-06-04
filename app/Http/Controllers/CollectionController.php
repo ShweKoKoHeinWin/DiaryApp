@@ -71,9 +71,9 @@ class CollectionController extends Controller
         $categories = Category::where('user_id', $user->id)->select('id', 'name')->get();
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
-        
+
         [$diaries, $filterSort] = DiaryFilter::getDiariesByFilter($request, $diaries);
-        
+
         $collection = new CollectionResource($collection);
         // if ($request->expectsJson()) {
         //     return DiaryListItemResource::collection($paginated)->response();
@@ -108,11 +108,23 @@ class CollectionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Collection $collection)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $collection->diaries()->detach();
+            $collection->sharedItems()->delete();
+            $collection->delete();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong.');
+        }
+
+        return smartRedirectAfterDelete(route('collections.show', $collection->id, false), 'Collection deleted successfully.', 'collections.index');
     }
 
+    // @ 
     public function shares(Collection $collection, Request $request)
     {
         DB::beginTransaction();

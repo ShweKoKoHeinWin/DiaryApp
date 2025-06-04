@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
+import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
 import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Badge } from '../ui/badge';
@@ -10,10 +10,7 @@ import { Card, CardContent } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import TitleCreateModal from '../collection/title-create-modal';
 import DiaryCollectionModal from './diary-collection-modal';
 
 export function CardItem({
@@ -40,8 +37,6 @@ export function CardItem({
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const [showCollections, setShowCollections] = useState<boolean>(false);
-
-    
 
     // Long Press mode
     const pressStartTime = useRef<number | null>(null);
@@ -112,11 +107,19 @@ export function CardItem({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-auto">
-                            <Link href={route('diaries.edit', card.id)}>
+                            <Link
+                                href={route('diaries.edit', {
+                                    diary: card.id,
+                                    collection: collection?.id,
+                                })}
+                            >
                                 <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
                             </Link>
                             <Link
-                                href={route('diaries.delete', card.id)}
+                                href={route('diaries.delete', {
+                                    diary: card.id,
+                                    collection: collection?.id,
+                                })}
                                 method="delete"
                                 preserveScroll
                                 onBefore={() => confirm('Are you sure to delete the diary?')}
@@ -139,13 +142,22 @@ export function CardItem({
                     </DropdownMenu>
                 </div>
 
-                <DiaryCollectionModal showCollections={showCollections} setShowCollections={setShowCollections} diary={card} allCollectionIds={allCollectionIds} collections={collections} />
+                <DiaryCollectionModal
+                    showCollections={showCollections}
+                    setShowCollections={setShowCollections}
+                    diary={card}
+                    allCollectionIds={allCollectionIds}
+                    collections={collections}
+                />
                 {/* Title with truncation */}
                 <Link
                     onClick={(e) => {
                         preventEventOnLongPress(e);
                     }}
-                    href={route('diaries.show', card.id)}
+                    href={route('diaries.show', {
+                        diary: card.id,
+                        collection: collection?.id,
+                    })}
                     className="rich-text-editor-container"
                 >
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.title}</h3>

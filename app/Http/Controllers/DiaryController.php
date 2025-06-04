@@ -210,26 +210,26 @@ class DiaryController extends Controller
         } catch (\Exception $e) {
             dd($e);
             DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong.');
         }
         foreach ($files as $file) {
             if (Storage::disk('public')->exists($file)) {
                 Storage::disk('public')->delete($file);
             }
         }
-        // If previous url is show page redirect to index
-        $previousUrl = url()->previous();
-        $diaryShowUrl = route('diaries.show', $diary->id, false); // relative URL
 
-        if (str_contains($previousUrl, $diaryShowUrl)) {
-            return redirect()->route('diaries.index')->with('success', 'Diary deleted.');
-        }
-        if ($request->filled('collection')) {
-            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
-            if($collection) {
-                return redirect()->route('collections.show', $collection->id)->with('success', 'Diary deleted.');
+        // Smart Redirect
+        $callback = function ($request) {
+            if ($request->filled('collection')) {
+                $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+                if ($collection) {
+                    return redirect()->route('collections.show', $collection->id)->with('success', 'Diary deleted.');
+                }
             }
-        }
-        return redirect()->back()->with('success', 'Diary deleted.');
+            return null; // Ensure a return value to prevent errors
+        };
+
+        return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', 'diaries.index', $callback, $request);
     }
 
     public function collections(Diary $diary, Request $request)

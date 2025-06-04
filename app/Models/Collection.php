@@ -18,7 +18,7 @@ class Collection extends Model
 
     public function diaries()
     {
-        return $this->belongsToMany(Diary::class);
+        return $this->belongsToMany(Diary::class, 'collection_diary');
     }
 
     public function user()
