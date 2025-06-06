@@ -11,6 +11,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import EmailSendbox from '../ultils/email-send-box';
 import DiaryCollectionModal from './diary-collection-modal';
 
 export function CardItem({
@@ -200,7 +201,7 @@ export function CardItem({
                 </div>
 
                 {/* Footer with metadata */}
-                <div className="mt-auto flex items-center justify-between pt-4 text-xs text-gray-500">
+                <div className="mt-auto flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                         {card.emotion?.emoji ?? ''}
                         <span className="ml-2">{card.emotion?.name ?? ''}</span>
@@ -226,6 +227,8 @@ export function CardItem({
                                 </Tooltip>
                             </TooltipProvider>
                         )}
+
+                        {card.shares?.length > 0 && <EmailSendbox allEmails={[...card.shares.map(s => s.email)]} />}
 
                         <Button
                             variant="ghost"

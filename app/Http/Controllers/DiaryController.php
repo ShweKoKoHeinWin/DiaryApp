@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filter\DiaryFilter;
+use App\Filter\FilterService;
 use App\Http\Resources\Diary\DiaryDetailResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
@@ -27,8 +27,8 @@ class DiaryController extends Controller
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
         $diaries = Diary::query()->with('categories', 'emotion', 'user', 'files');
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
-        [$diaries, $filterSort] = DiaryFilter::getDiariesByFilter($request, $diaries);
-
+        [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
+        $diaries = DiaryListItemResource::collection($diaries);
         // if ($request->expectsJson()) {
         //     return DiaryListItemResource::collection($paginated)->response();
         // }
@@ -95,7 +95,7 @@ class DiaryController extends Controller
                 return redirect()->route('collections.show', ['collection' => $collection->id])->with('success', 'Diary is created successfully.');
             }
         }
-        return redirect()->route('diaries.index', ['collection' => $collection?->id])->with('success', 'Diary is created successfully.');
+        return redirect()->route('diaries', ['collection' => $collection?->id])->with('success', 'Diary is created successfully.');
     }
 
     public function edit(Diary $diary, Request $request)
@@ -229,7 +229,7 @@ class DiaryController extends Controller
             return null; // Ensure a return value to prevent errors
         };
 
-        return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', 'diaries.index', $callback, $request);
+        return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', 'diaries', $callback, $request);
     }
 
     public function collections(Diary $diary, Request $request)
@@ -240,12 +240,14 @@ class DiaryController extends Controller
 
     public function shares(Diary $diary, Request $request)
     {
+        $user = Auth::user();
         DB::beginTransaction();
         try {
             $diary->sharedItems()->delete();
 
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
+                    if($receiver === $user->email) continue;
                     $diary->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,

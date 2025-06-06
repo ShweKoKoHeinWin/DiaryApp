@@ -48,23 +48,28 @@ class User extends Authenticatable
         ];
     }
 
-    public function diaries() : HasMany {
+    public function diaries(): HasMany
+    {
         return $this->hasMany(Diary::class);
     }
 
-    public function collections() : HasMany {
+    public function collections(): HasMany
+    {
         return $this->hasMany(Collection::class);
     }
 
-    public function categories() : HasMany {
+    public function categories(): HasMany
+    {
         return $this->hasMany(Category::class);
     }
 
-    public function emotions() : HasMany {
+    public function emotions(): HasMany
+    {
         return $this->hasMany(Emotion::class);
     }
 
-    public function files() : HasMany {
+    public function files(): HasMany
+    {
         return $this->hasMany(Files::class);
     }
 
@@ -80,7 +85,7 @@ class User extends Authenticatable
     //     return $this->hasMany(User::class, 'receiver_id');
     // }
 
-     public function sentShares(): HasMany
+    public function sentShares(): HasMany
     {
         return $this->hasMany(SharedItem::class, 'owner_id');
     }
@@ -113,5 +118,16 @@ class User extends Authenticatable
     public function receivedCollections(): HasMany
     {
         return $this->receivedShares()->where('shareable_type', Collection::class);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            // Update SharedItems where email matches this user's email
+            \App\Models\SharedItem::where('email', $user->email)
+                ->update([
+                    'receiver_id' => $user->id,
+                ]);
+        });
     }
 }

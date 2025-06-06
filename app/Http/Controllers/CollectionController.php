@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filter\DiaryFilter;
+use App\Filter\FilterService;
 use App\Http\Resources\CollectionResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
@@ -22,12 +22,13 @@ class CollectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $filterSort = [];
-        $collections = CollectionResource::collection(Collection::where('user_id', $user->id)->paginate(20));
+        $collections = Collection::where('user_id', $user->id);
+        [$collections, $filterSort] = FilterService::getCollectionsByFilter($request, $collections);
 
+        $collections = CollectionResource::collection($collections);
         return Inertia::render('collection/index', compact('collections', 'filterSort'));
     }
 
@@ -72,8 +73,8 @@ class CollectionController extends Controller
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
 
-        [$diaries, $filterSort] = DiaryFilter::getDiariesByFilter($request, $diaries);
-
+        [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
+        $diaries = DiaryListItemResource::collection($diaries);
         $collection = new CollectionResource($collection);
         // if ($request->expectsJson()) {
         //     return DiaryListItemResource::collection($paginated)->response();
@@ -128,11 +129,13 @@ class CollectionController extends Controller
     public function shares(Collection $collection, Request $request)
     {
         DB::beginTransaction();
+        $user = Auth::user();
         try {
             $collection->sharedItems()->delete();
 
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
+                    if($receiver === $user->email) continue;
                     $collection->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,

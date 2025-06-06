@@ -28,6 +28,7 @@ const ShareModal = ({
                 {
                     preserveScroll: true,
                     preserveState: true,
+                    onFinish: () => router.reload()
                 },
             );
         }

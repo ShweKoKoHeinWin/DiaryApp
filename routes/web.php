@@ -29,9 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{emotion}/delete', [EmotionController::class, 'destroy'])->name('emotions.delete')->can('delete', 'emotion');
     });
 
-
     Route::prefix('/diaries')->group(function () {
-        Route::get('/', [DiaryController::class, 'index'])->name('diaries.index');
+        Route::get('/', fn () => redirect()->route('diaries.index'))->name('diaries'); 
+
+        Route::get('/index', [DiaryController::class, 'index'])->name('diaries.index');
         Route::get('/create', [DiaryController::class, 'create'])->name('diaries.create');
         Route::post('/store', [DiaryController::class, 'store'])->name('diaries.store');
         Route::get('/{diary}/edit', [DiaryController::class, 'edit'])->name('diaries.edit');
@@ -43,8 +44,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{diary}/shares', [DiaryController::class, 'shares'])->name('diaries.shares');
     });
 
-    Route::prefix('/shares')->group(function () {
-        Route::put('/multishare', [ShareController::class, 'multishare'])->name('shares.multishare');
+    Route::prefix('/inbox-shares')->group(function () {
+        Route::get('/', fn () => redirect()->route('inbox-shares.users'))->name('inbox-shares'); 
+        Route::get('/shares', [ShareController::class, 'sharedItems'])->name('inbox-shares.shares');
+        Route::get('/inbox', [ShareController::class, 'inboxItems'])->name('inbox-shares.inbox');
+        Route::get('/users', [ShareController::class, 'users'])->name('inbox-shares.users');
+        Route::put('/multishare', [ShareController::class, 'multishare'])->name('inbox-shares.multishare');
     });
 
     Route::prefix('/collections')->group(function () {

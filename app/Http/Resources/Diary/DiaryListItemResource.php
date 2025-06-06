@@ -33,7 +33,7 @@ class DiaryListItemResource extends JsonResource
                     ->groupBy('type')
                     ->pluck('count', 'type')
             ],
-            'shares' => $this->sharedItems()->with('receiver')->latest()->get()?->map(function($share) {
+            'shares' => $this->sharedItems()->latest()->get()?->map(function($share) {
                 return [
                     'id' => $share->id,
                     'email' => $share->email,

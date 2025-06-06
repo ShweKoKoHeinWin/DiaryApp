@@ -33,4 +33,14 @@ class SharedItem extends Model
     {
         return $this->morphTo();
     }
+
+    public function diary(): BelongsTo
+    {
+        return $this->belongsTo(Diary::class, 'shareable_id');
+    }
+
+    public function collection(): BelongsTo
+    {
+        return $this->belongsTo(Collection::class, 'shareable_id');
+    }
 }

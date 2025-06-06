@@ -67,7 +67,7 @@ const CardSelectModeBox = ({
                                     </Button>
                                     {/* multi share box */}
                                     <MultiShareModal
-                                        url={route('shares.multishare')}
+                                        url={route('inbox-shares.multishare')}
                                         showShareBox={showShareBox}
                                         setShowShareBox={setShowShareBox}
                                         selectedCards={selectedCards}

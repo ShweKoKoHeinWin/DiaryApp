@@ -1,5 +1,3 @@
-// import CardListingPage from '@/components/diary/card-list';
-// import {DiaryFilterPanel} from '@/components/diary/diary-filter-panel';
 import CardListingPage from '@/components/diary/card-list';
 import { DiaryFilterPanel } from '@/components/diary/diary-filter-panel';
 import AppLayout from '@/layouts/app-layout';
@@ -23,7 +21,7 @@ const index = ({filterSort, diaries, categories, emotions, collections}: {
     diaries: { meta: any; links: any; data: DiaryListingItemProp[] },
     categories: CategoryProp[],
     emotions: EmotionDetailProp[],
-    collections: CollectionShortProp
+    collections: CollectionShortProp[]
 }) => {    
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);

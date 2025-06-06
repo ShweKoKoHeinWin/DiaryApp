@@ -70,7 +70,7 @@ const DiaryCollectionModal = ({ showCollections, setShowCollections, allCollecti
                         <li key={collection.id}>
                             <div className="inline-block w-[90%]">
                                 <Label
-                                    className="flex items-center justify-between gap-2 rounded-xl bg-amber-300 p-3"
+                                    className="flex items-center justify-between gap-2 rounded-xl bg-amber-600 p-3"
                                     htmlFor={`collection-${collection.id}`}
                                 >
                                     {collection.title}

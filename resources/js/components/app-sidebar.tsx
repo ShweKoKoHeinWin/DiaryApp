@@ -1,49 +1,10 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, BookOpenText, Calendar, FileImageIcon, Folder, Grid2x2, House, LayoutGrid, NotebookText, SmilePlus } from 'lucide-react';
+import { BookOpenText, Calendar, FileImageIcon, Grid2x2, House, Inbox, ListCheck, ListPlus, NotebookText, PackageOpen, SmilePlus, SquareArrowOutUpRight, Users } from 'lucide-react';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Home',
-        href: route('home', undefined, false),
-        icon: House,
-    },
-    {
-        title: 'Calender',
-        href: route('calendar', undefined, false),
-        icon: Calendar,
-    },
-    {
-        title: 'Diaries',
-        href: route('diaries.index', undefined, false),
-        icon: BookOpenText,
-    },
-    {
-        title: 'Collections',
-        href: route('collections.index', undefined, false),
-        icon: NotebookText,
-    },
-    {
-        title: 'Categories',
-        href: route('categories.index', undefined, false),
-        icon: Grid2x2,
-    },
-    {
-        title: 'Emotions',
-        href: route('emotions.index', undefined, false),
-        icon: SmilePlus,
-    },
-    {
-        title: 'Files',
-        href: route('files.index', undefined, false),
-        icon: FileImageIcon,
-    },
-];
 
 // const footerNavItems: NavItem[] = [
 //     {
@@ -58,6 +19,78 @@ const mainNavItems: NavItem[] = [
 //     },
 // ];
 
+
+const mainNavItems: NavItem[] = [
+    {
+        title: 'Home',
+        href: 'home',
+        icon: House,
+    },
+    {
+        title: 'Calender',
+        href: 'calendar',
+        icon: Calendar,
+    },
+    {
+        title: 'Diaries',
+        href: 'diaries',
+        icon: BookOpenText,
+        children: [
+            {
+                title: 'Index',
+                href: 'diaries.index',
+                icon: ListCheck
+            },
+            {
+                title: 'Create',
+                href: 'diaries.create',
+                icon: ListPlus
+            },
+        ],
+    },
+    {
+        title: 'Collections',
+        href: 'collections.index',
+        icon: NotebookText,
+    },
+    {
+        title: 'Categories',
+        href: 'categories.index',
+        icon: Grid2x2,
+    },
+    {
+        title: 'Emotions',
+        href: 'emotions.index',
+        icon: SmilePlus,
+    },
+    {
+        title: 'Files',
+        href: 'files.index',
+        icon: FileImageIcon,
+    },
+    {
+        title: 'Inbox & Shares',
+        href: 'inbox-shares',
+        icon: PackageOpen,
+        children: [
+            {
+                title: 'Users',
+                href: 'inbox-shares.users',
+                icon: Users,
+            },
+            {
+                title: 'Inbox',
+                href: 'inbox-shares.inbox',
+                icon: Inbox
+            },
+            {
+                title: 'Shares',
+                href: 'inbox-shares.shares',
+                icon: SquareArrowOutUpRight
+            }
+        ]
+    }
+];
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
