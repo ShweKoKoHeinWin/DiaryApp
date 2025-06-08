@@ -23,6 +23,8 @@ const index = ({filterSort, diaries, categories, emotions, collections}: {
     emotions: EmotionDetailProp[],
     collections: CollectionShortProp[]
 }) => {    
+    console.log(diaries);
+    
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
     return (

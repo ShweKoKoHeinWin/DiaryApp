@@ -17,10 +17,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 const endPoint = route('collections.index');
 
 const index = ({ filterSort, collections }) => {
-    console.log(collections);
+    console.log(collections, filterSort);
 
-    const [filterProp, setFilterProp] = useState<FilterProp>({});
-    const [sortProp, setSortProp] = useState<SortProp>({});
+    const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
+    const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

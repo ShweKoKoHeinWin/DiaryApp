@@ -17,18 +17,21 @@ class ReceivedItemsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $item = null;
+        $type = null;
         if ($this->shareable_type === Collection::class) {
             $item = new CollectionResource($this->collection);
+            $type = 'collection';
         } else if ($this->shareable_type === Diary::class) {
             $item = new DiaryListItemResource($this->diary);
-        } else {
-            $item = null;
+            $type = 'diary';
         }
         return [
             'id' => $this->id,
             'email' => $this->email,
             'sharer' => new UserResource($this->sharer),
             'item' => $item,
+            'type' => $type,
             'created_at' => $this->created_at,
         ];
     }

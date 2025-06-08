@@ -33,11 +33,12 @@ class DiaryListItemResource extends JsonResource
                     ->groupBy('type')
                     ->pluck('count', 'type')
             ],
-            'shares' => $this->sharedItems()->latest()->get()?->map(function($share) {
+            'shares' => $this->sharedItems()->with('receiver')->latest()->get()?->map(function($share) {
                 return [
                     'id' => $share->id,
                     'email' => $share->email,
-                    'receiver' => $share->receiver()->select('id', 'name')->get()
+                    'receiver' => $share->receiver ? $share->receiver : '',
+                    'created_at' => $share->created_at,
                 ];
             }),
             'title' => $this->title,

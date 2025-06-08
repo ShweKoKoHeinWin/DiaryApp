@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -73,21 +75,16 @@ class User extends Authenticatable
         return $this->hasMany(Files::class);
     }
 
-    // public function sharers() : HasMany {
-    //     return $this->hasMany(User::class, 'receiver_id');
-    // }
-
-    // public function owners() : HasMany {
-    //     return $this->hasMany(User::class, 'owner_id');
-    // }
-
-    // public function sharedItems() : HasMany {
-    //     return $this->hasMany(User::class, 'receiver_id');
-    // }
-
     public function sentShares(): HasMany
     {
         return $this->hasMany(SharedItem::class, 'owner_id');
+    }
+
+    public function getUniqueSentItems()
+    {
+        return $this->sentShares()
+            ->with('shareable') // Make sure you have this in SharedItem model
+            ->groupBy('shareable_type', 'shareable_id');
     }
 
     // As receiver

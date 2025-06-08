@@ -1,9 +1,10 @@
+import { CollectionProp, DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
 import { router } from '@inertiajs/react';
 import { DialogDescription } from '@radix-ui/react-dialog';
+import { format } from 'date-fns';
 import { PlusSquare, Trash } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { CollectionProp, DiaryDetailProp, DiaryListingItemProp } from '@/types/types';
 
 const ShareModal = ({
     url,
@@ -28,7 +29,7 @@ const ShareModal = ({
                 {
                     preserveScroll: true,
                     preserveState: true,
-                    onFinish: () => router.reload()
+                    onFinish: () => router.reload(),
                 },
             );
         }
@@ -47,6 +48,10 @@ const ShareModal = ({
         );
     };
 
+    useEffect(() => {
+        setReceivers(card?.shares?.length > 0 ? card?.shares.map((s) => s.email) : ['']);
+    }, [card]);
+
     return (
         <Dialog open={showShareBox} onOpenChange={handleSharedBox}>
             <DialogContent className="sm:max-w-md">
@@ -61,7 +66,7 @@ const ShareModal = ({
                                 value={user}
                                 className="flex-1 rounded-2xl border-2 border-blue-400 py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 dark:text-gray-200"
                             />
-                            <div className="h-6 w-6" onClick={e => setReceivers(receivers.filter((_, i) => i !== idx))}>
+                            <div className="h-6 w-6" onClick={(e) => setReceivers(receivers.filter((_, i) => i !== idx))}>
                                 <Trash className="text-red-600" />
                             </div>
                         </li>

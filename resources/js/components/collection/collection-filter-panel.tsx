@@ -168,13 +168,6 @@ export function CollectionFilterPanel({
                             <Button variant="outline" className="gap-1">
                                 <Filter className="h-4 w-4" />
                                 Filters
-                                {activeFiltersCount > 0 ? (
-                                    <span className="bg-primary text-primary-foreground ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
-                                        {activeFiltersCount}
-                                    </span>
-                                ) : (
-                                    <span className="ml-1 h-5 w-5"></span>
-                                )}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[50vw] p-4" align="end">
@@ -215,14 +208,6 @@ export function CollectionFilterPanel({
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
-                    {/* Reset Button */}
-                    {activeFiltersCount > 0 ? (
-                        <Button variant="ghost" size="icon" onClick={resetFilters}>
-                            <RotateCcw className="h-4 w-4" />
-                            <span className="sr-only">Reset filters</span>
-                        </Button>
-                    ) : <div className='w-4 h-4'></div>}
                 </div>
 
                 {/* Filters - Mobile */}
@@ -232,11 +217,6 @@ export function CollectionFilterPanel({
                             <Button variant="outline" className="gap-1">
                                 <Filter className="h-4 w-4" />
                                 Filters
-                                {activeFiltersCount > 0 && (
-                                    <span className="bg-primary text-primary-foreground ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
-                                        {activeFiltersCount}
-                                    </span>
-                                )}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
@@ -284,16 +264,6 @@ export function CollectionFilterPanel({
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
-                    {/* Reset Button */}
-                    {activeFiltersCount > 0 ? (
-                        <Button variant="ghost" size="icon" onClick={resetFilters}>
-                            <RotateCcw className="h-4 w-4" />
-                            <span className="sr-only">Reset filters</span>
-                        </Button>
-                    ) : (
-                        <Button variant='ghost' style={{visibility: 'hidden'}}><div className='w-4 h-4'></div></Button>
-                    )}
                 </div>
 
                 <Button onClick={() => setIsOpen(true)} variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">

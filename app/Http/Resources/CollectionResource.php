@@ -25,7 +25,7 @@ class CollectionResource extends JsonResource
                 return [
                     'id' => $share->id,
                     'email' => $share->email,
-                    'receiver' => $share->receiver()->select('id', 'name')->get(),
+                    'receiver' => $share->receiver ? $share->receiver : null,
                 ];
             }),
             'title' => $this->title,

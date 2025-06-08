@@ -92,16 +92,16 @@ class FilterService
         if ($request->filled('startDate') && $request->filled('endDate')) {
             $start = Carbon::parse($request->input('startDate'))->startOfDay();
             $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $collections->whereBetween('diaries.created_at', [$start, $end]);
+            $collections->whereBetween('created_at', [$start, $end]);
             $filterSort['filters']['startDate'] = $request->input('startDate');
             $filterSort['filters']['endDate'] = $request->input('endDate');
         } else if ($request->filled('startDate')) {
             $start = Carbon::parse($request->input('startDate'))->startOfDay();
-            $collections->where('diaries.created_at', '>=', $start);
+            $collections->where('created_at', '>=', $start);
             $filterSort['filters']['startDate'] = $request->input('startDate');
         } else if ($request->filled('endDate')) {
             $end = Carbon::parse($request->input('endDate'))->endOfDay();
-            $collections->where('diaries.created_at', '<=', $end);
+            $collections->where('created_at', '<=', $end);
             $filterSort['filters']['endDate'] = $request->input('endDate');
         }
 
@@ -129,6 +129,54 @@ class FilterService
         }
         $page = $request->input('page', 1);
         $paginated = $collections->paginate($perPage, ['*'], 'page', $page);
+
+        return [$paginated, $filterSort];
+    }
+
+    public static function getSharedOrReceivedItems(Request $request, $items, $perPage = 10) : array
+    {
+        $filterSort = ['filters' => [], 'sorting' => []];
+        if ($request->filled('startDate') && $request->filled('endDate')) {
+            $start = Carbon::parse($request->input('startDate'))->startOfDay();
+            $end = Carbon::parse($request->input('endDate'))->endOfDay();
+            $items->whereBetween('created_at', [$start, $end]);
+            $filterSort['filters']['startDate'] = $request->input('startDate');
+            $filterSort['filters']['endDate'] = $request->input('endDate');
+        } else if ($request->filled('startDate')) {
+            $start = Carbon::parse($request->input('startDate'))->startOfDay();
+            $items->where('created_at', '>=', $start);
+            $filterSort['filters']['startDate'] = $request->input('startDate');
+        } else if ($request->filled('endDate')) {
+            $end = Carbon::parse($request->input('endDate'))->endOfDay();
+            $items->where('created_at', '<=', $end);
+            $filterSort['filters']['endDate'] = $request->input('endDate');
+        }
+
+        if ($request->filled('query')) {
+            $items->where('title', 'LIKE', '%' . $request->input('query') . '%');
+            $filterSort['filters']['query'] = $request->input('query');
+        }
+
+        switch ($request->input('sortBy', 'date')) {
+            case 'date':
+                $items->orderBy('created_at', $request->input('sortOrder', 'desc'));
+                $filterSort['sorting']['type'] = 'date';
+                $filterSort['sorting']['order'] = $request->input('sortOrder', 'desc');
+                break;
+
+            case 'title':
+                $items->orderBy('title', $request->input('sortOrder', 'asc'));
+                $filterSort['sorting']['type'] = 'title';
+                $filterSort['sorting']['order'] = $request->input('sortOrder', 'asc');
+                break;
+
+            default:
+                # code...
+                break;
+        }
+        $page = $request->input('page', 1);
+        $paginated = $items->paginate($perPage, ['*'], 'page', $page);
+        
 
         return [$paginated, $filterSort];
     }

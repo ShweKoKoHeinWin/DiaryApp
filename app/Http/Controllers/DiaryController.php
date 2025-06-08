@@ -25,7 +25,7 @@ class DiaryController extends Controller
         $user = Auth::user();
         $categories = Category::where('user_id', $user->id)->select('id', 'name')->get();
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
-        $diaries = Diary::query()->with('categories', 'emotion', 'user', 'files');
+        $diaries = Diary::query()->with('categories', 'emotion', 'files');
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
         [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
         $diaries = DiaryListItemResource::collection($diaries);
@@ -243,11 +243,12 @@ class DiaryController extends Controller
         $user = Auth::user();
         DB::beginTransaction();
         try {
-            $diary->sharedItems()->delete();
+            $diary->sharedItems()->whereNotIn('email', $request->input('receivers', []))->delete();
 
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
                     if($receiver === $user->email) continue;
+                    if($diary->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
                     $diary->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,

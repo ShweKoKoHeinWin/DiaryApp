@@ -67,7 +67,7 @@ export function CollectionDiaryCardItem({
                     setBlockEvent(false);
                 }}
                 onMouseUp={() => {
-                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    const pressedTime = Date.now() - (pressStartTime.current ?? Date.now());
                     if (pressedTime > 800) {
                         setBlockEvent(true);
                         setIsCardSelecting(true);
@@ -80,7 +80,7 @@ export function CollectionDiaryCardItem({
                     setBlockEvent(false);
                 }}
                 onTouchEnd={() => {
-                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    const pressedTime = Date.now() - (pressStartTime.current ?? Date.now());
                     if (pressedTime > 800) {
                         setBlockEvent(true);
                         setIsCardSelecting(true);
@@ -91,7 +91,7 @@ export function CollectionDiaryCardItem({
             >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) h:mm a')}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">

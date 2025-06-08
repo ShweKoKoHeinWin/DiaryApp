@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import TitleCreateModal from '../collection/title-create-modal';
@@ -15,6 +15,10 @@ const DiaryCollectionModal = ({ showCollections, setShowCollections, allCollecti
 }) => {
     const [selectedCollections, setSelectedCollections] = useState<number[]>([...diary.collections.map(col => col.id)].sort());
 
+    useEffect(() => {
+        setSelectedCollections([...diary.collections.map(col => col.id)].sort())
+    }, [diary])
+    
     const handleCollectionBox = (isOpen: boolean) => {
         if (!isOpen) {
             router.put(

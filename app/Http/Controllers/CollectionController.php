@@ -25,7 +25,7 @@ class CollectionController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $collections = Collection::where('user_id', $user->id);
+        $collections = Collection::where('user_id', $user->id)->with('user');
         [$collections, $filterSort] = FilterService::getCollectionsByFilter($request, $collections);
 
         $collections = CollectionResource::collection($collections);
@@ -131,11 +131,12 @@ class CollectionController extends Controller
         DB::beginTransaction();
         $user = Auth::user();
         try {
-            $collection->sharedItems()->delete();
-
+            $collection->sharedItems()->whereNotIn('email', $request->input('receivers', []))->delete();
+            
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
                     if($receiver === $user->email) continue;
+                    if($collection->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
                     $collection->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,
@@ -146,6 +147,7 @@ class CollectionController extends Controller
             DB::commit();
             return redirect()->back()->with('success', "Collection's shared users updated successfully.");
         } catch (Exception $e) {
+            dd($e);
             DB::rollBack();
         }
     }

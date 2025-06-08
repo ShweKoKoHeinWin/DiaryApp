@@ -3,7 +3,7 @@ import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
@@ -33,11 +33,46 @@ export function CardItem({
     setSelectedCards: (val: number[]) => void;
     cancelSelectMode: () => void;
 }) {
-    const maxVisibleCategories = 2;
+    const categoryContainerRef = useRef<HTMLDivElement>(null);
+    const [maxVisibleCategories, setMaxVisibleCategories] = useState(2);
     const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const [showCollections, setShowCollections] = useState<boolean>(false);
+
+    // useEffect(() => {
+    //     const updateCategoryCount = () => {
+    //         const container = categoryContainerRef.current;
+    //         if (!container) return;
+
+    //         const categoryElements = Array.from(container.children) as HTMLElement[];
+    //         const containerWidth = container.offsetWidth;
+    //         let totalWidth = 0;
+    //         let count = 0;
+
+    //         for (const el of categoryElements) {
+    //             totalWidth += el.offsetWidth + 6; // add gap
+    //             if (totalWidth + 24 <= containerWidth) {
+    //                 count++;
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+
+    //         setMaxVisibleCategories(count);
+    //     };
+
+    //     // Run on mount and whenever categories change
+    //     updateCategoryCount();
+
+    //     // Run on resize
+    //     window.addEventListener('resize', updateCategoryCount);
+
+    //     // Cleanup
+    //     return () => {
+    //         window.removeEventListener('resize', updateCategoryCount);
+    //     };
+    // }, [card.categories]);
 
     // Long Press mode
     const pressStartTime = useRef<number | null>(null);
@@ -76,7 +111,7 @@ export function CardItem({
                     setBlockEvent(false);
                 }}
                 onMouseUp={() => {
-                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    const pressedTime = Date.now() - (pressStartTime.current ?? Date.now());
                     if (pressedTime > 800) {
                         setBlockEvent(true);
                         setIsCardSelecting(true);
@@ -89,7 +124,7 @@ export function CardItem({
                     setBlockEvent(false);
                 }}
                 onTouchEnd={() => {
-                    const pressedTime = Date.now() - (pressStartTime.current ?? 0);
+                    const pressedTime = Date.now() - (pressStartTime.current ?? Date.now());
                     if (pressedTime > 800) {
                         setBlockEvent(true);
                         setIsCardSelecting(true);
@@ -100,7 +135,7 @@ export function CardItem({
             >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) h:mm a')}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
@@ -168,7 +203,7 @@ export function CardItem({
                 </Link>
 
                 {/* Categories row with overflow handling */}
-                <div className="mt-4 flex items-center gap-1 overflow-hidden">
+                <div className="mt-4 flex items-center gap-1 overflow-hidden" ref={categoryContainerRef}>
                     {card.categories.slice(0, maxVisibleCategories).map((category, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
                             {category.name}
@@ -228,7 +263,7 @@ export function CardItem({
                             </TooltipProvider>
                         )}
 
-                        {card.shares?.length > 0 && <EmailSendbox allEmails={[...card.shares.map(s => s.email)]} />}
+                        {card.shares?.length > 0 && <EmailSendbox allEmails={[...card.shares.map((s) => s.email)]} />}
 
                         <Button
                             variant="ghost"

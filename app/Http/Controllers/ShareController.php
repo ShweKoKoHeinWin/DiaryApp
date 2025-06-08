@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filter\FilterService;
 use App\Http\Resources\ReceivedItemsResource;
 use App\Http\Resources\SharedItemsResource;
 use App\Http\Resources\UserResource;
@@ -16,22 +17,27 @@ use Inertia\Inertia;
 
 class ShareController extends Controller
 {
-    public function sharedItems()
+    public function sharedItems(Request $request)
     {
         $filterSort = [];
         $user = User::find(Auth::user()->id);
-        $user->load('sentShares.collection', 'sentShares.diary', 'sentShares.receiver');
-        $items = SharedItemsResource::collection($user->sentShares);
+        $user->load('sentShares.collection', 'sentShares.diary', 'sentShares.receiver', 'sentShares');
+        // dd($user->getUniqueSentItems());
+        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->getUniqueSentItems());
+        $items = SharedItemsResource::collection($items);
 
-        return Inertia::render('share/outbox', compact('filterSort', 'items'));
+        $collections = Collection::where('user_id', $user->id)->get();
+
+        return Inertia::render('share/outbox', compact('filterSort', 'items', 'collections'));
     }
 
-    public function inboxItems()
+    public function inboxItems(Request $request)
     {
         $filterSort = [];
         $user = User::find(Auth::user()->id);
         $user->load('receivedShares.collection', 'receivedShares.diary', 'receivedShares.sharer');
-        $items = ReceivedItemsResource::collection($user->receivedShares);
+        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->receivedShares());
+        $items = ReceivedItemsResource::collection($items);
 
         return Inertia::render('share/inbox', compact('filterSort', 'items'));
     }
