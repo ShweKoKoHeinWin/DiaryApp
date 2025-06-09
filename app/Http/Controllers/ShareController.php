@@ -21,9 +21,8 @@ class ShareController extends Controller
     {
         $filterSort = [];
         $user = User::find(Auth::user()->id);
-        $user->load('sentShares.collection', 'sentShares.diary', 'sentShares.receiver', 'sentShares');
-        // dd($user->getUniqueSentItems());
-        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->getUniqueSentItems());
+        // $user->load(['sentShares.collection', 'sentShares.diary', 'sentShares.receiver']);
+        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->sentShares()->with(['collection', 'diary', 'receiver']));
         $items = SharedItemsResource::collection($items);
 
         $collections = Collection::where('user_id', $user->id)->get();
@@ -35,8 +34,8 @@ class ShareController extends Controller
     {
         $filterSort = [];
         $user = User::find(Auth::user()->id);
-        $user->load('receivedShares.collection', 'receivedShares.diary', 'receivedShares.sharer');
-        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->receivedShares());
+        // $user->load('receivedShares.collection', 'receivedShares.diary', 'receivedShares.sharer');
+        [$items, $filterSort] = FilterService::getSharedOrReceivedItems($request, $user->receivedShares()->with(['collection', 'diary', 'sharer']));
         $items = ReceivedItemsResource::collection($items);
 
         return Inertia::render('share/inbox', compact('filterSort', 'items'));
@@ -46,15 +45,17 @@ class ShareController extends Controller
     {
         $filterSort = [];
         $user = User::find(Auth::user()->id);
+        // get shared or received items of user
         $sharedItems = SharedItem::where('owner_id', $user->id)
             ->orWhere('receiver_id', $user->id)
             ->orWhere('email', $user->email)
             ->get();
         $users = [];
         foreach ($sharedItems as $item) {
+            //if item ower_id is current user it is item that user shared
             $isSharing = $item->owner_id === $user->id;
-            if ($isSharing) {
-                if ($item->receiver_id === $user->id) continue;  // if user receive from himself skip
+            if ($isSharing) { // case of user is sharer
+                if ($item->receiver_id === $user->id) continue;  // if user receive from himself skip since user can't share to himself
                 // if user relation exist
                 if ($item->receiver_id) {
                     $userKey = 'id:' . $item->receiver_id;
@@ -84,7 +85,7 @@ class ShareController extends Controller
                         ];
                     }
                 }
-            } else {
+            } else { // user is receiver
                 if ($item->owner_id === $user->id) continue; // if user share to himself skip
                 $userKey = 'id:' . $item->owner_id;
                 if (!isset($users[$userKey])) {

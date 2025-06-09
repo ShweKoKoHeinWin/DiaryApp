@@ -1,9 +1,10 @@
 import { CollectionProp, SortOrderProp, SortTypeProp } from '@/types/types';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
+import { dateFormat } from '@/lib/utils';
 
 // Mock data function to simulate API calls
 
@@ -39,7 +40,7 @@ export default function CardListingPage({
 
             case 'date':
                 for (const card of cards) {
-                    const key = format(card.created_at, 'd - M - yyyy (EEEE)');
+                    const key = dateFormat(card.created_at);
                     if (!map[key]) map[key] = [];
                     map[key].push(card);
                 }

@@ -1,5 +1,7 @@
-import { CardItem as CollectionCard } from '@/components/collection/card';
-import { CardItem as DiaryCard } from '@/components/diary/card';
+// import { CardItem as CollectionCard } from '@/components/collection/card';
+// import { CardItem as DiaryCard } from '@/components/diary/card';
+import { CollectionCard } from '@/components/share/collection-card';
+import { DiaryCard } from '@/components/share/diary-card';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -15,11 +17,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import CardSelectModeBox from '@/components/ultils/card-select-mode-box';
 import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
+import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { DiaryListingItemProp } from '@/types/types';
 
 import { Head, usePage } from '@inertiajs/react';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 const breadcrumbs: BreadcrumbItem[] = [
@@ -57,7 +60,7 @@ const OutBox = ({ filterSort, items, collections }: { filterSort: any }) => {
 
             case 'date':
                 for (const card of cards) {
-                    const key = format(card.created_at, 'd - M - yyyy (EEEE)');
+                    const key = dateFormat(card.created_at);
                     if (!map[key]) map[key] = [];
                     map[key].push(card);
                 }
@@ -215,7 +218,9 @@ const OutBox = ({ filterSort, items, collections }: { filterSort: any }) => {
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {items.map((card) => (
                                     <div key={group + card.id} className="col-span-1">
-                                        {card.type === 'collection' && (
+                                        {card.type === 'collection' && <CollectionCard card={card} type='receiver' />}
+                                        {card.type === 'diary' && <DiaryCard card={card} type='receiver' />}
+                                        {/* {card.type === 'collection' && (
                                             <CollectionCard
                                                 card={card.item}
                                                 isCardSelecting={isCardSelecting}
@@ -234,7 +239,7 @@ const OutBox = ({ filterSort, items, collections }: { filterSort: any }) => {
                                                 setSelectedCards={setSelectedCards}
                                                 cancelSelectMode={cancelSelectMode}
                                             />
-                                        )}
+                                        )} */}
                                     </div>
                                 ))}
                             </div>

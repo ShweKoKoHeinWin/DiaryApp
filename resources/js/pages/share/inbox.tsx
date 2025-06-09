@@ -14,11 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
+import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { DiaryListingItemProp } from '@/types/types';
 
 import { Head, usePage } from '@inertiajs/react';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -51,7 +52,7 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
 
             case 'date':
                 for (const card of cards) {
-                    const key = format(card.created_at, 'd - M - yyyy (EEEE)');
+                    const key = dateFormat(card.created_at);
                     if (!map[key]) map[key] = [];
                     map[key].push(card);
                 }
@@ -193,8 +194,8 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {items.map((card) => (
                                     <div key={group + card.id} className="col-span-1">
-                                        {card.type === 'collection' && <CollectionCard card={card} />}
-                                        {card.type === 'diary' && <DiaryCard card={card} />}
+                                        {card.type === 'collection' && <CollectionCard card={card} type='sharer' />}
+                                        {card.type === 'diary' && <DiaryCard card={card} type='sharer' />}
                                     </div>
                                 ))}
                             </div>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-editor';
 import AppLayout from '@/layouts/app-layout';
+import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { CategoryProp, CollectionProp, DiaryListingItemProp, EmotionDetailProp } from '@/types/types';
 // import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
@@ -155,7 +156,7 @@ const index = ({
                                     <div className="text-muted-foreground flex items-center gap-4 text-sm">
                                         <div className="flex items-center gap-1">
                                             <Calendar className="h-4 w-4" />
-                                            {format(collection.created_at, 'd - M - yyyy (EEEE)')}
+                                            {dateTimeFormat(collection.created_at)}
                                         </div>
                                         {collection.shares?.length > 0 && (
                                             <div className="flex items-center gap-1">

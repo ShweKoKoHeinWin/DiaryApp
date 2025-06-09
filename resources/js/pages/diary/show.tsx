@@ -3,6 +3,7 @@ import ShareModal from '@/components/share/share-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { CollectionShortProp, DiaryDetailProp } from '@/types/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -182,7 +183,7 @@ const show = ({
                                 <div className="text-muted-foreground flex items-center gap-4 text-sm">
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
-                                        {format(diary.created_at, 'd - M - yyyy (EEEE)')}
+                                        {dateTimeFormat(diary.created_at)}
                                     </div>
                                     {diary.shares?.length > 0 && (
                                         <div className="flex items-center gap-1">

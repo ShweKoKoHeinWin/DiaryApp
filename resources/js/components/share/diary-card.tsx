@@ -1,14 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
-import { format } from 'date-fns';
-import { BookOpenText, ChevronRight, Paperclip, User } from 'lucide-react';
+import { BookOpenText, ChevronRight, Paperclip } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-export function DiaryCard({ card }: { card: DiaryListingItemProp }) {
+import { dateTimeFormat } from '@/lib/utils';
+export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
     const maxVisibleCategories = 2;
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     return (
@@ -16,8 +15,8 @@ export function DiaryCard({ card }: { card: DiaryListingItemProp }) {
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">Received At: {format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
-                    <BookOpenText/>
+                    <span className="text-xs">Received At: {dateTimeFormat(card.created_at)}</span>
+                    <BookOpenText />
                 </div>
 
                 {/* Title with truncation */}
@@ -96,19 +95,37 @@ export function DiaryCard({ card }: { card: DiaryListingItemProp }) {
                     </div>
 
                     <div>
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger className="flex cursor-pointer items-center">
-                                    <span className='text-sm'>By</span><User />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
-                                        <li>Name : {card.sharer.name}</li>
-                                        <li>Email : {card.sharer.email}</li>
-                                    </ul>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        {type === 'sharer' && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger className="flex cursor-pointer items-center">
+                                        <span className="text-sm">{`By: ${card.sharer.name}`}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
+                                            <li>Name : {card.sharer.name}</li>
+                                            <li>Email : {card.sharer.email}</li>
+                                        </ul>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+                        {type === 'receiver' && card.receiver && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger className="flex cursor-pointer items-center">
+                                        <span className="text-sm">{`To: ${card.receiver.name}`}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <ul className="max-w-md list-inside list-none space-y-1 text-gray-200 dark:text-gray-700">
+                                            <li>Name : {card.receiver.name}</li>
+                                            <li>Email : {card.receiver.email}</li>
+                                        </ul>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+                        {type === 'receiver' && !card.receiver && <span className="text-sm">{`To: ${card.email}`}</span>}
                     </div>
                 </div>
             </CardContent>

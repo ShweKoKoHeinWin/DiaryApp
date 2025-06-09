@@ -1,13 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { CollectionProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { BookOpenText, CornerUpRight, MoreVertical } from 'lucide-react';
 import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Card, CardContent } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { dateTimeFormat } from '@/lib/utils';
 export function CardItem({
     card,
     isCardSelecting,
@@ -82,7 +82,7 @@ export function CardItem({
             >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) h:mm a')}</span>
+                    <span className="text-xs">{dateTimeFormat(card.created_at)}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">

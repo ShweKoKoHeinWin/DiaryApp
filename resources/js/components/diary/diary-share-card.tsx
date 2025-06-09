@@ -1,18 +1,14 @@
 import { Button } from '@/components/ui/button';
-import { CollectionProp, DiaryListingItemProp } from '@/types/types';
-import { Link, router } from '@inertiajs/react';
-import { format } from 'date-fns';
-import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip, PlusSquare } from 'lucide-react';
+import {  DiaryListingItemProp } from '@/types/types';
+import { Link } from '@inertiajs/react';
+import { ChevronRight, MoreVertical, Paperclip } from 'lucide-react';
 import { useState } from 'react';
-import ShareModal from '../share/share-modal';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
-import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { dateTimeFormat } from '@/lib/utils';
 
 export function DiaryShareCardItem({ card }: { card: DiaryListingItemProp }) {
     const maxVisibleCategories = 2;
@@ -24,7 +20,7 @@ export function DiaryShareCardItem({ card }: { card: DiaryListingItemProp }) {
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) HH:mm')}</span>
+                    <span className="text-xs">{dateTimeFormat(card.created_at)}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">

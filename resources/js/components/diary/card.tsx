@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
@@ -13,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import EmailSendbox from '../ultils/email-send-box';
 import DiaryCollectionModal from './diary-collection-modal';
+import { dateTimeFormat } from '@/lib/utils';
 
 export function CardItem({
     card,
@@ -135,7 +135,7 @@ export function CardItem({
             >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) h:mm a')}</span>
+                    <span className="text-xs">{dateTimeFormat(card.created_at)}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">

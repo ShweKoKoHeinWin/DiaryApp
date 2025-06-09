@@ -1,6 +1,6 @@
 import { CollectionProp, CollectionShortProp, DiaryListingItemProp, SortOrderProp, SortTypeProp } from '@/types/types';
 import { router, usePage } from '@inertiajs/react';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { FolderMinus, FolderPlus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import TitleCreateModal from '../collection/title-create-modal';
@@ -12,6 +12,7 @@ import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
 import { DiaryShareCardItem } from './diary-share-card';
+import { dateFormat } from '@/lib/utils';
 // Mock data function to simulate API calls
 
 export default function CardListingPage({
@@ -75,7 +76,7 @@ export default function CardListingPage({
 
             case 'date':
                 for (const card of cards) {
-                    const key = format(card.created_at, 'd - M - yyyy (EEEE)');
+                    const key = dateFormat(card.created_at);
                     if (!map[key]) map[key] = [];
                     map[key].push(card);
                 }

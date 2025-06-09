@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
 import { useRef, useState } from 'react';
 import ShareModal from '../share/share-modal';
@@ -11,6 +10,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { dateTimeFormat } from '@/lib/utils';
 
 export function CollectionDiaryCardItem({
     card,
@@ -91,7 +91,7 @@ export function CollectionDiaryCardItem({
             >
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{format(card.created_at, 'd-M-yyyy (EEE) h:mm a')}</span>
+                    <span className="text-xs">{dateTimeFormat(card.created_at)}</span>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">

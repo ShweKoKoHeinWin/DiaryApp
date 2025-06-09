@@ -135,7 +135,9 @@ class CollectionController extends Controller
             
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
+                    // if user sent to himself skip
                     if($receiver === $user->email) continue;
+                    // if item is shared to received user skip
                     if($collection->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
                     $collection->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
@@ -168,19 +170,22 @@ class CollectionController extends Controller
             'diaries' => ['required', 'array'],
             'diaries.*' => ['required', 'integer'],
         ]);
-        if (empty(array_filter($request->collections))) {
+        // if empty collection go back
+        if (empty(array_filter($request->input('collections')))) {
             return redirect()->back()->with('error', 'No Collections to add.');
         }
         $user = Auth::user();
+        // get exist diary ids that user select
         $diaryIdsToAdd = Diary::where('user_id', $user->id)
-            ->whereIn('id', $request->diaries)
+            ->whereIn('id', $request->input('diaries'))
             ->pluck('id')
             ->toArray();
-
+        // get collection exit that user select
         $collections = Collection::where('user_id', $user->id)
-            ->whereIn('id', array_filter($request->collections))
+            ->whereIn('id', array_filter($request->input('collections')))
             ->get();
 
+        // add selected diaries to selection collections
         foreach ($collections as $collection) {
             $collection->diaries()->syncWithoutDetaching($diaryIdsToAdd);
         }
