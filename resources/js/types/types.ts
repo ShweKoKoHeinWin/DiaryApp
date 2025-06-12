@@ -13,7 +13,7 @@
 //             [key: string]: number,
 //         }
 //     };
-//     // user : 
+//     // user :
 //     // receivers
 //     // list_content
 // };
@@ -25,7 +25,6 @@ export interface FilterProp {
     emotion?: number;
     query?: string;
 }
-
 
 export interface DiaryFormProp {
     title: string;
@@ -46,7 +45,7 @@ export interface NewFilesProp {
 }
 
 export interface OldFileProp {
-    id: number,
+    id: number;
     caption: string;
     path: string;
     type: string;
@@ -70,7 +69,9 @@ export interface CollectionProp {
     title: string;
     description: string | null;
     // image?: string | null;
-    shares: any[],
+    href: string;
+    deleteHref: string;
+    shares: any[];
     diary_count: number;
     created_at: Date;
 }
@@ -100,10 +101,10 @@ export interface DiaryListingItemProp {
     created_at: Date;
     emotion: EmotionDetailProp;
     files: {
-        total: number,
+        total: number;
         countsByTypes: {
             [key: string]: number;
-        }
+        };
     };
     shares: any[];
     title: string;

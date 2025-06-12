@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { FilterProp, SortProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
+import ActiveFilters from '../ultils/active-filters';
 
 
 export function CollectionFilterPanel({
@@ -39,17 +40,8 @@ export function CollectionFilterPanel({
     setSortProp: (sort: SortProp) => void;
     endPoint: string;
 }) {
-    const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     const hasMounted = useRef(false);
     useEffect(() => {
-        let count = Object.values(filterProp).filter((val) => {
-            if (Array.isArray(val)) {
-                return val.length > 0;
-            }
-            return !!val;
-        }).length;
-
-        setActiveFiltersCount(count);
         if (!hasMounted.current) {
             hasMounted.current = true;
             return;
@@ -76,7 +68,6 @@ export function CollectionFilterPanel({
         <div className="grid gap-6">
             {/* Date Range */}
             <div className="space-y-2">
-                <h4 className="font-medium">Date Range</h4>
                 <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                         <Label htmlFor="start-date">Start Date</Label>
@@ -103,49 +94,6 @@ export function CollectionFilterPanel({
         </div>
     );
 
-    const ActiveFilters = () => {
-        if (activeFiltersCount === 0) return null;
-
-        return (
-            <div className="mt-2 flex flex-wrap gap-2">
-                {filterProp.startDate && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>From: {format(filterProp.startDate, 'PP')}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { startDate, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove start date filter</span>
-                        </Button>
-                    </div>
-                )}
-                {filterProp.endDate && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>To: {format(filterProp.endDate, 'PP')}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { endDate, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove end date filter</span>
-                        </Button>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
     return (
         <div className="w-full space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
@@ -156,7 +104,7 @@ export function CollectionFilterPanel({
                         type="search"
                         placeholder="Search..."
                         className="pl-8"
-                        value={filterProp.query}
+                        value={filterProp.query ?? ''}
                         onChange={(e) => setFilterProp({ ...filterProp, query: e.target.value })}
                     />
                 </div>
@@ -221,9 +169,9 @@ export function CollectionFilterPanel({
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle>Filters</DialogTitle>
-                                <DialogDescription>Apply filters to narrow down your results</DialogDescription>
+                                <DialogTitle className="flex justify-between"></DialogTitle>
                             </DialogHeader>
+                            <DialogDescription aria-describedby="dialog-description"></DialogDescription>
                             <div className="py-4">
                                 <FilterContent />
                             </div>
@@ -273,7 +221,7 @@ export function CollectionFilterPanel({
             </div>
 
             {/* Active Filters Display */}
-            <ActiveFilters />
+            <ActiveFilters filterProp={filterProp} setFilterProp={setFilterProp} />
         </div>
     );
 }

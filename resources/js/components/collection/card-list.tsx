@@ -100,11 +100,11 @@ export default function CardListingPage({
                 data={collections}
                 urlParamConfig={[
                     {
-                        query: filterProp.query,
-                        startDate: filterProp.startDate,
-                        endDate: filterProp.endDate,
-                        sortBy: sortProp.type,
-                        sortOrder: sortProp.order,
+                        query: filterProp?.query,
+                        startDate: filterProp?.startDate,
+                        endDate: filterProp?.endDate,
+                        sortBy: sortProp?.type,
+                        sortOrder: sortProp?.order,
                     },
                 ]}
             />

@@ -7,7 +7,7 @@ import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { dateTimeFormat } from '@/lib/utils';
-export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
+export function DiaryCard({ card, type }: { type: 'share' | 'receive' }) {
     const maxVisibleCategories = 2;
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     return (
@@ -15,7 +15,7 @@ export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">Received At: {dateTimeFormat(card.created_at)}</span>
+                    <span className="text-xs">{type === 'share' ? 'Shared At' : 'Received At'}: {dateTimeFormat(card.created_at)}</span>
                     <BookOpenText />
                 </div>
 
@@ -95,7 +95,7 @@ export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
                     </div>
 
                     <div>
-                        {type === 'sharer' && (
+                        {type === 'receive' && (
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger className="flex cursor-pointer items-center">
@@ -110,7 +110,7 @@ export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
                                 </Tooltip>
                             </TooltipProvider>
                         )}
-                        {type === 'receiver' && card.receiver && (
+                        {type === 'share' && card.receiver && (
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger className="flex cursor-pointer items-center">
@@ -125,7 +125,7 @@ export function DiaryCard({ card, type }: { type: 'sharer' | 'receiver' }) {
                                 </Tooltip>
                             </TooltipProvider>
                         )}
-                        {type === 'receiver' && !card.receiver && <span className="text-sm">{`To: ${card.email}`}</span>}
+                        {type === 'share' && !card.receiver && <span className="text-sm">{`To: ${card.email}`}</span>}
                     </div>
                 </div>
             </CardContent>

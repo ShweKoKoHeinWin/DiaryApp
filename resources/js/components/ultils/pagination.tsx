@@ -1,6 +1,8 @@
 import { Link } from '@inertiajs/react';
 
 const Pagination = ({ data, urlParamConfig = [] }: { data: { meta: any }; urlParamConfig?: any[] }) => {
+    console.log(data.meta.links);
+    
     return (
         <div className="mt-6 flex justify-center gap-2">
             {data.meta.total > 0 &&
@@ -28,12 +30,13 @@ const Pagination = ({ data, urlParamConfig = [] }: { data: { meta: any }; urlPar
 
                         return url.pathname + url.search; // keep it relative for Inertia
                     };
-
+                    
                     return link.url ? (
                         <Link
                             key={index}
                             href={buildUrlWithParams(link.url)}
                             className={`rounded border px-3 py-1 ${link.active ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
+                            disabled={link.active}
                         >
                             {link.label.replace('&laquo;', '«').replace('&raquo;', '»')}
                         </Link>

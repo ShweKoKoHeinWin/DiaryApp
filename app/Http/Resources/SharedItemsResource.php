@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Collection\SharedCollectionResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
+use App\Http\Resources\Diary\SharedDiaryResource;
 use App\Models\Collection;
 use App\Models\Diary;
 use Illuminate\Http\Request;
@@ -20,10 +22,10 @@ class SharedItemsResource extends JsonResource
         $item = null;
         $type = null;
         if ($this->shareable_type === Collection::class) {
-            $item = new CollectionResource($this->collection);
+            $item = new SharedCollectionResource($this->collection);
             $type = 'collection';
         } else if ($this->shareable_type === Diary::class) {
-            $item = new DiaryListItemResource($this->diary);
+            $item = new SharedDiaryResource($this->diary);
             $type = 'diary';
         }
         return [

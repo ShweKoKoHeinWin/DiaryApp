@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/shares', [ShareController::class, 'sharedItems'])->name('inbox-shares.shares');
         Route::get('/inbox', [ShareController::class, 'inboxItems'])->name('inbox-shares.inbox');
         Route::get('/users', [ShareController::class, 'users'])->name('inbox-shares.users');
-        Route::get('/users/{user}', [ShareController::class, 'users'])->name('inbox-shares.users.detail');
+        Route::get('/users/{email}', [ShareController::class, 'userShow'])->name('inbox-shares.users.detail');
         Route::put('/multishare', [ShareController::class, 'multishare'])->name('inbox-shares.multishare');
     });
 

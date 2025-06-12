@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Filter\FilterService;
-use App\Http\Resources\CollectionResource;
+use App\Http\Resources\Collection\CollectionResource;
 use App\Http\Resources\Diary\DiaryListItemResource;
 use App\Models\Category;
 use App\Models\Collection;
@@ -28,8 +28,29 @@ class CollectionController extends Controller
         $collections = Collection::where('user_id', $user->id)->with('user');
         [$collections, $filterSort] = FilterService::getCollectionsByFilter($request, $collections);
 
+        $breadcrumbItems = [];
+
+        // if($request->input('sharedUser', null)) {
+        //     $sharedUser = $request->input('sharedUser', null);
+        //     $breadcrumbItems[] = [
+        //         'title' => 'Users',
+        //         'href' => route('inbox-shares.users'),
+        //     ];
+        //     $breadcrumbItems[] = [
+        //         'title' => 'Users',
+        //         'href' => route('inbox-shares.users.detail', [
+        //             'user' => 
+        //         ]),
+        //     ];
+        // }
+
+        $breadcrumbItems[] = [
+            'title' => 'Collections',
+            'href' => route('collections.index', ['inbox' => $request->input('inbox'), 'outbox' => $request->input('outbox'), 'user' => $request->input('user')])
+        ];
+        
         $collections = CollectionResource::collection($collections);
-        return Inertia::render('collection/index', compact('collections', 'filterSort'));
+        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbItems'));
     }
 
     /**

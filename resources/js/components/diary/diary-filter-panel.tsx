@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CategoryProp, EmotionDetailProp, FilterProp, SortProp } from '@/types/types';
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
+import ActiveFilters from '../ultils/active-filters';
 
 export function DiaryFilterPanel({
     filterProp,
@@ -38,8 +39,8 @@ export function DiaryFilterPanel({
     sortProp: SortProp;
     setSortProp: (sort: SortProp) => void;
     endPoint: string;
-    categories: CategoryProp[],
-    emotions: EmotionDetailProp[],
+    categories: CategoryProp[];
+    emotions: EmotionDetailProp[];
     diaryCreateUrl?: string;
 }) {
     const [activeFiltersCount, setActiveFiltersCount] = useState(0);
@@ -57,7 +58,7 @@ export function DiaryFilterPanel({
             hasMounted.current = true;
             return;
         }
-        
+
         router.visit(endPoint, {
             method: 'get',
             data: {
@@ -69,7 +70,7 @@ export function DiaryFilterPanel({
                 sortBy: sortProp.type,
                 sortOrder: sortProp.order,
             },
-            preserveState: true
+            preserveState: true,
         });
     }, [filterProp, sortProp]);
 
@@ -137,7 +138,7 @@ export function DiaryFilterPanel({
                         </Button>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
                     {categories.map((category: CategoryProp) => (
                         <div key={category.id} className="flex items-center space-x-2">
                             <Checkbox
@@ -180,83 +181,6 @@ export function DiaryFilterPanel({
         </div>
     );
 
-    const ActiveFilters = () => {
-        if (activeFiltersCount === 0) return null;
-
-        return (
-            <div className="mt-2 flex flex-wrap gap-2">
-                {filterProp.startDate && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>From: {format(filterProp.startDate, 'PP')}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { startDate, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove start date filter</span>
-                        </Button>
-                    </div>
-                )}
-                {filterProp.endDate && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>To: {format(filterProp.endDate, 'PP')}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { endDate, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove end date filter</span>
-                        </Button>
-                    </div>
-                )}
-                {filterProp.categories && filterProp.categories.length > 0 && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>Categories: {filterProp.categories.length}</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { categories, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove categories filter</span>
-                        </Button>
-                    </div>
-                )}
-                {(filterProp.emotion && filterProp.emotion != 0) && (
-                    <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                        <span>Emotion: 1</span>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="ml-1 h-4 w-4 p-0"
-                            onClick={() => {
-                                let { emotion, ...rest } = filterProp;
-                                setFilterProp(rest);
-                            }}
-                        >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove emotions filter</span>
-                        </Button>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
     return (
         <div className="w-full space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
@@ -267,7 +191,7 @@ export function DiaryFilterPanel({
                         type="search"
                         placeholder="Search..."
                         className="pl-8"
-                        value={filterProp.query}
+                        value={filterProp.query ?? ''}
                         onChange={(e) => setFilterProp({ ...filterProp, query: e.target.value })}
                     />
                 </div>
@@ -341,7 +265,9 @@ export function DiaryFilterPanel({
                             <RotateCcw className="h-4 w-4" />
                             <span className="sr-only">Reset filters</span>
                         </Button>
-                    ) : <div className='w-9 h-9'></div>}
+                    ) : (
+                        <div className="h-9 w-9"></div>
+                    )}
                 </div>
 
                 {/* Filters - Mobile */}
@@ -355,14 +281,16 @@ export function DiaryFilterPanel({
                                     <span className="bg-primary text-primary-foreground ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
                                         {activeFiltersCount}
                                     </span>
-                                ) : <span className="ml-1 h-5 w-5"></span>}
+                                ) : (
+                                    <span className="ml-1 h-5 w-5"></span>
+                                )}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle>Filters</DialogTitle>
-                                <DialogDescription>Apply filters to narrow down your results</DialogDescription>
+                                <DialogTitle className="flex justify-between"></DialogTitle>
                             </DialogHeader>
+                            <DialogDescription aria-describedby="dialog-description"></DialogDescription>
                             <div className="py-4">
                                 <FilterContent />
                             </div>
@@ -418,7 +346,7 @@ export function DiaryFilterPanel({
                             <span className="sr-only">Reset filters</span>
                         </Button>
                     ) : (
-                        <div className='w-9 h-9'></div>
+                        <div className="h-9 w-9"></div>
                     )}
                 </div>
 
@@ -431,7 +359,7 @@ export function DiaryFilterPanel({
             </div>
 
             {/* Active Filters Display */}
-            <ActiveFilters />
+            <ActiveFilters filterProp={filterProp} setFilterProp={setFilterProp} />
         </div>
     );
 }

@@ -3,7 +3,7 @@ import { BookOpenText, NotebookText } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { dateTimeFormat } from '@/lib/utils';
-export function CollectionCard({ card, type }: { type: 'sharer' | 'receiver' }) {
+export function CollectionCard({ card, type }: { type: 'share' | 'receive' }) {
     return (
         <Card className="relative h-64 w-full overflow-hidden">
             <CardContent className="flex h-full flex-col px-4">
@@ -28,7 +28,7 @@ export function CollectionCard({ card, type }: { type: 'sharer' | 'receiver' }) 
                     </div>
 
                     <div>
-                        {type === 'sharer' && (
+                        {type === 'receive' && (
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger className="flex cursor-pointer items-center">
@@ -43,7 +43,7 @@ export function CollectionCard({ card, type }: { type: 'sharer' | 'receiver' }) 
                                 </Tooltip>
                             </TooltipProvider>
                         )}
-                        {type === 'receiver' && card.receiver && (
+                        {type === 'share' && card.receiver && (
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger className="flex cursor-pointer items-center">
@@ -58,7 +58,7 @@ export function CollectionCard({ card, type }: { type: 'sharer' | 'receiver' }) 
                                 </Tooltip>
                             </TooltipProvider>
                         )}
-                        {type === 'receiver' && !card.receiver && <span className="text-sm">{`To: ${card.email}`}</span>}
+                        {type === 'share' && !card.receiver && <span className="text-sm">{`To: ${card.email}`}</span>}
                     </div>
                 </div>
             </CardContent>

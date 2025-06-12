@@ -108,7 +108,7 @@ export function CardItem({
 
                 {/* Title with truncation */}
                 <Link
-                    href={route('collections.show', card.id)}
+                    href={card.href}
                     className="rich-text-editor-container"
                     onClick={(e) => {
                         preventEventOnLongPress(e);

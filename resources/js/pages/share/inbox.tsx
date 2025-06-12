@@ -1,46 +1,78 @@
 import { CollectionCard } from '@/components/share/collection-card';
 import { DiaryCard } from '@/components/share/diary-card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ActiveFilters from '@/components/ultils/active-filters';
 import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { DiaryListingItemProp } from '@/types/types';
 
-import { Head, usePage } from '@inertiajs/react';
-import { parse } from 'date-fns';
-import { Check, ChevronDown, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { format, parse } from 'date-fns';
+import { Check, ChevronDown, Filter, RotateCcw, Search } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Inbox & Shares',
         href: route('inbox-shares'),
     },
+    {
+        title: 'Inbox',
+        href: route('inbox-shares.inbox'),
+    },
 ];
 
-const Inbox = ({ filterSort, items }: { filterSort: any }) => {
-    console.log(items);
+const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
+    console.log(filterSort);
 
-    const [cards, setCards] = useState<DiaryListingItemProp[]>(items.data);
+    const [cards, setCards] = useState(items.data);
     const { errors } = usePage().props;
 
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
+    const hasMounted = useRef(false);
+
+    useEffect(() => {
+        setCards(items.data);
+    }, [items]);
+
+    useEffect(() => {
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            return;
+        }
+
+        router.visit(route('inbox-shares.inbox'), {
+            method: 'get',
+            data: {
+                query: filterProp.query,
+                startDate: filterProp.startDate,
+                endDate: filterProp.endDate,
+                sharer: filterProp.sharer,
+                type: filterProp.type,
+                sortBy: sortProp.type,
+                sortOrder: sortProp.order,
+            },
+            preserveState: true,
+        });
+    }, [filterProp, sortProp]);
 
     const groupedCards = useMemo(() => {
-        const map: Record<string, DiaryListingItemProp[]> = {};
+        const map: Record<string, any[]> = {};
         switch (sortProp.type) {
             case 'title':
                 for (const card of cards) {
@@ -85,7 +117,9 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="container mx-auto bg-cover bg-center px-4 py-4">
                     <div className="flex flex-wrap items-center justify-between">
-                        <h1 className="mb-4 text-2xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Inbox ({`${items.meta.total} ${items.meta.total > 1 ? 'Items' : 'Item'}`})</h1>
+                        <h1 className="mb-4 text-2xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+                            Inbox ({`${items.meta.total} ${items.meta.total > 1 ? 'Items' : 'Item'}`})
+                        </h1>
                     </div>
                     <div className="mb-4 w-full">
                         <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
@@ -96,53 +130,141 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
                                     type="search"
                                     placeholder="Search..."
                                     className="pl-8"
-                                    value={filterProp.query}
+                                    value={filterProp.query ?? ''}
                                     onChange={(e) => setFilterProp({ ...filterProp, query: e.target.value })}
                                 />
                             </div>
+                            <div className="flex items-center gap-3">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="gap-1">
+                                            <Filter className="h-4 w-4" />
+                                            Filters
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px] md:max-w-[660px]">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex justify-between"></DialogTitle>
+                                        </DialogHeader>
+                                        <DialogDescription aria-describedby="dialog-description"></DialogDescription>
+                                        <div className="grid gap-6">
+                                            {/* User , Type */}
+                                            <div className="space-y-2">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="space-y-1">
+                                                        <Label htmlFor="start-date">User</Label>
+                                                        <div className="justfy-between flex items-center gap-3">
+                                                            <Select
+                                                                value={filterProp.sharer ? `${filterProp.sharer}` : ''}
+                                                                onValueChange={(value) => {
+                                                                    setFilterProp({ ...filterProp, sharer: value });
+                                                                }}
+                                                            >
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select a sharer" />
+                                                                </SelectTrigger>
+                                                                <SelectContent className="max-h-[40vh] overflow-y-scroll">
+                                                                    {sharers.length > 0 &&
+                                                                        sharers.map((s) => (
+                                                                            <SelectItem value={`${s.id}`} key={`sharer-${s.id}`}>
+                                                                                <div className="flex items-center gap-2">{s.name}</div>
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <RotateCcw
+                                                                className="cursor-pointer"
+                                                                size={15}
+                                                                onClick={() => setFilterProp({ ...filterProp, sharer: null })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label htmlFor="end-date">Type</Label>
+                                                        <div className="justfy-between flex items-center gap-3">
+                                                            <Select
+                                                                value={filterProp.type ? filterProp.type : ''}
+                                                                onValueChange={(value) => setFilterProp({ ...filterProp, type: value })}
+                                                            >
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select Type" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="diary">Diary</SelectItem>
+                                                                    <SelectItem value="collection">Collection</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <RotateCcw
+                                                                className="cursor-pointer"
+                                                                size={15}
+                                                                onClick={() => setFilterProp({ ...filterProp, type: null })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                            {/* Filters - Desktop */}
-                            <div className="">
+                                            {/* Date Range */}
+                                            <div className="space-y-2">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="space-y-1">
+                                                        <Label htmlFor="start-date">Start Date</Label>
+                                                        <div className="justfy-between flex items-center gap-3">
+                                                            <Input
+                                                                id="start-date"
+                                                                type="date"
+                                                                value={filterProp.startDate ? format(filterProp.startDate, 'yyyy-MM-dd') : ''}
+                                                                onChange={(e) =>
+                                                                    setFilterProp({
+                                                                        ...filterProp,
+                                                                        startDate: e.target.value ? new Date(e.target.value) : undefined,
+                                                                    })
+                                                                }
+                                                                className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark] dark:invert"
+                                                            />
+                                                            <RotateCcw
+                                                                className="cursor-pointer"
+                                                                size={15}
+                                                                onClick={() => setFilterProp({ ...filterProp, startDate: null })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label htmlFor="end-date">End Date</Label>
+                                                        <div className="justfy-between flex items-center gap-3">
+                                                            <Input
+                                                                id="end-date"
+                                                                type="date"
+                                                                value={filterProp.endDate ? format(filterProp.endDate, 'yyyy-MM-dd') : ''}
+                                                                onChange={(e) =>
+                                                                    setFilterProp({
+                                                                        ...filterProp,
+                                                                        endDate: e.target.value ? new Date(e.target.value) : undefined,
+                                                                    })
+                                                                }
+                                                                className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:[color-scheme:dark] dark:invert"
+                                                            />
+                                                            <RotateCcw
+                                                                className="cursor-pointer"
+                                                                size={15}
+                                                                onClick={() => setFilterProp({ ...filterProp, endDate: null })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                                <RotateCcw className="cursor-pointer" size={15} onClick={() => setFilterProp({})} />
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="outline" className="gap-1">
-                                            <span>Filter & Sort</span>
+                                            <span>Sort By</span>
                                             <ChevronDown className="h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-[200px]">
-                                        <DropdownMenuLabel>Filter</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuGroup>
-                                            <DropdownMenuItem>
-                                                <Select value={undefined} onValueChange={(value) => {}}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select a sharer" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Default">Any</SelectItem>
-                                                        <SelectItem value={` `}>
-                                                            <div className="flex items-center gap-2">User 1</div>
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <Select value={undefined} onValueChange={(value) => {}}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Type" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Default">Any</SelectItem>
-                                                        <SelectItem value="diary">Diary</SelectItem>
-                                                        <SelectItem value="collection">Collection</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </DropdownMenuItem>
-                                        </DropdownMenuGroup>
-                                        <DropdownMenuSeparator/>
-                                        <DropdownMenuLabel>Sort Options</DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
                                         <DropdownMenuGroup>
                                             <DropdownMenuItem
                                                 onClick={() => setSortProp({ type: 'title', order: 'asc' })}
@@ -175,6 +297,7 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
                                 </DropdownMenu>
                             </div>
                         </div>
+                        <ActiveFilters filterProp={filterProp} setFilterProp={setFilterProp} users={sharers} />
                     </div>
                     <div>
                         {errors && Object.keys(errors).length > 0 && (
@@ -194,8 +317,8 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {items.map((card) => (
                                     <div key={group + card.id} className="col-span-1">
-                                        {card.type === 'collection' && <CollectionCard card={card} type='sharer' />}
-                                        {card.type === 'diary' && <DiaryCard card={card} type='sharer' />}
+                                        {card.type === 'collection' && <CollectionCard card={card} type="receive" />}
+                                        {card.type === 'diary' && <DiaryCard card={card} type="receive" />}
                                     </div>
                                 ))}
                             </div>
@@ -206,13 +329,13 @@ const Inbox = ({ filterSort, items }: { filterSort: any }) => {
                         data={items}
                         urlParamConfig={[
                             {
-                                query: filterProp.query,
-                                startDate: filterProp.startDate,
-                                endDate: filterProp.endDate,
-                                type: filterProp.type,
-                                sharer: filterProp.sharer,
-                                sortBy: sortProp.type,
-                                sortOrder: sortProp.order,
+                                query: filterProp?.query,
+                                startDate: filterProp?.startDate,
+                                endDate: filterProp?.endDate,
+                                type: filterProp?.type,
+                                sharer: filterProp?.sharer,
+                                sortBy: sortProp?.type,
+                                sortOrder: sortProp?.order,
                             },
                         ]}
                     />

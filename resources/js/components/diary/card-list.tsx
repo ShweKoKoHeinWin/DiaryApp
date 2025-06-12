@@ -314,13 +314,13 @@ export default function CardListingPage({
                 data={diaries}
                 urlParamConfig={[
                     {
-                        query: filterProp.query,
-                        startDate: filterProp.startDate,
-                        endDate: filterProp.endDate,
-                        emotion: filterProp.emotion,
-                        categories: filterProp.categories,
-                        sortBy: sortProp.type,
-                        sortOrder: sortProp.order,
+                        query: filterProp?.query,
+                        startDate: filterProp?.startDate,
+                        endDate: filterProp?.endDate,
+                        emotion: filterProp?.emotion,
+                        categories: filterProp?.categories,
+                        sortBy: sortProp?.type,
+                        sortOrder: sortProp?.order,
                     },
                 ]}
             />

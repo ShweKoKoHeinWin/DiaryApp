@@ -12,7 +12,6 @@ import { BreadcrumbItem } from '@/types';
 import { CategoryProp, CollectionProp, DiaryListingItemProp, EmotionDetailProp } from '@/types/types';
 // import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { ArrowLeft, Calendar, Edit, Save, Share2, Trash, Users } from 'lucide-react';
 import { useState } from 'react';
 

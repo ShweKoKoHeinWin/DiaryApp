@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Collection;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +9,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CollectionResource extends JsonResource
 {
+    public function __construct($resource,public $sharedUser = null,public bool $inbox = false,public bool $outbox = false)
+    {
+        parent::__construct($resource);
+    }
     /**
      * Transform the resource into an array.
      *
@@ -17,6 +21,18 @@ class CollectionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'href' => route('collections.show', [
+                'collection' => $this->id,
+                'inbox' => $this->inbox,
+                'outbox' => $this->outbox,
+                'sharedUser' => $this->sharedUser,
+            ]),
+            'deleteHref' => route('collections.delete', [
+                'collection' => $this->id,
+                'inbox' => $this->inbox,
+                'outbox' => $this->outbox,
+                'sharedUser' => $this->sharedUser,
+            ]),
             'id' => $this->id,
             'created_at' => $this->created_at,
             'description' => $this->description ?? '',
