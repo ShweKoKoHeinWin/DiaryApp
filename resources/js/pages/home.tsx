@@ -1,7 +1,8 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, type SharedData } from '@/types';
+import { BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { BookOpenText, FileImageIcon, Grid2x2, NotebookText, SmilePlus } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,21 +11,66 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Home() {
-    const { auth } = usePage<SharedData>().props;
+export default function Home({ diaries, collections, emotions, categories, files, sentDiaries, sentCollections, receivedDiaries, receivedCollections }) {
+    const {auth} = usePage().props;
+    console.log(diaries, collections, sentDiaries, sentCollections, receivedDiaries, receivedCollections);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Home" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+                {/* Stats Cards */}
+                <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Created Diaries</CardTitle>
+                            <BookOpenText className="text-muted-foreground h-5 w-5" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{diaries}</div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Created Collections</CardTitle>
+                            <NotebookText className="text-muted-foreground h-5 w-5" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{collections}</div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Created Emotions</CardTitle>
+                            <SmilePlus className="text-muted-foreground h-5 w-5" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{emotions}</div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Created Categories</CardTitle>
+                            <Grid2x2 className="text-muted-foreground h-5 w-5" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{categories}</div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Total Diary Files</CardTitle>
+                            <FileImageIcon className="text-muted-foreground h-5 w-5" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{files}</div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>

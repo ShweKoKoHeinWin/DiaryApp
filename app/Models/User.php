@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -87,12 +86,6 @@ class User extends Authenticatable
             ->groupBy('shareable_type', 'shareable_id');
     }
 
-    // As receiver
-    public function receivedShares(): HasMany
-    {
-        return $this->hasMany(SharedItem::class, 'receiver_id');
-    }
-
     // Get all shared diaries user has sent
     public function sharedDiaries(): HasMany
     {
@@ -103,6 +96,11 @@ class User extends Authenticatable
     public function sharedCollections(): HasMany
     {
         return $this->sentShares()->where('shareable_type', Collection::class);
+    }
+    // As receiver
+    public function receivedShares(): HasMany
+    {
+        return $this->hasMany(SharedItem::class, 'receiver_id');
     }
 
     // Get received diaries

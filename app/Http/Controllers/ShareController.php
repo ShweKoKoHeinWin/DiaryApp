@@ -49,7 +49,7 @@ class ShareController extends Controller
     {
         $user = User::find(Auth::user()->id);
         // get shared or received items of user
-        $sharedItems = SharedItem::with(['sharer', 'sharer.sharedDiaries', 'sharer.sharedCollections', 'receiver', 'receiver.receivedDiaries', 'receiver.receivedCollections'])->where('owner_id', $user->id)
+        $sharedItems = SharedItem::with(['sharer', 'receiver'])->where('owner_id', $user->id)
             ->orWhere('receiver_id', $user->id)
             ->orWhere('email', $user->email)
             ->orderBy('created_at')

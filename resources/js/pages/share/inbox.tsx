@@ -163,7 +163,7 @@ const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
                                                                 <SelectTrigger>
                                                                     <SelectValue placeholder="Select a sharer" />
                                                                 </SelectTrigger>
-                                                                <SelectContent className="max-h-[40vh] overflow-y-scroll">
+                                                                <SelectContent className="max-h-[40vh]">
                                                                     {sharers.length > 0 &&
                                                                         sharers.map((s) => (
                                                                             <SelectItem value={`${s.id}`} key={`sharer-${s.id}`}>

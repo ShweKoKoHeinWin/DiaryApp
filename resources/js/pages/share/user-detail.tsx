@@ -238,7 +238,7 @@ const Inbox = ({ user, filterSort }) => {
                                                                 <SelectTrigger>
                                                                     <SelectValue placeholder="Select share type" />
                                                                 </SelectTrigger>
-                                                                <SelectContent className="max-h-[40vh] overflow-y-scroll">
+                                                                <SelectContent className="max-h-[40vh]">
                                                                     <SelectItem value="shared">
                                                                         <div className="flex items-center gap-2">Shared to</div>
                                                                     </SelectItem>

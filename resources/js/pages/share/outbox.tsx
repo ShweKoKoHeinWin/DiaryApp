@@ -180,7 +180,7 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                                                                 <SelectTrigger>
                                                                     <SelectValue placeholder="Select a receiver" />
                                                                 </SelectTrigger>
-                                                                <SelectContent className="max-h-[40vh] overflow-y-scroll">
+                                                                <SelectContent className="max-h-[40vh]">
                                                                     {receivers.length > 0 &&
                                                                         receivers.map((r) => (
                                                                             <SelectItem value={`${r.email}`} key={`receiver-${r.email}`}>
