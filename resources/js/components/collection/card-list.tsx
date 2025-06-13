@@ -14,10 +14,12 @@ export default function CardListingPage({
     collections,
     filterProp,
     sortProp,
+    from = 'collection',
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
     collections: { meta: any; links: any; data: CollectionProp[] };
+    from?: string
 }) {
     console.log(filterProp, sortProp);
     

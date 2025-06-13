@@ -7,22 +7,15 @@ import { FilterProp, SortProp } from '@/types/types';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Collections',
-        href: route('collections.index'),
-    },
-];
-
 const endPoint = route('collections.index');
 
-const index = ({ filterSort, collections, breadcrumbItems }) => {
-    console.log(collections, filterSort, breadcrumbItems);
+const index = ({ filterSort, collections, breadcrumbs }) => {
+    console.log(collections, filterSort, breadcrumbs);
     const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
     const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     return (
-        <AppLayout breadcrumbs={breadcrumbItems}>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Collections" />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">

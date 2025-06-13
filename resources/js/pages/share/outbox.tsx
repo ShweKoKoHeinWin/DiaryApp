@@ -334,8 +334,8 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {items.map((card) => (
                                     <div key={group + card.id} className="col-span-1">
-                                        {card.type === 'collection' && <CollectionCard card={card} type="share" />}
-                                        {card.type === 'diary' && <DiaryCard card={card} type="share" />}
+                                        {card.type === 'collection' && <CollectionCard card={card} type="share" from="share" />}
+                                        {card.type === 'diary' && <DiaryCard card={card} type="share" from="share" />}
                                     </div>
                                 ))}
                             </div>

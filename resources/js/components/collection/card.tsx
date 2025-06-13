@@ -14,12 +14,14 @@ export function CardItem({
     setIsCardSelecting,
     selectedCards,
     setSelectedCards,
+    from = 'collection',
 }: {
     card: CollectionProp;
     isCardSelecting: boolean;
     setIsCardSelecting: (val: boolean) => void;
     selectedCards: number[];
     setSelectedCards: (val: number[]) => void;
+    from: string,
 }) {
     const [showShareBox, setShowShareBox] = useState(false);
     // Long Press mode
@@ -108,7 +110,7 @@ export function CardItem({
 
                 {/* Title with truncation */}
                 <Link
-                    href={card.href}
+                    href={route('collections.show', {collection: card.id, from})}
                     className="rich-text-editor-container"
                     onClick={(e) => {
                         preventEventOnLongPress(e);

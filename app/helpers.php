@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 // Custome Cases:: it is callback
 // Case default it will redireact back prev url
 if (! function_exists('smartRedirectAfterDelete')) {
-    function smartRedirectAfterDelete(string $targetUrl, string $successMessage, string $fallbackRoute = '', $callback = null, ?Request $request = null): RedirectResponse
+    function smartRedirectAfterDelete(string $targetUrl, string $successMessage, string $fallbackUrl = '', $callback = null, ?Request $request = null): RedirectResponse
     {
         $previousUrl = url()->previous();
         if ($callback) {
@@ -19,7 +19,7 @@ if (! function_exists('smartRedirectAfterDelete')) {
             }
         }
         if (str_contains($previousUrl, $targetUrl)) {
-            return redirect()->route($fallbackRoute ?? 'home')->with('success', $successMessage);
+            return redirect($fallbackUrl ?? url('/'))->with('success', $successMessage);
         }
         return redirect()->back()->with('success', $successMessage);
     }

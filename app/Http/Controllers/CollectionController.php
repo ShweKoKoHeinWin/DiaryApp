@@ -10,6 +10,7 @@ use App\Models\Collection;
 use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
+use App\Services\Breadcrumb;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -44,13 +45,15 @@ class CollectionController extends Controller
         //     ];
         // }
 
-        $breadcrumbItems[] = [
-            'title' => 'Collections',
-            'href' => route('collections.index', ['inbox' => $request->input('inbox'), 'outbox' => $request->input('outbox'), 'user' => $request->input('user')])
-        ];
+        // $breadcrumbItems[] = [
+        //     'title' => 'Collections',
+        //     'href' => route('collections.index', ['inbox' => $request->input('inbox'), 'outbox' => $request->input('outbox'), 'user' => $request->input('user')])
+        // ];
+        $breadcrumbs = Breadcrumb::collection('list');
         
         $collections = CollectionResource::collection($collections);
-        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbItems'));
+        $from = 'collection';
+        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbs', 'from'));
     }
 
     /**
@@ -97,10 +100,15 @@ class CollectionController extends Controller
         [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
         $diaries = DiaryListItemResource::collection($diaries);
         $collection = new CollectionResource($collection);
-        // if ($request->expectsJson()) {
-        //     return DiaryListItemResource::collection($paginated)->response();
-        // }
-        return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories'));
+        
+        $from = $request->input('from', 'collection');
+        $permissions = [];
+        if($collection->user_id === $user->id) {
+            $permissions = ['edit', 'delete', 'share'];
+        }
+        [$breadcrumbs, $back] = Breadcrumb::collection('show', $from, [...$request->input('data', []), 'collection' => $collection]);
+        
+        return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories', 'breadcrumbs', 'back', 'from', 'permissions'));
     }
 
     /**
@@ -130,7 +138,7 @@ class CollectionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Collection $collection)
+    public function destroy(Collection $collection, Request $request)
     {
         DB::beginTransaction();
         try {
@@ -143,7 +151,9 @@ class CollectionController extends Controller
             return redirect()->back()->with('error', 'Something went wrong.');
         }
 
-        return smartRedirectAfterDelete(route('collections.show', $collection->id, false), 'Collection deleted successfully.', 'collections.index');
+        if($request->input('back', null)) return redirect($request->input('back', '/collections'))->with('success', 'Collection deleted successfully.');
+
+        return smartRedirectAfterDelete(route('collections.show', $collection->id, false), 'Collection deleted successfully.', route('collections.index'));
     }
 
     // @ 

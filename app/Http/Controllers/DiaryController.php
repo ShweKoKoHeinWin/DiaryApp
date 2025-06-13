@@ -229,7 +229,7 @@ class DiaryController extends Controller
             return null; // Ensure a return value to prevent errors
         };
 
-        return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', 'diaries', $callback, $request);
+        return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', route('diaries'), $callback, $request);
     }
 
     public function collections(Diary $diary, Request $request)

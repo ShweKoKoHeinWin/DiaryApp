@@ -15,31 +15,30 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Edit, Save, Share2, Trash, Users } from 'lucide-react';
 import { useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Collections',
-        href: route('collections.index'),
-    },
-    {
-        title: 'Show',
-        href: '',
-    },
-];
-
-const index = ({
+const show = ({
     filterSort,
     collections,
     diaries,
     collection,
     categories,
     emotions,
+    breadcrumbs,
+    back,
+    from,
+    permissions = [],
 }: {
     diaries: { meta: any; data: DiaryListingItemProp[] };
     collection: CollectionProp;
     collections: CollectionProp[];
     categories: CategoryProp[];
     emotions: EmotionDetailProp[];
+    breadcrumbs: BreadcrumbItem[];
+    back: string;
+    from: string;
+    permissions: string[];
 }) => {
+    console.log(breadcrumbs);
+
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
@@ -57,61 +56,67 @@ const index = ({
             <Head title="Collections" />
 
             <div className={`flex items-center justify-between px-6 pt-4`}>
-                <Link href={route('collections.index')}>
+                <Link href={back ?? route('collections.index')}>
                     <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
                         <ArrowLeft className="h-4 w-4" />
                         Back
                     </Button>
                 </Link>
                 <div className="flex items-center justify-center gap-3">
-                    {isEditing ? (
-                        <Button
-                            onClick={(e) => {
-                                router.put(
-                                    route('collections.update', collection.id),
-                                    {
-                                        title: data.title,
-                                        description: data.description,
-                                    },
-                                    {
-                                        onFinish: () => {
-                                            setIsEditing(false);
-                                            router.reload();
-                                        },
-                                    },
-                                );
-                            }}
-                            variant="secondary"
-                            className="cursor-pointer"
-                        >
-                            <Save className="h-4 w-4" />
-                            Save
-                        </Button>
-                    ) : (
-                        <Button
-                            onClick={(e) => {
-                                setIsEditing(true);
-                            }}
-                            variant="secondary"
-                            className="cursor-pointer"
-                        >
-                            <Edit className="h-4 w-4" />
-                            Edit
-                        </Button>
+                    {permissions.includes('edit') && (
+                        <>
+                            {isEditing ? (
+                                <Button
+                                    onClick={(e) => {
+                                        router.put(
+                                            route('collections.update', collection.id),
+                                            {
+                                                title: data.title,
+                                                description: data.description,
+                                            },
+                                            {
+                                                onFinish: () => {
+                                                    setIsEditing(false);
+                                                    router.reload();
+                                                },
+                                            },
+                                        );
+                                    }}
+                                    variant="secondary"
+                                    className="cursor-pointer"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Save
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={(e) => {
+                                        setIsEditing(true);
+                                    }}
+                                    variant="secondary"
+                                    className="cursor-pointer"
+                                >
+                                    <Edit className="h-4 w-4" />
+                                    Edit
+                                </Button>
+                            )}
+                        </>
                     )}
 
-                    <Button
-                        variant="destructive"
-                        className="cursor-pointer"
-                        onClick={(e) => {
-                            if (confirm('Are you sure to delete the collection?')) {
-                                router.delete(route('collections.delete', collection.id));
-                            }
-                        }}
-                    >
-                        <Trash />
-                        Delete
-                    </Button>
+                    {permissions.includes('delete') && (
+                        <Button
+                            variant="destructive"
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                                if (confirm('Are you sure to delete the collection?')) {
+                                    router.delete(route('collections.delete', { collection: collection.id, back }));
+                                }
+                            }}
+                        >
+                            <Trash />
+                            Delete
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -165,21 +170,25 @@ const index = ({
                                         )}
                                     </div>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
-                                    onClick={() => setShowShareBox(true)}
-                                >
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    Share
-                                </Button>
-                                <ShareModal
-                                    url={route('collections.shares', collection.id)}
-                                    card={collection}
-                                    showShareBox={showShareBox}
-                                    setShowShareBox={setShowShareBox}
-                                />
+                                {permissions.includes('share') && (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                            onClick={() => setShowShareBox(true)}
+                                        >
+                                            <Share2 className="mr-2 h-4 w-4" />
+                                            Share
+                                        </Button>
+                                        <ShareModal
+                                            url={route('collections.shares', collection.id)}
+                                            card={collection}
+                                            showShareBox={showShareBox}
+                                            setShowShareBox={setShowShareBox}
+                                        />
+                                    </>
+                                )}
                             </div>
                         </CardHeader>
                     </Card>
@@ -246,4 +255,4 @@ const index = ({
     );
 };
 
-export default index;
+export default show;

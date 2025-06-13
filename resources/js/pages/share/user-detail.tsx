@@ -384,8 +384,8 @@ const Inbox = ({ user, filterSort }) => {
 
                                     return (
                                         <div key={group + card.id} className="col-span-1">
-                                            {card.type === 'collection' && <CollectionCard card={card} type={card.isShare ? 'share' : 'receive'} />}
-                                            {card.type === 'diary' && <DiaryCard card={card} type={card.isShare ? 'share' : 'receive'} />}
+                                            {card.type === 'collection' && <CollectionCard card={card} type={card.isShare ? 'share' : 'receive'} from="user" data={{email: user.email}} />}
+                                            {card.type === 'diary' && <DiaryCard card={card} type={card.isShare ? 'share' : 'receive'} from='user' />}
                                         </div>
                                     );
                                 })}

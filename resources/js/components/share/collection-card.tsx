@@ -1,20 +1,23 @@
+import { dateTimeFormat } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { BookOpenText, NotebookText } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { dateTimeFormat } from '@/lib/utils';
-export function CollectionCard({ card, type }: { type: 'share' | 'receive' }) {
+export function CollectionCard({ card, type, from = 'collection', data = {} }: { type: 'share' | 'receive', data: any }) {
     return (
         <Card className="relative h-64 w-full overflow-hidden">
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">Received at: {dateTimeFormat(card.created_at,)}</span>
+                    <span className="text-xs">Received at: {dateTimeFormat(card.created_at)}</span>
                     <NotebookText />
                 </div>
 
                 {/* Title with truncation */}
-                <Link href={route('collections.show', card.item.id)} className="rich-text-editor-container">
+                <Link
+                    href={route('collections.show', { collection: card.item.id, from, data: { email: data?.email } })}
+                    className="rich-text-editor-container"
+                >
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.item.title}</h3>
 
                     {/* Description with truncation */}
