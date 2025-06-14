@@ -31,29 +31,10 @@ class CollectionController extends Controller
 
         $breadcrumbItems = [];
 
-        // if($request->input('sharedUser', null)) {
-        //     $sharedUser = $request->input('sharedUser', null);
-        //     $breadcrumbItems[] = [
-        //         'title' => 'Users',
-        //         'href' => route('inbox-shares.users'),
-        //     ];
-        //     $breadcrumbItems[] = [
-        //         'title' => 'Users',
-        //         'href' => route('inbox-shares.users.detail', [
-        //             'user' => 
-        //         ]),
-        //     ];
-        // }
-
-        // $breadcrumbItems[] = [
-        //     'title' => 'Collections',
-        //     'href' => route('collections.index', ['inbox' => $request->input('inbox'), 'outbox' => $request->input('outbox'), 'user' => $request->input('user')])
-        // ];
         $breadcrumbs = Breadcrumb::collection('list');
         
         $collections = CollectionResource::collection($collections);
-        $from = 'collection';
-        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbs', 'from'));
+        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbs'));
     }
 
     /**
@@ -100,15 +81,15 @@ class CollectionController extends Controller
         [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
         $diaries = DiaryListItemResource::collection($diaries);
         $collection = new CollectionResource($collection);
-        
-        $from = $request->input('from', 'collection');
+        $data = $request->input('data', []);
+        $from = $request->input('from', '') ?? '';
         $permissions = [];
         if($collection->user_id === $user->id) {
             $permissions = ['edit', 'delete', 'share'];
         }
-        [$breadcrumbs, $back] = Breadcrumb::collection('show', $from, [...$request->input('data', []), 'collection' => $collection]);
+        [$breadcrumbs, $back] = Breadcrumb::collection('show', $from, [...$data, 'collection' => $collection]);
         
-        return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories', 'breadcrumbs', 'back', 'from', 'permissions'));
+        return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories', 'breadcrumbs', 'back', 'from', 'permissions', 'data'));
     }
 
     /**

@@ -14,7 +14,7 @@ export default function CardListingPage({
     collections,
     filterProp,
     sortProp,
-    from = 'collection',
+    from = '',
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;

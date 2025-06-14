@@ -7,58 +7,65 @@ import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { CollectionShortProp, DiaryDetailProp } from '@/types/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { ArrowLeft, Calendar, Download, Edit, File, Image, NotebookText, Share2, Trash, Users, VideoIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const show = ({
     diary,
     collection,
     collections,
+    breadcrumbs,
+    from,
+    back,
+    email
 }: {
     diary: DiaryDetailProp;
     collection: CollectionShortProp;
     collections: CollectionShortProp[];
+    breadcumbs: BreadcrumbItem[];
+    from: string;
+    back: string;
+    email?: string
 }) => {
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
     const [showCollections, setShowCollections] = useState<boolean>(false);
-    const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
-        {
-            title: 'Diaries',
-            href: route('diaries.index'),
-        },
-        {
-            title: diary.title,
-            href: route('diaries.show', diary.id),
-        },
-        {
-            title: 'Edit',
-            href: route('diaries.edit', diary.id),
-        },
-    ]);
-    useEffect(() => {
-        if (collection) {
-            setBreadCrumbs([
-                {
-                    title: `Collection (${collection.title})`,
-                    href: route('collections.show', collection.id),
-                },
-                {
-                    title: 'Diaries',
-                    href: route('collections.show', collection.id),
-                },
-                {
-                    title: diary.title,
-                    href: route('diaries.show', { diary: diary.id, collection: collection.id }),
-                },
-                {
-                    title: 'show',
-                    href: route('diaries.show', diary.id),
-                },
-            ]);
-        }
-    }, []);
+    // const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
+    //     {
+    //         title: 'Diaries',
+    //         href: route('diaries.index'),
+    //     },
+    //     {
+    //         title: diary.title,
+    //         href: route('diaries.show', diary.id),
+    //     },
+    //     {
+    //         title: 'Edit',
+    //         href: route('diaries.edit', diary.id),
+    //     },
+    // ]);
+    // useEffect(() => {
+    //     if (collection) {
+    //         setBreadCrumbs([
+    //             {
+    //                 title: `Collection (${collection.title})`,
+    //                 href: route('collections.show', collection.id),
+    //             },
+    //             {
+    //                 title: 'Diaries',
+    //                 href: route('collections.show', collection.id),
+    //             },
+    //             {
+    //                 title: diary.title,
+    //                 href: route('diaries.show', { diary: diary.id, collection: collection.id }),
+    //             },
+    //             {
+    //                 title: 'show',
+    //                 href: route('diaries.show', diary.id),
+    //             },
+    //         ]);
+    //     }
+    // }, []);
 
     const getFileTypeColor = (type: string) => {
         switch (type) {
@@ -105,65 +112,34 @@ const show = ({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries - Show" />
             <div className={`flex items-center justify-between px-6 pt-4`}>
-                {collection ? (
-                    <Link href={route('collections.show', collection.id)}>
-                        <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to collection
-                        </Button>
-                    </Link>
-                ) : (
-                    <Link href={route('diaries.index')}>
-                        <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to diaries
-                        </Button>
-                    </Link>
-                )}
+                <Link href={back}>
+                    <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back
+                    </Button>
+                </Link>
+
                 <div className="flex items-center justify-center gap-3">
-                    {collection ? (
-                        <>
-                            <Link href={route('diaries.edit', { diary: diary.id, collection: collection.id })}>
-                                <Button variant="secondary" className="cursor-pointer">
-                                    <Edit className="h-4 w-4" />
-                                    Edit
-                                </Button>
-                            </Link>
-                            <Button
-                                variant="destructive"
-                                className="cursor-pointer"
-                                onClick={(e) => {
-                                    if (confirm('Are you sure to delete the diary?')) {
-                                        router.delete(route('diaries.delete', { diary: diary.id, collection: collection.id }));
-                                    }
-                                }}
-                            >
-                                <Trash />
-                                Delete
+                    <>
+                        <Link href={route('diaries.edit', { diary: diary.id, collection: collection?.id, email, back, from})}>
+                            <Button variant="secondary" className="cursor-pointer">
+                                <Edit className="h-4 w-4" />
+                                Edit
                             </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Link href={route('diaries.edit', diary.id)}>
-                                <Button variant="secondary" className="cursor-pointer">
-                                    <Edit className="h-4 w-4" />
-                                    Edit
-                                </Button>
-                            </Link>
-                            <Button
-                                variant="destructive"
-                                className="cursor-pointer"
-                                onClick={(e) => {
-                                    if (confirm('Are you sure to delete the diary?')) {
-                                        router.delete(route('diaries.delete', diary.id));
-                                    }
-                                }}
-                            >
-                                <Trash />
-                                Delete
-                            </Button>
-                        </>
-                    )}
+                        </Link>
+                        <Button
+                            variant="destructive"
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                                if (confirm('Are you sure to delete the diary?')) {
+                                    router.delete(route('diaries.delete', { diary: diary.id, back,collection: collection?.id, from }));
+                                }
+                            }}
+                        >
+                            <Trash />
+                            Delete
+                        </Button>
+                    </>
                 </div>
             </div>
 
@@ -171,7 +147,7 @@ const show = ({
                 {/* Header Section */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3">
                                     <span className="text-3xl">{diary.emotion?.emoji}</span>
@@ -180,7 +156,7 @@ const show = ({
                                         {diary.emotion?.name && <p className="text-muted-foreground mt-1 text-sm">Feeling {diary.emotion?.name}</p>}
                                     </div>
                                 </div>
-                                <div className="text-muted-foreground flex items-center gap-4 text-sm">
+                                <div className="text-muted-foreground flex items-center gap-4 text-sm flex-wrap">
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
                                         {dateTimeFormat(diary.created_at)}
@@ -199,7 +175,7 @@ const show = ({
                                     )}
                                 </div>
                             </div>
-                            <div className="flex items-center justify-end gap-3">
+                            <div className="flex flex-1 items-center justify-end gap-3">
                                 <Button
                                     variant="secondary"
                                     size="icon"
@@ -226,7 +202,7 @@ const show = ({
                                     Share
                                 </Button>
                                 <ShareModal
-                                    url={route('diaries.shares', diary.id)}
+                                    url={route('diaries.shares', { diary: diary.id })}
                                     card={diary}
                                     showShareBox={showShareBox}
                                     setShowShareBox={setShowShareBox}

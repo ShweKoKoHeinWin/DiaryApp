@@ -7,7 +7,7 @@ import { Card, CardContent } from '../ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { dateTimeFormat } from '@/lib/utils';
-export function DiaryCard({ card, type }: { type: 'share' | 'receive' }) {
+export function DiaryCard({ card, type,from, email }: { type: 'share' | 'receive' }) {
     const maxVisibleCategories = 2;
     const [showAllCategories, setShowAllCategories] = useState<boolean>(false);
     return (
@@ -23,6 +23,8 @@ export function DiaryCard({ card, type }: { type: 'share' | 'receive' }) {
                 <Link
                     href={route('diaries.show', {
                         diary: card.item.id,
+                        from,
+                        email
                     })}
                     className="rich-text-editor-container"
                 >

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { dateTimeFormat } from '@/lib/utils';
 import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
 import { ArrowRight, ChevronRight, CornerUpRight, MoreVertical, Paperclip } from 'lucide-react';
@@ -12,7 +13,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import EmailSendbox from '../ultils/email-send-box';
 import DiaryCollectionModal from './diary-collection-modal';
-import { dateTimeFormat } from '@/lib/utils';
 
 export function CardItem({
     card,
@@ -23,6 +23,8 @@ export function CardItem({
     selectedCards,
     setSelectedCards,
     cancelSelectMode,
+    from = '',
+    data={}
 }: {
     card: DiaryListingItemProp;
     collection?: CollectionShortProp;
@@ -32,6 +34,8 @@ export function CardItem({
     selectedCards: number[];
     setSelectedCards: (val: number[]) => void;
     cancelSelectMode: () => void;
+    from: string;
+    data: any;
 }) {
     const categoryContainerRef = useRef<HTMLDivElement>(null);
     const [maxVisibleCategories, setMaxVisibleCategories] = useState(2);
@@ -147,6 +151,8 @@ export function CardItem({
                                 href={route('diaries.edit', {
                                     diary: card.id,
                                     collection: collection?.id,
+                                    from,
+                                    email: data?.email 
                                 })}
                             >
                                 <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
@@ -155,6 +161,8 @@ export function CardItem({
                                 href={route('diaries.delete', {
                                     diary: card.id,
                                     collection: collection?.id,
+                                    from,
+                                    email: data?.email 
                                 })}
                                 method="delete"
                                 preserveScroll
@@ -193,6 +201,8 @@ export function CardItem({
                     href={route('diaries.show', {
                         diary: card.id,
                         collection: collection?.id,
+                        from,
+                        email: data?.email 
                     })}
                     className="rich-text-editor-container"
                 >

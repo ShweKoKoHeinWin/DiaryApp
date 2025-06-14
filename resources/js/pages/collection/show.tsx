@@ -24,8 +24,9 @@ const show = ({
     emotions,
     breadcrumbs,
     back,
-    from,
+    from = '',
     permissions = [],
+    data : beData = {}
 }: {
     diaries: { meta: any; data: DiaryListingItemProp[] };
     collection: CollectionProp;
@@ -36,8 +37,9 @@ const show = ({
     back: string;
     from: string;
     permissions: string[];
+    data: any
 }) => {
-    console.log(breadcrumbs);
+    console.log(`${from}collection`);
 
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
@@ -248,7 +250,8 @@ const show = ({
                     baseUrl={route('collections.show', collection.id)}
                     filterProp={filterProp}
                     sortProp={sortProp}
-                    cardType="collectionDiaryCard"
+                    from={`${from}collection`}
+                    data={beData}
                 />
             </div>
         </AppLayout>

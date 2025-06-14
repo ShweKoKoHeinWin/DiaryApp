@@ -30,6 +30,8 @@ const edit = ({
     emotions,
     diary,
     collection,
+    breadcrumbs,
+    back,
 }: {
     categories: CategoryProp[];
     emotions: EmotionDetailProp[];
@@ -50,45 +52,6 @@ const edit = ({
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [files, setFiles] = useState<NewFilesProp[]>([]);
 
-    const [breadcrumbs, setBreadCrumbs] = useState<BreadcrumbItem[]>([
-        {
-            title: 'Diaries',
-            href: route('diaries.index'),
-        },
-        {
-            title: diary.title,
-            href: route('diaries.show', diary.id),
-        },
-        {
-            title: 'Edit',
-            href: route('diaries.edit', diary.id),
-        },
-    ]);
-
-    // if inside a collection update breadcrumb
-    useEffect(() => {
-        if (collection) {
-            setBreadCrumbs([
-                {
-                    title: `Collection (${collection.title})`,
-                    href: route('collections.show', collection.id),
-                },
-                {
-                    title: 'Diaries',
-                    href: route('collections.show', collection.id),
-                },
-                {
-                    title: diary.title,
-                    href: route('diaries.show', diary.id),
-                },
-                {
-                    title: 'Edit',
-                    href: route('diaries.edit', diary.id),
-                },
-            ]);
-        }
-    }, []);
-
     const handleChange = (content: string) => {
         setData('content', content);
     };
@@ -96,7 +59,7 @@ const edit = ({
         e.preventDefault();
         console.log(data);
 
-        post(route('diaries.update', { diary: diary.id, collection: collection?.id }));
+        post(route('diaries.update', { diary: diary.id, collection: collection?.id, back }));
     };
     useEffect(() => {
         setData(
@@ -111,21 +74,13 @@ const edit = ({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Diaries" />
-            {collection ? (
-                <Link href={route('collections.show', collection.id)} className="mt-6 ml-6">
-                    <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to collection
-                    </Button>
-                </Link>
-            ) : (
-                <Link href={route('diaries.index')} className="mt-6 ml-6">
+                <Link href={back} className="mt-6 ml-6">
                     <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
                         <ArrowLeft className="h-4 w-4" />
                         Back to diaries
                     </Button>
                 </Link>
-            )}
+            
             {/* Category and Emotion Create Modals */}
             {isCategoryCreate && <CategoryModal setIsOpen={setIsCategoryCreate} />}
             {isEmotionCreate && <EmotionModal setIsOpen={setIsEmotionCreate} />}

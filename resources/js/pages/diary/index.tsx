@@ -16,15 +16,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const endPoint = route('diaries.index');
 
-const index = ({filterSort, diaries, categories, emotions, collections}: {
+const index = ({
+    filterSort,
+    diaries,
+    categories,
+    emotions,
+    collections,
+}: {
     filterSort: any;
-    diaries: { meta: any; links: any; data: DiaryListingItemProp[] },
-    categories: CategoryProp[],
-    emotions: EmotionDetailProp[],
-    collections: CollectionShortProp[]
-}) => {    
+    diaries: { meta: any; links: any; data: DiaryListingItemProp[] };
+    categories: CategoryProp[];
+    emotions: EmotionDetailProp[];
+    collections: CollectionShortProp[];
+}) => {
     console.log(diaries);
-    
+
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
     return (
@@ -32,9 +38,24 @@ const index = ({filterSort, diaries, categories, emotions, collections}: {
             <Head title="Diaries" />
 
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <DiaryFilterPanel filterProp={filterProp} setFilterProp={setFilterProp} sortProp={sortProp} setSortProp={setSortProp} endPoint={endPoint} categories={categories} emotions={emotions} />
-                
-                <CardListingPage diaries={diaries} groupBy={sortProp.type} groupOrder={sortProp.order} collections={collections} filterProp={filterProp} sortProp={sortProp} baseUrl={route('diaries.index')} />
+                <DiaryFilterPanel
+                    filterProp={filterProp}
+                    setFilterProp={setFilterProp}
+                    sortProp={sortProp}
+                    setSortProp={setSortProp}
+                    endPoint={endPoint}
+                    categories={categories}
+                    emotions={emotions}
+                />
+
+                <CardListingPage
+                    diaries={diaries}
+                    groupBy={sortProp.type}
+                    groupOrder={sortProp.order}
+                    collections={collections}
+                    filterProp={filterProp}
+                    sortProp={sortProp}
+                />
             </div>
         </AppLayout>
     );

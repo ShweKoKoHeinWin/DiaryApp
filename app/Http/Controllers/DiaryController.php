@@ -10,6 +10,7 @@ use App\Models\Collection;
 use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
+use App\Services\Breadcrumb;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -104,25 +105,46 @@ class DiaryController extends Controller
         $categories = Category::where('user_id', $user->id)->orderBy('name')->get();
         $emotions = Emotion::where('user_id', $user->id)->orderBy('name')->get();
         $diary = new DiaryDetailResource($diary);
+        $email = $request->input('email');
+        $from = $request->input('from');
         $collection = null;
-        if ($request->filled('collection')) {
-            $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
+        $data = ['diary' => $diary, 'collection' => null, 'email' => $email];
+        $collection = $request->input('collection');
+
+        if ($collection) {
+            $data['collection'] = Collection::find($collection);
+            $collection = $data['collection'];
         }
-        return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions', 'collection'));
+
+        [$breadcrumbs, $back] = Breadcrumb::diary('edit', $from, $data);
+        
+        return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions', 'collection', 'from', 'breadcrumbs', 'back'));
     }
 
     public function show(Diary $diary, Request $request)
     {
         $user = Auth::user();
-        $collection = null;
         if ($request->filled('collection')) {
             $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
         }
         $collections = Collection::select('id', 'title')->where('user_id', $user->id)->get();
+        $email = $request->input('email');
+        $from = $request->input('from');
+        $data = ['collection' => null, 'diary' => $diary, 'email' => $email];
+        $collection = $request->input('collection');
+        if ($collection) {
+            $data['collection'] = Collection::find($collection);
+            $collection = $data['collection'];
+        }
+        [$breadcrumbs, $back] = Breadcrumb::diary('show', $from, $data);
         return Inertia::render('diary/show', [
             'diary' => new DiaryDetailResource($diary),
             'collection' => $collection,
-            'collections' => $collections
+            'collections' => $collections,
+            'breadcrumbs' => $breadcrumbs,
+            'back' => $back,
+            'from' => $from,
+            'email' => $email
         ]);
     }
 
@@ -186,6 +208,7 @@ class DiaryController extends Controller
             if ($request->filled('collection')) {
                 $collection = Collection::select('id', 'title')->findOrFail($request->input('collection'));
             }
+            if ($request->input('back', null)) return redirect($request->input('back', '/diaries'))->with('success', 'Diary deleted successfully.');
             return redirect()->route('diaries.show', ['diary' => $diary->id, 'collection' => $collection?->id])->with('success', 'Diary is updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
@@ -229,6 +252,8 @@ class DiaryController extends Controller
             return null; // Ensure a return value to prevent errors
         };
 
+        if ($request->input('back', null)) return redirect($request->input('back', '/diaries'))->with('success', 'Diary deleted successfully.');
+
         return smartRedirectAfterDelete(route('diaries.show', $diary->id, false), 'Diary deleted successfully.', route('diaries'), $callback, $request);
     }
 
@@ -247,8 +272,8 @@ class DiaryController extends Controller
 
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
-                    if($receiver === $user->email) continue;
-                    if($diary->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
+                    if ($receiver === $user->email) continue;
+                    if ($diary->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
                     $diary->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,

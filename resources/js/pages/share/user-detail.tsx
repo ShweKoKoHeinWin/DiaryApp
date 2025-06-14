@@ -380,12 +380,10 @@ const Inbox = ({ user, filterSort }) => {
                             <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {items.map((card) => {
-                                    console.log();
-
                                     return (
                                         <div key={group + card.id} className="col-span-1">
                                             {card.type === 'collection' && <CollectionCard card={card} type={card.isShare ? 'share' : 'receive'} from="user" data={{email: user.email}} />}
-                                            {card.type === 'diary' && <DiaryCard card={card} type={card.isShare ? 'share' : 'receive'} from='user' />}
+                                            {card.type === 'diary' && <DiaryCard card={card} type={card.isShare ? 'share' : 'receive'} from='user' email={user.email}/>}
                                         </div>
                                     );
                                 })}

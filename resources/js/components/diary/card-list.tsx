@@ -1,3 +1,4 @@
+import { dateFormat } from '@/lib/utils';
 import { CollectionProp, CollectionShortProp, DiaryListingItemProp, SortOrderProp, SortTypeProp } from '@/types/types';
 import { router, usePage } from '@inertiajs/react';
 import { parse } from 'date-fns';
@@ -11,8 +12,6 @@ import { Label } from '../ui/label';
 import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
-import { DiaryShareCardItem } from './diary-share-card';
-import { dateFormat } from '@/lib/utils';
 // Mock data function to simulate API calls
 
 export default function CardListingPage({
@@ -23,16 +22,16 @@ export default function CardListingPage({
     collections,
     filterProp,
     sortProp,
-    baseUrl,
-    cardType = 'diaryCard',
+    from = '',
+    data ={}
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
     diaries: { meta: any; data: DiaryListingItemProp[] };
     collection?: CollectionProp;
     collections: CollectionShortProp[];
-    baseUrl: string;
-    cardType?: 'collectionDiaryCard' | 'diaryCard' | 'sharedDiaryCard';
+    from: string;
+    data : any
 }) {
     const [cards, setCards] = useState<DiaryListingItemProp[]>(diaries.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
@@ -252,63 +251,29 @@ export default function CardListingPage({
                     </ul>
                 )}
             </div>
-
-            {/* {cardType === 'collectionDiaryCard' &&
-                Object.entries(groupedCards).map(([group, items]) => (
-                    <div key={group} className="mb-4">
-                        <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {items.map((card: DiaryListingItemProp) => (
-                                <div key={group + card.id} className="col-span-1">
-                                    <CollectionDiaryCardItem
-                                        card={card}
-                                        collection={collection}
-                                        isCardSelecting={isCardSelecting}
-                                        setIsCardSelecting={setIsCardSelecting}
-                                        selectedCards={selectedCards}
-                                        setSelectedCards={setSelectedCards}
-                                    />
-                                </div>
-                            ))}
-                        </div>
+            {Object.entries(groupedCards).map(([group, items]) => (
+                <div key={group} className="mb-4">
+                    <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {items.map((card: DiaryListingItemProp) => (
+                            <div key={group + card.id} className="col-span-1">
+                                <CardItem
+                                    card={card}
+                                    collection={collection}
+                                    collections={collections}
+                                    isCardSelecting={isCardSelecting}
+                                    setIsCardSelecting={setIsCardSelecting}
+                                    selectedCards={selectedCards}
+                                    setSelectedCards={setSelectedCards}
+                                    cancelSelectMode={cancelSelectMode}
+                                    from={from}
+                                    data={data}
+                                />
+                            </div>
+                        ))}
                     </div>
-                ))} */}
-            {(cardType === 'diaryCard' || cardType === 'collectionDiaryCard') &&
-                Object.entries(groupedCards).map(([group, items]) => (
-                    <div key={group} className="mb-4">
-                        <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {items.map((card: DiaryListingItemProp) => (
-                                <div key={group + card.id} className="col-span-1">
-                                    <CardItem
-                                        card={card}
-                                        collection={collection}
-                                        collections={collections}
-                                        isCardSelecting={isCardSelecting}
-                                        setIsCardSelecting={setIsCardSelecting}
-                                        selectedCards={selectedCards}
-                                        setSelectedCards={setSelectedCards}
-                                        cancelSelectMode={cancelSelectMode}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-
-            {cardType === 'sharedDiaryCard' &&
-                Object.entries(groupedCards).map(([group, items]) => (
-                    <div key={group} className="mb-4">
-                        <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {items.map((card: DiaryListingItemProp) => (
-                                <div key={group + card.id} className="col-span-1">
-                                    <DiaryShareCardItem card={card} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
+                </div>
+            ))}
 
             <Pagination
                 data={diaries}

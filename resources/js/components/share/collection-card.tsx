@@ -15,7 +15,7 @@ export function CollectionCard({ card, type, from = 'collection', data = {} }: {
 
                 {/* Title with truncation */}
                 <Link
-                    href={route('collections.show', { collection: card.item.id, from, data: { email: data?.email } })}
+                    href={route('collections.show', { collection: card.item.id, from, data })}
                     className="rich-text-editor-container"
                 >
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.item.title}</h3>

@@ -14,7 +14,7 @@ export function CardItem({
     setIsCardSelecting,
     selectedCards,
     setSelectedCards,
-    from = 'collection',
+    from = '',
 }: {
     card: CollectionProp;
     isCardSelecting: boolean;
@@ -22,7 +22,7 @@ export function CardItem({
     selectedCards: number[];
     setSelectedCards: (val: number[]) => void;
     from: string,
-}) {
+}) {    
     const [showShareBox, setShowShareBox] = useState(false);
     // Long Press mode
     const pressStartTime = useRef<number | null>(null);
