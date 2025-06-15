@@ -165,7 +165,7 @@ const show = ({
                                             <Calendar className="h-4 w-4" />
                                             {dateTimeFormat(collection.created_at)}
                                         </div>
-                                        {collection.shares?.length > 0 && (
+                                        {(permissions.includes(COLLECTION.share) && collection.shares?.length > 0) && (
                                             <div className="flex items-center gap-1">
                                                 <Users className="h-4 w-4" />
                                                 Shared with {collection.shares?.length} people

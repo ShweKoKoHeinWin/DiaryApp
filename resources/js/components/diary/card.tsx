@@ -143,7 +143,7 @@ export function CardItem({
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
                     <span className="text-xs">{dateTimeFormat(card.created_at)}</span>
-                    <DropdownMenu>
+                    {(permissions.includes(DIARY.edit) || permissions.includes(DIARY.edit) || permissions.includes(DIARY.edit)) && <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
                                 <MoreVertical className="h-4 w-4" />
@@ -192,7 +192,7 @@ export function CardItem({
                                 </DropdownMenuItem>
                             )}
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu>}
                 </div>
 
                 <DiaryCollectionModal

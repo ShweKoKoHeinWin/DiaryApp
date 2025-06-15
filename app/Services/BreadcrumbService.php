@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-class Breadcrumb
+class BreadcrumbService
 {
     public static function diary($type = 'show', $from = 'diary', $data = [])
     {

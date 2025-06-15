@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Permissions\CollectionPermission;
 use App\Permissions\DiaryPermission;
 use App\Permissions\SelectModePermission;
-use App\Services\Breadcrumb;
+use App\Services\BreadcrumbService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -34,7 +34,7 @@ class CollectionController extends Controller
 
         $breadcrumbItems = [];
 
-        $breadcrumbs = Breadcrumb::collection('list');
+        $breadcrumbs = BreadcrumbService::collection('list');
 
         $permissions = [CollectionPermission::edit->value, CollectionPermission::delete->value, CollectionPermission::share->value, SelectModePermission::share->value];
 
@@ -90,9 +90,9 @@ class CollectionController extends Controller
         $from = $request->input('from', '') ?? '';
         $permissions = [];
         if ($collection->user_id === $user->id) {
-            $permissions = [DiaryPermission::create->value, DiaryPermission::edit->value, DiaryPermission::delete->value, DiaryPermission::share->value, DiaryPermission::collection->value, CollectionPermission::edit->value, CollectionPermission::delete->value, CollectionPermission::share->value];
+            $permissions = [...DiaryPermission::all(), ...SelectModePermission::all(), ...CollectionPermission::all()];
         }
-        [$breadcrumbs, $back] = Breadcrumb::collection('show', $from, [...$data, 'collection' => $collection]);
+        [$breadcrumbs, $back] = BreadcrumbService::collection('show', $from, [...$data, 'collection' => $collection]);
 
         return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories', 'breadcrumbs', 'back', 'from', 'permissions', 'data'));
     }

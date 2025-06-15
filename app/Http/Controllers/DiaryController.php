@@ -11,12 +11,13 @@ use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
 use App\Permissions\DiaryPermission;
-use App\Services\Breadcrumb;
+use App\Permissions\SelectModePermission;
+use App\Services\BreadcrumbService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -31,11 +32,9 @@ class DiaryController extends Controller
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
         [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
         $diaries = DiaryListItemResource::collection($diaries);
-        // if ($request->expectsJson()) {
-        //     return DiaryListItemResource::collection($paginated)->response();
-        // }
 
-        return Inertia::render('diary/index', compact('filterSort', 'diaries', 'categories', 'emotions', 'collections'));
+        $permissions = [...DiaryPermission::all(), ...SelectModePermission::all()];
+        return Inertia::render('diary/index', compact('filterSort', 'diaries', 'categories', 'emotions', 'collections', 'permissions'));
     }
 
     public function create(Request $request)
@@ -117,7 +116,7 @@ class DiaryController extends Controller
             $collection = $data['collection'];
         }
 
-        [$breadcrumbs, $back] = Breadcrumb::diary('edit', $from, $data);
+        [$breadcrumbs, $back] = BreadcrumbService::diary('edit', $from, $data);
 
         return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions', 'collection', 'from', 'breadcrumbs', 'back'));
     }
@@ -138,10 +137,10 @@ class DiaryController extends Controller
             $collection = $data['collection'];
         }
         $permissions = [];
-        if ($diary->user_id === $user->id) {
-            $permissions = [DiaryPermission::edit->value, DiaryPermission::delete->value, DiaryPermission::share->value, DiaryPermission::collection->value];
+        if (Gate::allows('isOwner', $diary)) {
+            $permissions = DiaryPermission::all();
         }
-        [$breadcrumbs, $back] = Breadcrumb::diary('show', $from, $data);
+        [$breadcrumbs, $back] = BreadcrumbService::diary('show', $from, $data);
         return Inertia::render('diary/show', [
             'diary' => new DiaryDetailResource($diary),
             'collection' => $collection,

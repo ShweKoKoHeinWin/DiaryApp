@@ -30,22 +30,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('/diaries')->group(function () {
-        Route::get('/', fn () => redirect()->route('diaries.index'))->name('diaries'); 
+        Route::get('/', fn() => redirect()->route('diaries.index'))->name('diaries');
 
         Route::get('/index', [DiaryController::class, 'index'])->name('diaries.index');
         Route::get('/create', [DiaryController::class, 'create'])->name('diaries.create');
         Route::post('/store', [DiaryController::class, 'store'])->name('diaries.store');
-        Route::get('/{diary}/edit', [DiaryController::class, 'edit'])->name('diaries.edit');
-        Route::post('/{diary}/update', [DiaryController::class, 'update'])->name('diaries.update');
-        Route::get('/{diary}', [DiaryController::class, 'show'])->name('diaries.show');
-        Route::delete('/{diary}/delete', [DiaryController::class, 'destroy'])->name('diaries.delete');
 
-        Route::put('/{diary}/collections', [DiaryController::class, 'collections'])->name('diaries.collections');
-        Route::put('/{diary}/shares', [DiaryController::class, 'shares'])->name('diaries.shares');
+
+        Route::get('/index', [DiaryController::class, 'index'])->name('diaries.index');
+        Route::get('/create', [DiaryController::class, 'create'])->name('diaries.create');
+        Route::post('/store', [DiaryController::class, 'store'])->name('diaries.store');
+        Route::middleware('can:isOwner,diary')->group(function () {
+            Route::get('/{diary}/edit', [DiaryController::class, 'edit'])->name('diaries.edit');
+            Route::post('/{diary}/update', [DiaryController::class, 'update'])->name('diaries.update');
+            Route::delete('/{diary}/delete', [DiaryController::class, 'destroy'])->name('diaries.delete');
+            Route::put('/{diary}/collections', [DiaryController::class, 'collections'])->name('diaries.collections');
+            Route::put('/{diary}/shares', [DiaryController::class, 'shares'])->name('diaries.shares');
+        });
+
+        Route::get('/{diary}', [DiaryController::class, 'show'])->name('diaries.show')->can('show', 'diary');
     });
 
     Route::prefix('/inbox-shares')->group(function () {
-        Route::get('/', fn () => redirect()->route('inbox-shares.users'))->name('inbox-shares'); 
+        Route::get('/', fn() => redirect()->route('inbox-shares.users'))->name('inbox-shares');
         Route::get('/shares', [ShareController::class, 'sharedItems'])->name('inbox-shares.shares');
         Route::get('/inbox', [ShareController::class, 'inboxItems'])->name('inbox-shares.inbox');
         Route::get('/users', [ShareController::class, 'users'])->name('inbox-shares.users');
@@ -57,20 +64,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [CollectionController::class, 'index'])->name('collections.index');
         Route::get('/create', [CollectionController::class, 'create'])->name('collections.create');
         Route::post('/store', [CollectionController::class, 'store'])->name('collections.store');
-        Route::put('/{collection}/update', [CollectionController::class, 'update'])->name('collections.update');
-        Route::get('/{collection}', [CollectionController::class, 'show'])->name('collections.show');
-        Route::delete('/{collection}/delete', [CollectionController::class, 'destroy'])->name('collections.delete');
-
-        Route::put('/{collection}/shares', [CollectionController::class, 'shares'])->name('collections.shares');
-        Route::put('/{collection}/diaries/remove', [CollectionController::class, 'removeDiaries'])->name('collections.diaries.remove');
-        Route::put('/diaries/add', [CollectionController::class, 'addDiaries'])->name('collections.diaries.add');
-
-
+        Route::middleware('can:isOwner,diary')->group(function () {
+            Route::put('/{collection}/update', [CollectionController::class, 'update'])->name('collections.update');
+            Route::delete('/{collection}/delete', [CollectionController::class, 'destroy'])->name('collections.delete');
+            Route::put('/{collection}/shares', [CollectionController::class, 'shares'])->name('collections.shares');
+            Route::put('/{collection}/diaries/remove', [CollectionController::class, 'removeDiaries'])->name('collections.diaries.remove');
+            Route::put('/diaries/add', [CollectionController::class, 'addDiaries'])->name('collections.diaries.add');
+        });
+        Route::get('/{collection}', [CollectionController::class, 'show'])->name('collections.show')->can('show', 'collection');
     });
 
-    Route::get('/files', function() {
-
-    })->name('files.index');
+    Route::get('/files', function () {})->name('files.index');
 
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');

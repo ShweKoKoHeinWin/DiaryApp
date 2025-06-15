@@ -22,14 +22,16 @@ const index = ({
     categories,
     emotions,
     collections,
+    permissions = [],
 }: {
     filterSort: any;
     diaries: { meta: any; links: any; data: DiaryListingItemProp[] };
     categories: CategoryProp[];
     emotions: EmotionDetailProp[];
     collections: CollectionShortProp[];
+    permissions: string[];
 }) => {
-    console.log(diaries);
+    console.log(permissions);
 
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
@@ -46,6 +48,7 @@ const index = ({
                     endPoint={endPoint}
                     categories={categories}
                     emotions={emotions}
+                    permissions={permissions}
                 />
 
                 <CardListingPage
@@ -55,6 +58,7 @@ const index = ({
                     collections={collections}
                     filterProp={filterProp}
                     sortProp={sortProp}
+                    permissions={permissions}
                 />
             </div>
         </AppLayout>

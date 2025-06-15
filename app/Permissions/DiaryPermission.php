@@ -2,7 +2,7 @@
 
 namespace App\Permissions;
 
-enum DiaryPermission : string
+enum DiaryPermission: string
 {
     case create = 'diary.create';
     case edit = 'diary.edit';
@@ -10,4 +10,9 @@ enum DiaryPermission : string
     case delete = 'diary.delete';
     case share = 'diary.share';
     case collection = 'diary.collection';
+
+    public static function all(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }
