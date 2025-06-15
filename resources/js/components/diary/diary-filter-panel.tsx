@@ -23,6 +23,7 @@ import { CategoryProp, EmotionDetailProp, FilterProp, SortProp } from '@/types/t
 import { Link, router } from '@inertiajs/react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 import ActiveFilters from '../ultils/active-filters';
+import { COLLECTION, DIARY } from '@/lib/permissions';
 
 export function DiaryFilterPanel({
     filterProp,
@@ -33,6 +34,7 @@ export function DiaryFilterPanel({
     categories,
     emotions,
     diaryCreateUrl = route('diaries.create'),
+    permissions = []
 }: {
     filterProp: FilterProp;
     setFilterProp: React.Dispatch<React.SetStateAction<FilterProp>>;
@@ -42,6 +44,7 @@ export function DiaryFilterPanel({
     categories: CategoryProp[];
     emotions: EmotionDetailProp[];
     diaryCreateUrl?: string;
+    permissions: string[];
 }) {
     const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     const hasMounted = useRef(false);
@@ -350,12 +353,12 @@ export function DiaryFilterPanel({
                     )}
                 </div>
 
-                <Link href={diaryCreateUrl}>
+                {permissions.includes(DIARY.create) && <Link href={diaryCreateUrl}>
                     <Button variant="outline" className="gap-1 bg-gray-700 text-gray-200 hover:bg-gray-600 hover:text-gray-100">
                         <Plus className="h-4 w-4" />
                         Create
                     </Button>
-                </Link>
+                </Link>}
             </div>
 
             {/* Active Filters Display */}

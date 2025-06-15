@@ -3,6 +3,7 @@ import ShareModal from '@/components/share/share-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { DIARY } from '@/lib/permissions';
 import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { CollectionShortProp, DiaryDetailProp } from '@/types/types';
@@ -17,7 +18,8 @@ const show = ({
     breadcrumbs,
     from,
     back,
-    email
+    email,
+    permissions = [],
 }: {
     diary: DiaryDetailProp;
     collection: CollectionShortProp;
@@ -25,7 +27,8 @@ const show = ({
     breadcumbs: BreadcrumbItem[];
     from: string;
     back: string;
-    email?: string
+    email?: string;
+    permissions: string[];
 }) => {
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
     const allCollectionIds = collections.map((c: CollectionShortProp) => c.id).sort();
@@ -120,26 +123,28 @@ const show = ({
                 </Link>
 
                 <div className="flex items-center justify-center gap-3">
-                    <>
-                        <Link href={route('diaries.edit', { diary: diary.id, collection: collection?.id, email, back, from})}>
+                    {permissions.includes(DIARY.edit) && (
+                        <Link href={route('diaries.edit', { diary: diary.id, collection: collection?.id, email, back, from })}>
                             <Button variant="secondary" className="cursor-pointer">
                                 <Edit className="h-4 w-4" />
                                 Edit
                             </Button>
                         </Link>
+                    )}
+                    {permissions.includes(DIARY.delete) && (
                         <Button
                             variant="destructive"
                             className="cursor-pointer"
                             onClick={(e) => {
                                 if (confirm('Are you sure to delete the diary?')) {
-                                    router.delete(route('diaries.delete', { diary: diary.id, back,collection: collection?.id, from }));
+                                    router.delete(route('diaries.delete', { diary: diary.id, back, collection: collection?.id, from }));
                                 }
                             }}
                         >
                             <Trash />
                             Delete
                         </Button>
-                    </>
+                    )}
                 </div>
             </div>
 
@@ -147,7 +152,7 @@ const show = ({
                 {/* Header Section */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3">
                                     <span className="text-3xl">{diary.emotion?.emoji}</span>
@@ -156,18 +161,18 @@ const show = ({
                                         {diary.emotion?.name && <p className="text-muted-foreground mt-1 text-sm">Feeling {diary.emotion?.name}</p>}
                                     </div>
                                 </div>
-                                <div className="text-muted-foreground flex items-center gap-4 text-sm flex-wrap">
+                                <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
                                         {dateTimeFormat(diary.created_at)}
                                     </div>
-                                    {diary.shares?.length > 0 && (
+                                    {permissions.includes(DIARY.share) && diary.shares?.length > 0 && (
                                         <div className="flex items-center gap-1">
                                             <Users className="h-4 w-4" />
                                             Shared with {diary.shares?.length} people
                                         </div>
                                     )}
-                                    {diary.collections?.length > 0 && (
+                                    {permissions.includes(DIARY.collection) && diary.collections?.length > 0 && (
                                         <div className="flex items-center gap-1">
                                             <NotebookText className="h-4 w-4" />
                                             Listed in {diary.collections?.length} collections
@@ -176,37 +181,46 @@ const show = ({
                                 </div>
                             </div>
                             <div className="flex flex-1 items-center justify-end gap-3">
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
-                                    onClick={() => setShowCollections(true)}
-                                >
-                                    <NotebookText />
-                                    <span className="mr-2">Collections</span>
-                                </Button>
-                                <DiaryCollectionModal
-                                    showCollections={showCollections}
-                                    setShowCollections={setShowCollections}
-                                    diary={diary}
-                                    allCollectionIds={allCollectionIds}
-                                    collections={collections}
-                                />
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
-                                    onClick={() => setShowShareBox(true)}
-                                >
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    Share
-                                </Button>
-                                <ShareModal
-                                    url={route('diaries.shares', { diary: diary.id })}
-                                    card={diary}
-                                    showShareBox={showShareBox}
-                                    setShowShareBox={setShowShareBox}
-                                />
+                                {permissions.includes(DIARY.collection) && (
+                                    <>
+                                        <Button
+                                            variant="secondary"
+                                            size="icon"
+                                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                            onClick={() => setShowCollections(true)}
+                                        >
+                                            <NotebookText />
+                                            <span className="mr-2">Collections</span>
+                                        </Button>
+
+                                        <DiaryCollectionModal
+                                            showCollections={showCollections}
+                                            setShowCollections={setShowCollections}
+                                            diary={diary}
+                                            allCollectionIds={allCollectionIds}
+                                            collections={collections}
+                                        />
+                                    </>
+                                )}
+                                {permissions.includes(DIARY.share) && (
+                                    <>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                            onClick={() => setShowShareBox(true)}
+                                        >
+                                            <Share2 className="mr-2 h-4 w-4" />
+                                            Share
+                                        </Button>
+                                        <ShareModal
+                                            url={route('diaries.shares', { diary: diary.id })}
+                                            card={diary}
+                                            showShareBox={showShareBox}
+                                            setShowShareBox={setShowShareBox}
+                                        />
+                                    </>
+                                )}
                             </div>
                         </div>
                     </CardHeader>
@@ -272,7 +286,7 @@ const show = ({
                 )}
 
                 {/* Shared Users */}
-                {diary.shares.length > 0 && (
+                {permissions.includes(DIARY.share) && diary.shares.length > 0 && (
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg">Shared With ({diary.shares.length} people) </CardTitle>

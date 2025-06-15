@@ -9,7 +9,7 @@ export function CollectionCard({ card, type, from = 'collection', data = {} }: {
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">Received at: {dateTimeFormat(card.created_at)}</span>
+                    <span className="text-xs">{type === 'share' ? 'Shared At' : 'Received At'}: {dateTimeFormat(card.created_at)}</span>
                     <NotebookText />
                 </div>
 

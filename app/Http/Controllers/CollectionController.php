@@ -10,6 +10,9 @@ use App\Models\Collection;
 use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
+use App\Permissions\CollectionPermission;
+use App\Permissions\DiaryPermission;
+use App\Permissions\SelectModePermission;
 use App\Services\Breadcrumb;
 use Exception;
 use Illuminate\Http\Request;
@@ -32,9 +35,11 @@ class CollectionController extends Controller
         $breadcrumbItems = [];
 
         $breadcrumbs = Breadcrumb::collection('list');
-        
+
+        $permissions = [CollectionPermission::edit->value, CollectionPermission::delete->value, CollectionPermission::share->value, SelectModePermission::share->value];
+
         $collections = CollectionResource::collection($collections);
-        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbs'));
+        return Inertia::render('collection/index', compact('collections', 'filterSort', 'breadcrumbs', 'permissions'));
     }
 
     /**
@@ -84,11 +89,11 @@ class CollectionController extends Controller
         $data = $request->input('data', []);
         $from = $request->input('from', '') ?? '';
         $permissions = [];
-        if($collection->user_id === $user->id) {
-            $permissions = ['edit', 'delete', 'share'];
+        if ($collection->user_id === $user->id) {
+            $permissions = [DiaryPermission::create->value, DiaryPermission::edit->value, DiaryPermission::delete->value, DiaryPermission::share->value, DiaryPermission::collection->value, CollectionPermission::edit->value, CollectionPermission::delete->value, CollectionPermission::share->value];
         }
         [$breadcrumbs, $back] = Breadcrumb::collection('show', $from, [...$data, 'collection' => $collection]);
-        
+
         return Inertia::render('collection/show', compact('filterSort', 'diaries', 'collection', 'collections', 'emotions', 'categories', 'breadcrumbs', 'back', 'from', 'permissions', 'data'));
     }
 
@@ -132,7 +137,7 @@ class CollectionController extends Controller
             return redirect()->back()->with('error', 'Something went wrong.');
         }
 
-        if($request->input('back', null)) return redirect($request->input('back', '/collections'))->with('success', 'Collection deleted successfully.');
+        if ($request->input('back', null)) return redirect($request->input('back', '/collections'))->with('success', 'Collection deleted successfully.');
 
         return smartRedirectAfterDelete(route('collections.show', $collection->id, false), 'Collection deleted successfully.', route('collections.index'));
     }
@@ -144,13 +149,13 @@ class CollectionController extends Controller
         $user = Auth::user();
         try {
             $collection->sharedItems()->whereNotIn('email', $request->input('receivers', []))->delete();
-            
+
             foreach ($request->input('receivers') as $receiver) {
                 if ($receiver) {
                     // if user sent to himself skip
-                    if($receiver === $user->email) continue;
+                    if ($receiver === $user->email) continue;
                     // if item is shared to received user skip
-                    if($collection->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
+                    if ($collection->sharedItems()->where('email', $receiver)->where('owner_id', $user->id)->exists()) continue;
                     $collection->sharedItems()->create([
                         'owner_id' => Auth::user()->id,
                         'receiver_id' => User::where('email', $receiver)->first()?->id ?? null,

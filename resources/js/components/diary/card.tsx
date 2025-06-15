@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { DIARY } from '@/lib/permissions';
 import { dateTimeFormat } from '@/lib/utils';
 import { CollectionShortProp, DiaryListingItemProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
@@ -24,7 +25,8 @@ export function CardItem({
     setSelectedCards,
     cancelSelectMode,
     from = '',
-    data={}
+    data = {},
+    permissions = [],
 }: {
     card: DiaryListingItemProp;
     collection?: CollectionShortProp;
@@ -36,6 +38,7 @@ export function CardItem({
     cancelSelectMode: () => void;
     from: string;
     data: any;
+    permissions: string[];
 }) {
     const categoryContainerRef = useRef<HTMLDivElement>(null);
     const [maxVisibleCategories, setMaxVisibleCategories] = useState(2);
@@ -147,41 +150,47 @@ export function CardItem({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-auto">
-                            <Link
-                                href={route('diaries.edit', {
-                                    diary: card.id,
-                                    collection: collection?.id,
-                                    from,
-                                    email: data?.email 
-                                })}
-                            >
-                                <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
-                            </Link>
-                            <Link
-                                href={route('diaries.delete', {
-                                    diary: card.id,
-                                    collection: collection?.id,
-                                    from,
-                                    email: data?.email 
-                                })}
-                                method="delete"
-                                preserveScroll
-                                onBefore={() => confirm('Are you sure to delete the diary?')}
-                                className="w-full"
-                            >
-                                <DropdownMenuItem className="cursor-pointer">Delete</DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem className="cursor-pointer">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="flex w-full cursor-pointer items-center gap-0"
-                                    onClick={() => setShowCollections(true)}
+                            {permissions.includes(DIARY.edit) && (
+                                <Link
+                                    href={route('diaries.edit', {
+                                        diary: card.id,
+                                        collection: collection?.id,
+                                        from,
+                                        email: data?.email,
+                                    })}
                                 >
-                                    <span className="mr-2">Add To Collections</span>
-                                    <ArrowRight className="h-3.5 w-3.5" />
-                                </Button>
-                            </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+                                </Link>
+                            )}
+                            {permissions.includes(DIARY.delete) && (
+                                <Link
+                                    href={route('diaries.delete', {
+                                        diary: card.id,
+                                        collection: collection?.id,
+                                        from,
+                                        email: data?.email,
+                                    })}
+                                    method="delete"
+                                    preserveScroll
+                                    onBefore={() => confirm('Are you sure to delete the diary?')}
+                                    className="w-full"
+                                >
+                                    <DropdownMenuItem className="cursor-pointer">Delete</DropdownMenuItem>
+                                </Link>
+                            )}
+                            {permissions.includes(DIARY.collection) && (
+                                <DropdownMenuItem className="cursor-pointer">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="flex w-full cursor-pointer items-center gap-0"
+                                        onClick={() => setShowCollections(true)}
+                                    >
+                                        <span className="mr-2">Add To Collections</span>
+                                        <ArrowRight className="h-3.5 w-3.5" />
+                                    </Button>
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -202,7 +211,7 @@ export function CardItem({
                         diary: card.id,
                         collection: collection?.id,
                         from,
-                        email: data?.email 
+                        email: data?.email,
                     })}
                     className="rich-text-editor-container"
                 >
@@ -273,23 +282,29 @@ export function CardItem({
                             </TooltipProvider>
                         )}
 
-                        {card.shares?.length > 0 && <EmailSendbox allEmails={[...card.shares.map((s) => s.email)]} />}
+                        {permissions.includes(DIARY.share) && card.shares?.length > 0 && (
+                            <EmailSendbox allEmails={[...card.shares.map((s) => s.email)]} />
+                        )}
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="flex w-auto cursor-pointer items-center gap-0 p-1"
-                            onClick={() => setShowShareBox(true)}
-                        >
-                            <CornerUpRight className="h-3.5 w-3.5" />
-                            <span>{card.shares.length}</span>
-                        </Button>
-                        <ShareModal
-                            url={route('diaries.shares', card.id)}
-                            card={card}
-                            showShareBox={showShareBox}
-                            setShowShareBox={setShowShareBox}
-                        />
+                        {permissions.includes(DIARY.share) && (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="flex w-auto cursor-pointer items-center gap-0 p-1"
+                                    onClick={() => setShowShareBox(true)}
+                                >
+                                    <CornerUpRight className="h-3.5 w-3.5" />
+                                    <span>{card.shares.length}</span>
+                                </Button>
+                                <ShareModal
+                                    url={route('diaries.shares', card.id)}
+                                    card={card}
+                                    showShareBox={showShareBox}
+                                    setShowShareBox={setShowShareBox}
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
             </CardContent>

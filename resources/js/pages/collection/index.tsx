@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const endPoint = route('collections.index');
 
-const index = ({ filterSort, collections, breadcrumbs }) => {
+const index = ({ filterSort, collections, breadcrumbs, permissions=[] } : {permissions: string[]}) => {
     console.log(collections, filterSort, breadcrumbs);
     const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
     const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
@@ -34,6 +34,7 @@ const index = ({ filterSort, collections, breadcrumbs }) => {
                     groupOrder={sortProp.order}
                     filterProp={filterProp}
                     sortProp={sortProp}
+                    permissions={permissions}
                 />
             </div>
         </AppLayout>

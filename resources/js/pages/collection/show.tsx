@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-editor';
 import AppLayout from '@/layouts/app-layout';
+import { COLLECTION } from '@/lib/permissions';
 import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { CategoryProp, CollectionProp, DiaryListingItemProp, EmotionDetailProp } from '@/types/types';
@@ -65,7 +66,7 @@ const show = ({
                     </Button>
                 </Link>
                 <div className="flex items-center justify-center gap-3">
-                    {permissions.includes('edit') && (
+                    {permissions.includes(COLLECTION.edit) && (
                         <>
                             {isEditing ? (
                                 <Button
@@ -105,7 +106,7 @@ const show = ({
                         </>
                     )}
 
-                    {permissions.includes('delete') && (
+                    {permissions.includes(COLLECTION.delete) && (
                         <Button
                             variant="destructive"
                             className="cursor-pointer"
@@ -172,7 +173,7 @@ const show = ({
                                         )}
                                     </div>
                                 </div>
-                                {permissions.includes('share') && (
+                                {permissions.includes(COLLECTION.share) && (
                                     <>
                                         <Button
                                             variant="ghost"
@@ -208,7 +209,7 @@ const show = ({
                     )}
 
                     {/* Shared Users */}
-                    {collection.shares.length > 0 && (
+                    {permissions.includes(COLLECTION.share) && collection.shares.length > 0 && (
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">Shared With ({collection.shares.length} people) </CardTitle>
@@ -240,6 +241,7 @@ const show = ({
                     categories={categories}
                     emotions={emotions}
                     diaryCreateUrl={route('diaries.create', { collection: collection.id })}
+                    permissions={permissions}
                 />
                 <CardListingPage
                     diaries={diaries}
@@ -252,6 +254,7 @@ const show = ({
                     sortProp={sortProp}
                     from={`${from}collection`}
                     data={beData}
+                    permissions={permissions}
                 />
             </div>
         </AppLayout>

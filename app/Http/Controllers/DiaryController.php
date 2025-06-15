@@ -10,6 +10,7 @@ use App\Models\Collection;
 use App\Models\Diary;
 use App\Models\Emotion;
 use App\Models\User;
+use App\Permissions\DiaryPermission;
 use App\Services\Breadcrumb;
 use Exception;
 use Illuminate\Http\Request;
@@ -117,7 +118,7 @@ class DiaryController extends Controller
         }
 
         [$breadcrumbs, $back] = Breadcrumb::diary('edit', $from, $data);
-        
+
         return Inertia::render('diary/edit', compact('diary', 'categories', 'emotions', 'collection', 'from', 'breadcrumbs', 'back'));
     }
 
@@ -136,6 +137,10 @@ class DiaryController extends Controller
             $data['collection'] = Collection::find($collection);
             $collection = $data['collection'];
         }
+        $permissions = [];
+        if ($diary->user_id === $user->id) {
+            $permissions = [DiaryPermission::edit->value, DiaryPermission::delete->value, DiaryPermission::share->value, DiaryPermission::collection->value];
+        }
         [$breadcrumbs, $back] = Breadcrumb::diary('show', $from, $data);
         return Inertia::render('diary/show', [
             'diary' => new DiaryDetailResource($diary),
@@ -144,7 +149,8 @@ class DiaryController extends Controller
             'breadcrumbs' => $breadcrumbs,
             'back' => $back,
             'from' => $from,
-            'email' => $email
+            'email' => $email,
+            'permissions' => $permissions,
         ]);
     }
 

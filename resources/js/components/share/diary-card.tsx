@@ -68,7 +68,7 @@ export function DiaryCard({ card, type,from, email }: { type: 'share' | 'receive
                 </div>
 
                 {/* Footer with metadata */}
-                <div className="mt-auto flex items-center justify-between text-sm text-gray-500">
+                <div className="mt-auto flex items-center justify-between text-sm text-gray-500 flex-wrap gap-3">
                     <div className="flex items-center gap-1">
                         {card.item.emotion?.emoji ?? ''}
                         <span className="ml-2">{card.item.emotion?.name ?? ''}</span>

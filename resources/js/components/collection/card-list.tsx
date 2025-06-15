@@ -5,6 +5,7 @@ import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
 import { dateFormat } from '@/lib/utils';
+import { SELECTMODE } from '@/lib/permissions';
 
 // Mock data function to simulate API calls
 
@@ -15,11 +16,13 @@ export default function CardListingPage({
     filterProp,
     sortProp,
     from = '',
+    permissions = [],
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
     collections: { meta: any; links: any; data: CollectionProp[] };
-    from?: string
+    from?: string;
+    permissions: string[];
 }) {
     console.log(filterProp, sortProp);
     
@@ -72,7 +75,7 @@ export default function CardListingPage({
             <h1 className="mb-8 text-3xl font-bold">Collections ({collections.meta.total})</h1>
             <CardSelectModeBox
                 cardType="collection"
-                actions={['multi-share']}
+                actions={permissions.includes(SELECTMODE.share) ? ['multi-share'] : []}
                 cards={cards}
                 isCardSelecting={isCardSelecting}
                 setIsCardSelecting={setIsCardSelecting}

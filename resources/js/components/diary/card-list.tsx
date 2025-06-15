@@ -12,6 +12,7 @@ import { Label } from '../ui/label';
 import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
+import { DIARY, SELECTMODE } from '@/lib/permissions';
 // Mock data function to simulate API calls
 
 export default function CardListingPage({
@@ -23,7 +24,8 @@ export default function CardListingPage({
     filterProp,
     sortProp,
     from = '',
-    data ={}
+    data ={},
+    permissions = []
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
@@ -31,7 +33,8 @@ export default function CardListingPage({
     collection?: CollectionProp;
     collections: CollectionShortProp[];
     from: string;
-    data : any
+    data : any;
+    permissions: string[];
 }) {
     const [cards, setCards] = useState<DiaryListingItemProp[]>(diaries.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
@@ -200,11 +203,11 @@ export default function CardListingPage({
             <div className="flex flex-wrap items-center justify-between">
                 <h1 className="mb-4 text-2xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">Diaries ({diaries.meta.total})</h1>
                 <CardSelectModeBox
-                    actions={['multi-share']}
+                    actions={permissions.includes(SELECTMODE.share) ? ['multi-share'] : []}
                     customActions={
                         <>
-                            {AddToCollectionAction}
-                            {collection && (
+                            {permissions.includes(SELECTMODE.collection) && AddToCollectionAction}
+                            {(permissions.includes(SELECTMODE.collection) && collection) && (
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -268,6 +271,7 @@ export default function CardListingPage({
                                     cancelSelectMode={cancelSelectMode}
                                     from={from}
                                     data={data}
+                                    permissions={permissions}
                                 />
                             </div>
                         ))}
