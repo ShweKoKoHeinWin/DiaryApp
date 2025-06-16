@@ -45,8 +45,6 @@ const Inbox = ({
     items: { data: SharedOrReceivedDataItem[]; meta: DATAMETA };
     sharers: UserDataProp[];
 }) => {
-    console.log(sharers);
-
     const [cards, setCards] = useState(items.data);
     const { errors } = usePage().props;
 
@@ -332,6 +330,8 @@ const Inbox = ({
                             </div>
                         </div>
                     ))}
+
+                    {items.data.length === 0 && <h3 className="text-center">There is No Inbox Item right now.</h3>}
 
                     <Pagination
                         data={items}

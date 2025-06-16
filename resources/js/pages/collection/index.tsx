@@ -10,7 +10,6 @@ import { useState } from 'react';
 const endPoint = route('collections.index');
 
 const index = ({ filterSort, collections, breadcrumbs, permissions=[] } : { filterSort: FILTERSORTPROP; collections: { meta: DATAMETA; links: any; data: CollectionProp[] }; breadcrumbs: BreadcrumbItem[]; permissions: string[]}) => {
-    console.log(collections, filterSort, breadcrumbs);
     const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
     const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);
     const [isOpen, setIsOpen] = useState<boolean>(false);

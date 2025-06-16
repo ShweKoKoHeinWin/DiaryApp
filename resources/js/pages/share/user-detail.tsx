@@ -47,8 +47,6 @@ const UserDetail = ({ user, filterSort }: UserDetailProp) => {
         },
     ];
     const [cards, setCards] = useState(user.items.data ?? []);
-console.log(user);
-
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
     const hasMounted = useRef(false);

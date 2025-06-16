@@ -1,3 +1,4 @@
+import { SELECTMODE } from '@/lib/permissions';
 import { dateFormat } from '@/lib/utils';
 import { CollectionProp, CollectionShortProp, DiaryListingItemProp, FilterProp, SortOrderProp, SortProp, SortTypeProp } from '@/types/types';
 import { router, usePage } from '@inertiajs/react';
@@ -12,7 +13,6 @@ import { Label } from '../ui/label';
 import CardSelectModeBox from '../ultils/card-select-mode-box';
 import Pagination from '../ultils/pagination';
 import { CardItem } from './card';
-import { DIARY, SELECTMODE } from '@/lib/permissions';
 // Mock data function to simulate API calls
 
 export default function CardListingPage({
@@ -24,8 +24,8 @@ export default function CardListingPage({
     filterProp,
     sortProp,
     from = '',
-    data ={},
-    permissions = []
+    data = {},
+    permissions = [],
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
@@ -33,7 +33,7 @@ export default function CardListingPage({
     collection?: CollectionProp;
     collections: CollectionShortProp[];
     from?: string;
-    data? : any;
+    data?: any;
     permissions?: string[];
     filterProp: FilterProp;
     sortProp: SortProp;
@@ -209,7 +209,7 @@ export default function CardListingPage({
                     customActions={
                         <>
                             {permissions.includes(SELECTMODE.collection) && AddToCollectionAction}
-                            {(permissions.includes(SELECTMODE.collection) && collection) && (
+                            {permissions.includes(SELECTMODE.collection) && collection && (
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -280,6 +280,8 @@ export default function CardListingPage({
                     </div>
                 </div>
             ))}
+
+            {diaries.data.length === 0 && <h3 className="text-center">There is No Diary right now.</h3>}
 
             <Pagination
                 data={diaries}

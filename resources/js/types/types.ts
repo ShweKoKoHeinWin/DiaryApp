@@ -128,7 +128,7 @@ export interface EmotionDetailProp {
     name: string;
 }
 
-export type SortTypeProp = 'date' | 'category' | 'title';
+export type SortTypeProp = 'date' | 'category' | 'title' | 'name';
 
 export type SortOrderProp = 'asc' | 'desc';
 

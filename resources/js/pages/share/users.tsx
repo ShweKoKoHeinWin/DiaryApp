@@ -15,7 +15,7 @@ import ActiveFilters from '@/components/ultils/active-filters';
 import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { DATAMETA, FilterProp, FILTERSORTPROP, UserCardProp } from '@/types/types';
+import { DATAMETA, FILTERSORTPROP, UserCardProp } from '@/types/types';
 
 import { Head, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
@@ -35,7 +35,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface UsersPageType {
     filterSort: FILTERSORTPROP;
-    users: { data: UserCardProp[], meta: DATAMETA};
+    users: { data: UserCardProp[]; meta: DATAMETA };
 }
 
 const Inbox = ({ filterSort, users }: UsersPageType) => {
@@ -48,7 +48,6 @@ const Inbox = ({ filterSort, users }: UsersPageType) => {
 
     useEffect(() => {
         setCards(users.data ? (Array.isArray(users.data ?? []) ? users.data : Object.values(users.data)) : []);
-        console.log(users, filterSort);
     }, [users.data]);
 
     useEffect(() => {
@@ -223,7 +222,7 @@ const Inbox = ({ filterSort, users }: UsersPageType) => {
                             ))}
                         </div>
                     </div>
-
+                    {users.data.length === 0 && <h3 className="text-center">There is No Users you have communicated right now.</h3>}
                     <Pagination
                         data={users}
                         urlParamConfig={[

@@ -25,9 +25,7 @@ export default function CardListingPage({
     sortProp: SortProp
     from?: string;
     permissions: string[];
-}) {
-    console.log(filterProp, sortProp);
-    
+}) {    
     const [cards, setCards] = useState<CollectionProp[]>(collections.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
     const [selectedCards, setSelectedCards] = useState<number[]>([]);
@@ -102,6 +100,8 @@ export default function CardListingPage({
                     </div>
                 </div>
             ))}
+
+            {collections.data.length === 0 && (<h3 className='text-center'>There is No Collections right now.</h3>)}
 
             <Pagination
                 data={collections}

@@ -41,8 +41,6 @@ const show = ({
     permissions: string[];
     data: any
 }) => {
-    console.log(`${from}collection`);
-
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
     const [showShareBox, setShowShareBox] = useState<boolean>(false);
@@ -250,7 +248,6 @@ const show = ({
                     collections={collections}
                     groupBy={sortProp.type}
                     groupOrder={sortProp.order}
-                    baseUrl={route('collections.show', collection.id)}
                     filterProp={filterProp}
                     sortProp={sortProp}
                     from={`${from}collection`}

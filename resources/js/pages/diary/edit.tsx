@@ -37,6 +37,8 @@ const edit = ({
     emotions: EmotionDetailProp[];
     diary: DiaryDetailProp;
     collection: CollectionShortProp;
+    breadcrumbs: BreadcrumbItem[];
+    back: string;
 }) => {
     const [isCategoryCreate, setIsCategoryCreate] = useState(false);
     const [isEmotionCreate, setIsEmotionCreate] = useState(false);
@@ -57,7 +59,6 @@ const edit = ({
     };
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        console.log(data);
 
         post(route('diaries.update', { diary: diary.id, collection: collection?.id, back }));
     };

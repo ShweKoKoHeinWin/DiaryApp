@@ -24,9 +24,7 @@ const EmailSendbox = ({ allEmails }: { allEmails: string[] | null }) => {
     useEffect(() => {
         const emailList = selectedEmails.join(',');
         const mailtoLink = `mailto:${emailList}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-        setMailLink(mailtoLink);
-        console.log(mailtoLink);
-        
+        setMailLink(mailtoLink);        
     }, [subject, message, selectedEmails]);
     return (
         <div>

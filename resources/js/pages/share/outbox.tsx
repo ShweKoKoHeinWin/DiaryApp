@@ -21,7 +21,7 @@ import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
-import { DATAMETA, DiaryListingItemProp, FILTERSORTPROP, SharedItemDBProp, SharedOrReceivedDataItem } from '@/types/types';
+import { DATAMETA, FILTERSORTPROP, SharedItemDBProp, SharedOrReceivedDataItem } from '@/types/types';
 
 import { Head, router, usePage } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
@@ -47,7 +47,6 @@ const OutBox = ({
     items: { data: SharedOrReceivedDataItem[]; meta: DATAMETA };
     receivers: SharedItemDBProp[];
 }) => {
-
     const [cards, setCards] = useState<SharedOrReceivedDataItem[]>(items.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
     const [selectedCards, setSelectedCards] = useState<number[]>([]);
@@ -339,18 +338,17 @@ const OutBox = ({
                         <div key={group} className="mb-4">
                             <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                {items.map((card: SharedOrReceivedDataItem) => {
-                                        console.log(card);
-                                        
-                                    return(
+                                {items.map((card: SharedOrReceivedDataItem) => (
                                     <div key={group + card.id} className="col-span-1">
                                         {card.type === 'collection' && <CollectionCard card={card} type="share" from="share" />}
                                         {card.type === 'diary' && <DiaryCard card={card} type="share" from="share" />}
                                     </div>
-                                )})}
+                                ))}
                             </div>
                         </div>
                     ))}
+
+                    {items.data.length === 0 && <h3 className="text-center">There is No Items you shared right now.</h3>}
 
                     <Pagination
                         data={items}
