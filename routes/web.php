@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [CollectionController::class, 'index'])->name('collections.index');
         Route::get('/create', [CollectionController::class, 'create'])->name('collections.create');
         Route::post('/store', [CollectionController::class, 'store'])->name('collections.store');
-        Route::middleware('can:isOwner,diary')->group(function () {
+        Route::middleware('can:isOwner,collection')->group(function () {
             Route::put('/{collection}/update', [CollectionController::class, 'update'])->name('collections.update');
             Route::delete('/{collection}/delete', [CollectionController::class, 'destroy'])->name('collections.delete');
             Route::put('/{collection}/shares', [CollectionController::class, 'shares'])->name('collections.shares');

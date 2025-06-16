@@ -37,7 +37,7 @@ class DiaryListItemResource extends JsonResource
                 return [
                     'id' => $share->id,
                     'email' => $share->email,
-                    'receiver' => $share->receiver ? $share->receiver : '',
+                    'receiver' => $share->receiver ? $share->receiver : null,
                     'created_at' => $share->created_at,
                 ];
             }),

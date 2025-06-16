@@ -15,6 +15,7 @@ import ActiveFilters from '@/components/ultils/active-filters';
 import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
+import { DATAMETA, FilterProp, FILTERSORTPROP, UserCardProp } from '@/types/types';
 
 import { Head, router, usePage } from '@inertiajs/react';
 import { format } from 'date-fns';
@@ -32,7 +33,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const Inbox = ({ filterSort, users }) => {
+interface UsersPageType {
+    filterSort: FILTERSORTPROP;
+    users: { data: UserCardProp[], meta: DATAMETA};
+}
+
+const Inbox = ({ filterSort, users }: UsersPageType) => {
     const [cards, setCards] = useState(users.data ? (Array.isArray(users.data ?? []) ? users.data : Object.values(users.data)) : []);
     const { errors } = usePage().props;
 
@@ -42,8 +48,7 @@ const Inbox = ({ filterSort, users }) => {
 
     useEffect(() => {
         setCards(users.data ? (Array.isArray(users.data ?? []) ? users.data : Object.values(users.data)) : []);
-        console.log(users.data);
-        
+        console.log(users, filterSort);
     }, [users.data]);
 
     useEffect(() => {

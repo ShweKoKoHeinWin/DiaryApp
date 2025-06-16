@@ -31,7 +31,7 @@ const index = ({
     collections: CollectionShortProp[];
     permissions: string[];
 }) => {
-    console.log(permissions);
+    console.log(diaries);
 
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);

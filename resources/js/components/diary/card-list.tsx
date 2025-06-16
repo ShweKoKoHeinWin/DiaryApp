@@ -1,5 +1,5 @@
 import { dateFormat } from '@/lib/utils';
-import { CollectionProp, CollectionShortProp, DiaryListingItemProp, SortOrderProp, SortTypeProp } from '@/types/types';
+import { CollectionProp, CollectionShortProp, DiaryListingItemProp, FilterProp, SortOrderProp, SortProp, SortTypeProp } from '@/types/types';
 import { router, usePage } from '@inertiajs/react';
 import { parse } from 'date-fns';
 import { FolderMinus, FolderPlus } from 'lucide-react';
@@ -32,9 +32,11 @@ export default function CardListingPage({
     diaries: { meta: any; data: DiaryListingItemProp[] };
     collection?: CollectionProp;
     collections: CollectionShortProp[];
-    from: string;
-    data : any;
-    permissions: string[];
+    from?: string;
+    data? : any;
+    permissions?: string[];
+    filterProp: FilterProp;
+    sortProp: SortProp;
 }) {
     const [cards, setCards] = useState<DiaryListingItemProp[]>(diaries.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);

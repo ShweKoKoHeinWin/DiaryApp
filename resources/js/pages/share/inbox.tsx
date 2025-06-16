@@ -18,7 +18,7 @@ import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
-import { DiaryListingItemProp } from '@/types/types';
+import { DATAMETA, FILTERSORTPROP, SharedOrReceivedDataItem, UserDataProp } from '@/types/types';
 
 import { Head, router, usePage } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
@@ -36,8 +36,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
-    console.log(filterSort);
+const Inbox = ({
+    filterSort,
+    items,
+    sharers,
+}: {
+    filterSort: FILTERSORTPROP;
+    items: { data: SharedOrReceivedDataItem[]; meta: DATAMETA };
+    sharers: UserDataProp[];
+}) => {
+    console.log(sharers);
 
     const [cards, setCards] = useState(items.data);
     const { errors } = usePage().props;
@@ -103,7 +111,7 @@ const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
                 return sortProp.order === 'asc' ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
             }
         });
-        const sortedMap: Record<string, DiaryListingItemProp[]> = {};
+        const sortedMap: Record<string, SharedOrReceivedDataItem[]> = {};
         for (const [key, value] of sortedEntries) {
             sortedMap[key] = value;
         }
@@ -165,7 +173,7 @@ const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
                                                                 </SelectTrigger>
                                                                 <SelectContent className="max-h-[40vh]">
                                                                     {sharers.length > 0 &&
-                                                                        sharers.map((s) => (
+                                                                        sharers.map((s: UserDataProp) => (
                                                                             <SelectItem value={`${s.id}`} key={`sharer-${s.id}`}>
                                                                                 <div className="flex items-center gap-2">{s.name}</div>
                                                                             </SelectItem>
@@ -175,7 +183,7 @@ const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, sharer: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, sharer: undefined })}
                                                             />
                                                         </div>
                                                     </div>
@@ -197,7 +205,7 @@ const Inbox = ({ filterSort, items, sharers }: { filterSort: any }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, type: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, type: undefined })}
                                                             />
                                                         </div>
                                                     </div>

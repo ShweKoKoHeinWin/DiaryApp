@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { X } from 'lucide-react';
+import { FilterProp, UserDataProp } from '@/types/types';
 
-const ActiveFilters = ({ filterProp, setFilterProp, users = [] }) => {
+const ActiveFilters = ({ filterProp, setFilterProp, users = [] }: {filterProp: FilterProp; setFilterProp: Dispatch<SetStateAction<FilterProp>>;users?: UserDataProp[]}) => {
     const [activeFiltersCount, setActiveFiltersCount] = useState(0);
     useEffect(() => {
         let count = Object.values(filterProp).filter((val) => {
@@ -89,7 +90,7 @@ const ActiveFilters = ({ filterProp, setFilterProp, users = [] }) => {
             )}
              {filterProp.sharer && users.length > 0 && (
                 <div className="bg-muted flex items-center rounded-full px-2 py-1 text-xs">
-                    <span>Sharer: {users.filter(user => user.id == filterProp.sharer)[0]?.name}</span>
+                    <span>Sharer: {users.filter(user => user.id === Number(filterProp.sharer))[0]?.name}</span>
                     <Button
                         variant="ghost"
                         size="icon"

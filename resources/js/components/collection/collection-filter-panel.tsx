@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { Check, ChevronDown, Filter, Plus, RotateCcw, Search, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -33,7 +33,7 @@ export function CollectionFilterPanel({
     setSortProp,
     endPoint,
 }: {
-    setIsOpen: (val: boolean) => {};
+    setIsOpen: Dispatch<SetStateAction<boolean>>;
     filterProp: FilterProp;
     setFilterProp: React.Dispatch<React.SetStateAction<FilterProp>>;
     sortProp: SortProp;

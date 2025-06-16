@@ -10,7 +10,7 @@ import AppLayout from '@/layouts/app-layout';
 import { COLLECTION } from '@/lib/permissions';
 import { dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
-import { CategoryProp, CollectionProp, DiaryListingItemProp, EmotionDetailProp } from '@/types/types';
+import { CategoryProp, CollectionProp, DATAMETA, DiaryListingItemProp, EmotionDetailProp, FILTERSORTPROP } from '@/types/types';
 // import { DiaryGroupByProp, FilterProp, SortProp } from '@/types/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Calendar, Edit, Save, Share2, Trash, Users } from 'lucide-react';
@@ -29,7 +29,8 @@ const show = ({
     permissions = [],
     data : beData = {}
 }: {
-    diaries: { meta: any; data: DiaryListingItemProp[] };
+    filterSort: FILTERSORTPROP;
+    diaries: { meta: DATAMETA; data: DiaryListingItemProp[] };
     collection: CollectionProp;
     collections: CollectionProp[];
     categories: CategoryProp[];
@@ -215,11 +216,11 @@ const show = ({
                                 <CardTitle className="text-lg">Shared With ({collection.shares.length} people) </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <ul className="list-inside list-decimal rounded-2xl">
+                                <ul className="list-outside list-decimal rounded-2xl px-2">
                                     {collection?.shares.map((user, index) => (
-                                        <li key={index} className="flex items-center gap-3">
-                                            <div className="flex-1">
-                                                <p className="text-md font-medium">{user.name}</p>
+                                        <li key={index} >
+                                            <div className="flex items-center">
+                                                {user?.receiver?.name && <p className="text-sm font-medium mr-3">{user?.receiver?.name}: </p>}
                                                 <p className="text-sm">{user.email}</p>
                                             </div>
                                         </li>

@@ -1,4 +1,4 @@
-import { CollectionProp, SortOrderProp, SortTypeProp } from '@/types/types';
+import { CollectionProp, DATAMETA, FilterProp, SortOrderProp, SortProp, SortTypeProp } from '@/types/types';
 import { parse } from 'date-fns';
 import { useEffect, useMemo, useState } from 'react';
 import CardSelectModeBox from '../ultils/card-select-mode-box';
@@ -20,7 +20,9 @@ export default function CardListingPage({
 }: {
     groupBy: SortTypeProp;
     groupOrder: SortOrderProp;
-    collections: { meta: any; links: any; data: CollectionProp[] };
+    collections: { meta: DATAMETA; links: any; data: CollectionProp[] };
+    filterProp: FilterProp;
+    sortProp: SortProp
     from?: string;
     permissions: string[];
 }) {

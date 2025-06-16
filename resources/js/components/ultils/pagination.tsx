@@ -1,8 +1,6 @@
 import { Link } from '@inertiajs/react';
 
-const Pagination = ({ data, urlParamConfig = [] }: { data: { meta: any }; urlParamConfig?: any[] }) => {
-    console.log(data.meta.links);
-    
+const Pagination = ({ data, urlParamConfig = [] }: { data: { meta: any }; urlParamConfig?: any[] }) => {    
     return (
         <div className="mt-6 flex justify-center gap-2">
             {data.meta.total > 0 &&

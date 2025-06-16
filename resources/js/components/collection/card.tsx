@@ -21,7 +21,7 @@ export function CardItem({
     setIsCardSelecting: (val: boolean) => void;
     selectedCards: number[];
     setSelectedCards: (val: number[]) => void;
-    from: string,
+    from?: string,
 }) {    
     const [showShareBox, setShowShareBox] = useState(false);
     // Long Press mode

@@ -11,15 +11,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Home({ diaries, collections, emotions, categories, files, sentDiaries, sentCollections, receivedDiaries, receivedCollections }) {
-    const {auth} = usePage().props;
-    console.log(diaries, collections, sentDiaries, sentCollections, receivedDiaries, receivedCollections);
+interface HomePropsType {
+    diaries: number;
+    collections: number;
+    emotions: number;
+    categories: number;
+    files: number;
+}
+
+export default function Home({ diaries, collections, emotions, categories, files }: HomePropsType) {
+    const { auth } = usePage().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Home" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-
                 {/* Stats Cards */}
                 <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     <Card>

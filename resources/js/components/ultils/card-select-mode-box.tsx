@@ -1,4 +1,4 @@
-import { CollectionProp, DiaryListingItemProp } from '@/types/types';
+import { CollectionProp, DiaryListingItemProp, SharedOrReceivedDataItem } from '@/types/types';
 import { Share2, SquareChevronLeft, SquareChevronRight, X } from 'lucide-react';
 import { useState } from 'react';
 import MultiShareModal from '../share/multi-share-modal';
@@ -20,7 +20,7 @@ const CardSelectModeBox = ({
 }: {
     actions?: ActionType[];
     customActions?: React.ReactNode;
-    cards: CollectionProp[] | DiaryListingItemProp[];
+    cards: CollectionProp[] | DiaryListingItemProp[] | SharedOrReceivedDataItem[];
     cardType: 'diary' | 'collection';
     isCardSelecting: boolean;
     setIsCardSelecting: (val: boolean) => void;

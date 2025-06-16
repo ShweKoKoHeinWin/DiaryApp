@@ -19,13 +19,19 @@ import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { dateFormat, dateTimeFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
+import { FILTERSORTPROP, SharedOrReceivedDataItem, UserCardProp } from '@/types/types';
 
 import { Head, Link, router } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
 import { ArrowLeft, BookOpenText, Calendar, Check, ChevronDown, Filter, Mail, NotebookText, RotateCcw, Search, UserCircle } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { use, useEffect, useMemo, useRef, useState } from 'react';
 
-const Inbox = ({ user, filterSort }) => {
+interface UserDetailProp{
+    user: UserCardProp;
+    filterSort: FILTERSORTPROP
+}
+
+const UserDetail = ({ user, filterSort }: UserDetailProp) => {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Inbox & Shares',
@@ -36,11 +42,12 @@ const Inbox = ({ user, filterSort }) => {
             href: route('inbox-shares.users'),
         },
         {
-            title: 'Detail',
+            title: 'Detail ' + user.email,
             href: route('inbox-shares.users.detail', user.email),
         },
     ];
     const [cards, setCards] = useState(user.items.data ?? []);
+console.log(user);
 
     const [filterProp, setFilterProp] = useState(filterSort.filters);
     const [sortProp, setSortProp] = useState(filterSort.sorting);
@@ -82,14 +89,13 @@ const Inbox = ({ user, filterSort }) => {
                 return sortProp.order === 'asc' ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
             }
         });
-        const sortedMap: any = {};
+        const sortedMap: Record<string, SharedOrReceivedDataItem[]>  = {};
         for (const [key, value] of sortedEntries) {
             sortedMap[key] = value;
         }
         return sortedMap;
     }, [cards, sortProp]);
-    console.log(groupedCards);
-
+    
     useEffect(() => {
         if (!hasMounted.current) {
             hasMounted.current = true;
@@ -138,7 +144,7 @@ const Inbox = ({ user, filterSort }) => {
                                     <div className="flex items-center gap-1">
                                         <Calendar className="h-4 w-4" />
                                         Since {' : '}
-                                        {user.since && dateTimeFormat(user.since)}
+                                        {user.started_time && dateTimeFormat(user.started_time)}
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Mail className="h-4 w-4" /> {user.email}
@@ -150,17 +156,17 @@ const Inbox = ({ user, filterSort }) => {
                                     <div className="flex items-center gap-1">
                                         <BookOpenText size={20} />{' '}
                                         <p>
-                                            {user.counts.diary.shared > 1
-                                                ? `${user.counts.diary.shared} Diaries`
-                                                : `${user.counts.diary.shared} Diary`}
+                                            {user.diaries.shared > 1
+                                                ? `${user.diaries.shared} Diaries`
+                                                : `${user.diaries.shared} Diary`}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <NotebookText size={20} />{' '}
                                         <p>
-                                            {user.counts.collection.shared > 1
-                                                ? `${user.counts.collection.shared} Collections`
-                                                : `${user.counts.collection.shared} Collection`}
+                                            {user.collections.shared > 1
+                                                ? `${user.collections.shared} Collections`
+                                                : `${user.collections.shared} Collection`}
                                         </p>
                                     </div>
                                 </div>
@@ -169,17 +175,17 @@ const Inbox = ({ user, filterSort }) => {
                                     <div className="flex items-center gap-1">
                                         <BookOpenText size={20} />{' '}
                                         <p>
-                                            {user.counts.diary.received > 1
-                                                ? `${user.counts.diary.received} Diaries`
-                                                : `${user.counts.diary.received} Diary`}
+                                            {user.diaries.received > 1
+                                                ? `${user.diaries.received} Diaries`
+                                                : `${user.diaries.received} Diary`}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <NotebookText size={20} />
                                         <p>
-                                            {user.counts.collection.received > 1
-                                                ? `${user.counts.collection.received} Collections`
-                                                : `${user.counts.collection.received} Collection`}
+                                            {user.collections.received > 1
+                                                ? `${user.collections.received} Collections`
+                                                : `${user.collections.received} Collection`}
                                         </p>
                                     </div>
                                 </div>
@@ -250,7 +256,7 @@ const Inbox = ({ user, filterSort }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, shareType: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, shareType: undefined })}
                                                             />
                                                         </div>
                                                     </div>
@@ -272,7 +278,7 @@ const Inbox = ({ user, filterSort }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, type: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, type: undefined })}
                                                             />
                                                         </div>
                                                     </div>
@@ -379,7 +385,7 @@ const Inbox = ({ user, filterSort }) => {
                         <div key={group} className="mb-4">
                             <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                {items.map((card) => {
+                                {items.map((card: SharedOrReceivedDataItem) => {
                                     return (
                                         <div key={group + card.id} className="col-span-1">
                                             {card.type === 'collection' && <CollectionCard card={card} type={card.isShare ? 'share' : 'receive'} from="user" data={{email: user.email}} />}
@@ -411,4 +417,4 @@ const Inbox = ({ user, filterSort }) => {
     );
 };
 
-export default Inbox;
+export default UserDetail;

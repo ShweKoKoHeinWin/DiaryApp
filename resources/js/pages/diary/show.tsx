@@ -24,7 +24,7 @@ const show = ({
     diary: DiaryDetailProp;
     collection: CollectionShortProp;
     collections: CollectionShortProp[];
-    breadcumbs: BreadcrumbItem[];
+    breadcrumbs: BreadcrumbItem[];
     from: string;
     back: string;
     email?: string;
@@ -292,11 +292,11 @@ const show = ({
                             <CardTitle className="text-lg">Shared With ({diary.shares.length} people) </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <ul className="list-inside list-decimal rounded-2xl">
+                            <ul className="list-outside list-decimal rounded-2xl px-2">
                                 {diary?.shares.map((user, index) => (
-                                    <li key={index} className="flex items-center gap-3">
-                                        <div className="flex-1">
-                                            <p className="text-md font-medium">{user.name}</p>
+                                    <li key={index}>
+                                        <div className="flex items-center">
+                                            {user?.receiver?.name && <p className="text-sm font-medium mr-3">{user?.receiver?.name}: </p>}
                                             <p className="text-sm">{user.email}</p>
                                         </div>
                                     </li>

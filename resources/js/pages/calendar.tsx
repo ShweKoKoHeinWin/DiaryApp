@@ -5,8 +5,9 @@ import { cn } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DayDisplay } from './day-display';
+import { CalendarDayDataProp } from '@/types/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,21 +16,24 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Calendar({ days, month, year }) {
+interface CalenderPageProp {
+    days: CalendarDayDataProp[];
+    month: number;
+    year: number;
+}
+
+export default function Calendar({ days, month, year }: CalenderPageProp) {
     const [selectedDate, setSelectedDate] = useState(days.filter((d) => d?.isToday)[0]);
     const date = new Date();
     const selectYears = [];
     for (let y = date.getFullYear(); y > date.getFullYear() - 25; y--) {
       selectYears.push(y);
     }
-    useState(() => {
-        setSelectedDate(days.filter((d) => d?.isToday)[0]);
-    }, [days]);
+    
     // Month names
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    console.log(days, month, year);
 
-    const routerAction = (routerMonth = month, routerYear = year) => {
+    const routerAction = (routerMonth:number = month, routerYear: number = year) => {
         router.visit(route('calendar'), {
             method: 'get',
             data: {
@@ -49,7 +53,7 @@ export default function Calendar({ days, month, year }) {
                             <div className="mb-6 flex items-center justify-between">
                                 <h2 className="text-xl font-semibold flex items-center gap-3">
                                     {monthNames[month - 1]}
-                                    <Select value={`${year}`} onValueChange={(value) => {routerAction(month, value)}}>
+                                    <Select value={`${year}`} onValueChange={(value) => {routerAction(month, +value)}}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select Year" />
                                         </SelectTrigger>

@@ -21,3 +21,5 @@ export const DiaryDetailRoute = (diary: number, inbox = null, outbox = null, use
         }
     });
 }
+
+export const IsKeyInObject = (key: string, type: any) => key in type;

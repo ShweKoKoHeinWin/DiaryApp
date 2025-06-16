@@ -70,8 +70,8 @@ export function CategoryModal({ setIsOpen }: { setIsOpen: (bool: boolean) => voi
                                                                 <Trash className="text-red-600" />
                                                             </div>
                                                         </div>
-                                                        {errors[`categories.${i}`] && (
-                                                            <p className="text-sm text-red-600">{errors[`categories.${i}`]}</p>
+                                                        {(errors as Record<string, string>)[`categories.${i}`] && (
+                                                            <p className="text-sm text-red-600">{(errors as Record<string, string>)[`categories.${i}`]}</p>
                                                         )}
                                                     </div>
                                                 ))}

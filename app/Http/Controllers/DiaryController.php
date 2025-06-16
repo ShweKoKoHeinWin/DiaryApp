@@ -141,6 +141,7 @@ class DiaryController extends Controller
             $permissions = DiaryPermission::all();
         }
         [$breadcrumbs, $back] = BreadcrumbService::diary('show', $from, $data);
+        $diary->load('sharedItems.receiver');
         return Inertia::render('diary/show', [
             'diary' => new DiaryDetailResource($diary),
             'collection' => $collection,

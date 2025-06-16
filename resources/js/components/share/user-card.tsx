@@ -2,7 +2,9 @@ import { Link } from '@inertiajs/react';
 import { Card, CardContent } from '../ui/card';
 import { dateTimeFormat } from '@/lib/utils';
 import { Calendar } from 'lucide-react';
-export function UserCard({ card }: { type: 'share' | 'receive' }) {
+import { UserCardProp } from '@/types/types';
+
+export function UserCard({ card }: {card: UserCardProp}) {
     return (
         <Card className="relative h-auto min-h-50 w-full overflow-hidden">
             <CardContent className="flex h-full flex-col px-4">
@@ -13,7 +15,7 @@ export function UserCard({ card }: { type: 'share' | 'receive' }) {
                         <tbody>
                             <tr className="text-lg font-semibold">
                                 <th>Name:</th>
-                                <th className='px-3'>{card.name ?? '---'}</th>
+                                <th className='px-3'>{card.name }</th>
                             </tr>
                             <tr>
                                 <th>Email:</th>
@@ -63,7 +65,7 @@ export function UserCard({ card }: { type: 'share' | 'receive' }) {
                                                     {card.collections.received > 1 ? 'Collections' : 'Collection'} from me
                                                 </li>
                                             ) : (
-                                                ' |'
+                                                ''
                                             )}
                                         </ul>
                                     ) : (

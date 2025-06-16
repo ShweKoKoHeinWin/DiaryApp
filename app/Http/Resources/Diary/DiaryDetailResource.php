@@ -33,7 +33,7 @@ class DiaryDetailResource extends JsonResource
                     'id' => $file->id,
                     'caption' => $file->caption,
                     'type' => $file->type,
-                    'path' => asset(Storage::url(str_replace('public/', '', $filePath))),
+                    'path' => $filePath ? asset(Storage::url(str_replace('public/', '', $filePath))) : '',
                 ];
             }),
             'shares' => $this->sharedItems,

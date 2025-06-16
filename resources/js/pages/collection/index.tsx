@@ -3,13 +3,13 @@ import { CollectionModal } from '@/components/collection/collection-create-modal
 import { CollectionFilterPanel } from '@/components/collection/collection-filter-panel';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { FilterProp, SortProp } from '@/types/types';
+import { CollectionProp, DATAMETA, FilterProp, FILTERSORTPROP, SortProp } from '@/types/types';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
 const endPoint = route('collections.index');
 
-const index = ({ filterSort, collections, breadcrumbs, permissions=[] } : {permissions: string[]}) => {
+const index = ({ filterSort, collections, breadcrumbs, permissions=[] } : { filterSort: FILTERSORTPROP; collections: { meta: DATAMETA; links: any; data: CollectionProp[] }; breadcrumbs: BreadcrumbItem[]; permissions: string[]}) => {
     console.log(collections, filterSort, breadcrumbs);
     const [filterProp, setFilterProp] = useState<FilterProp>(filterSort.filters);
     const [sortProp, setSortProp] = useState<SortProp>(filterSort.sorting);

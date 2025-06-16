@@ -63,11 +63,11 @@ const mainNavItems: NavItem[] = [
         href: 'emotions.index',
         icon: SmilePlus,
     },
-    {
-        title: 'Files',
-        href: 'files.index',
-        icon: FileImageIcon,
-    },
+    // {
+    //     title: 'Files',
+    //     href: 'files.index',
+    //     icon: FileImageIcon,
+    // },
     {
         title: 'Inbox & Shares',
         href: 'inbox-shares',

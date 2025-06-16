@@ -37,7 +37,7 @@ export function CardItem({
     setSelectedCards: (val: number[]) => void;
     cancelSelectMode: () => void;
     from: string;
-    data: any;
+    data?: any;
     permissions: string[];
 }) {
     const categoryContainerRef = useRef<HTMLDivElement>(null);

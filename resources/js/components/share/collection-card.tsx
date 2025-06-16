@@ -1,23 +1,34 @@
 import { dateTimeFormat } from '@/lib/utils';
+import { CollectionProp, SharedOrReceivedDataItem } from '@/types/types';
 import { Link } from '@inertiajs/react';
 import { BookOpenText, NotebookText } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-export function CollectionCard({ card, type, from = 'collection', data = {} }: { type: 'share' | 'receive', data: any }) {
+export function CollectionCard({
+    card,
+    type,
+    from = 'collection',
+    data = {},
+}: {
+    card: SharedOrReceivedDataItem;
+    type: 'share' | 'receive';
+    from: string;
+    data?: any;
+}) {
+    const collectionItem = card.item as CollectionProp; 
     return (
         <Card className="relative h-64 w-full overflow-hidden">
             <CardContent className="flex h-full flex-col px-4">
                 {/* 3-dot menu in top right */}
                 <div className="flex items-center justify-between">
-                    <span className="text-xs">{type === 'share' ? 'Shared At' : 'Received At'}: {dateTimeFormat(card.created_at)}</span>
+                    <span className="text-xs">
+                        {type === 'share' ? 'Shared At' : 'Received At'}: {dateTimeFormat(card.created_at)}
+                    </span>
                     <NotebookText />
                 </div>
 
                 {/* Title with truncation */}
-                <Link
-                    href={route('collections.show', { collection: card.item.id, from, data })}
-                    className="rich-text-editor-container"
-                >
+                <Link href={route('collections.show', { collection: card.item.id, from, data })} className="rich-text-editor-container">
                     <h3 className="line-clamp-1 pr-8 text-lg font-semibold">{card.item.title}</h3>
 
                     {/* Description with truncation */}

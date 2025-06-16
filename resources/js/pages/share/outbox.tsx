@@ -21,7 +21,7 @@ import Pagination from '@/components/ultils/pagination';
 import AppLayout from '@/layouts/app-layout';
 import { dateFormat } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
-import { DiaryListingItemProp } from '@/types/types';
+import { DATAMETA, DiaryListingItemProp, FILTERSORTPROP, SharedItemDBProp, SharedOrReceivedDataItem } from '@/types/types';
 
 import { Head, router, usePage } from '@inertiajs/react';
 import { format, parse } from 'date-fns';
@@ -38,10 +38,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
-    console.log(items, receivers);
+const OutBox = ({
+    filterSort,
+    items,
+    receivers,
+}: {
+    filterSort: FILTERSORTPROP;
+    items: { data: SharedOrReceivedDataItem[]; meta: DATAMETA };
+    receivers: SharedItemDBProp[];
+}) => {
 
-    const [cards, setCards] = useState<DiaryListingItemProp[]>(items.data);
+    const [cards, setCards] = useState<SharedOrReceivedDataItem[]>(items.data);
     const [isCardSelecting, setIsCardSelecting] = useState<boolean>(false);
     const [selectedCards, setSelectedCards] = useState<number[]>([]);
     const { errors } = usePage().props;
@@ -85,7 +92,7 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                 return sortProp.order === 'asc' ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
             }
         });
-        const sortedMap: Record<string, DiaryListingItemProp[]> = {};
+        const sortedMap: Record<string, SharedOrReceivedDataItem[]> = {};
         for (const [key, value] of sortedEntries) {
             sortedMap[key] = value;
         }
@@ -192,7 +199,7 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, receiver: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, receiver: undefined })}
                                                             />
                                                         </div>
                                                     </div>
@@ -214,7 +221,7 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                                                             <RotateCcw
                                                                 className="cursor-pointer"
                                                                 size={15}
-                                                                onClick={() => setFilterProp({ ...filterProp, type: null })}
+                                                                onClick={() => setFilterProp({ ...filterProp, type: undefined })}
                                                             />
                                                         </div>
                                                     </div>
@@ -332,12 +339,15 @@ const OutBox = ({ filterSort, items, receivers }: { filterSort: any }) => {
                         <div key={group} className="mb-4">
                             <h2 className="mb-2 rounded-2xl border-2 bg-gray-900/80 p-2 text-xl font-semibold text-gray-300">{group}</h2>
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                {items.map((card) => (
+                                {items.map((card: SharedOrReceivedDataItem) => {
+                                        console.log(card);
+                                        
+                                    return(
                                     <div key={group + card.id} className="col-span-1">
                                         {card.type === 'collection' && <CollectionCard card={card} type="share" from="share" />}
                                         {card.type === 'diary' && <DiaryCard card={card} type="share" from="share" />}
                                     </div>
-                                ))}
+                                )})}
                             </div>
                         </div>
                     ))}

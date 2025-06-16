@@ -1,11 +1,12 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CalendarDayDataProp } from '@/types/types';
 import { Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { BookOpenText, CalendarIcon, Eye, NotebookText } from 'lucide-react';
 
-export function DayDisplay({ day }) {
+export function DayDisplay({ day }: {day: CalendarDayDataProp}) {
     if (!day) return <></>;
     return (
         <Card>

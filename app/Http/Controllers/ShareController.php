@@ -40,6 +40,7 @@ class ShareController extends Controller
             ->select('users.*')
             ->distinct()
             ->get();
+        $sharers = UserResource::collection($sharers);
         $items = ReceivedItemsResource::collection($items);
 
         return Inertia::render('share/inbox', compact('filterSort', 'items', 'sharers'));
@@ -95,7 +96,7 @@ class ShareController extends Controller
                         // Initialize email entry if not already present
                         $users[$emailKey] = [
                             'id' => null, // No user ID for email shares
-                            'name' => null, // No name for email shares
+                            'name' => '---', // No name for email shares
                             'email' => $item->email,
                             'diaries' => [
                                 'received' => 0, // Initialize to 0, increment based on current item
@@ -189,38 +190,38 @@ class ShareController extends Controller
                 'name' => $userDetail->name ?? '---',
                 'email' => $email,
                 'items' => UserItemsResource::collection($items),
-                'counts' => [
-                    'diary' => [
-                        'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
-                            $query->where('receiver_id', $curUser->id)
-                                ->whereHas('sharer', function ($q) use ($email) {
-                                    $q->where('email', $email);
-                                });
-                        })->where('shareable_type', Diary::class)->count(),
-                        'received' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
-                            $query->where('owner_id', $curUser->id)
-                                ->where('email', $email);
-                        })->where('shareable_type', Diary::class)->count(),
-                    ],
-                    'collection' => [
-                        'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
-                            $query->where('receiver_id', $curUser->id)
-                                ->whereHas('sharer', function ($q) use ($email) {
-                                    $q->where('email', $email);
-                                });
-                        })->where('shareable_type', Collection::class)->count(),
-                        'received' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
-                            $query->where('owner_id', $curUser->id)
-                                ->where('email', $email);
-                        })->where('shareable_type', Collection::class)->count(),
-                    ],
 
+                'diaries' => [
+                    'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
+                        $query->where('receiver_id', $curUser->id)
+                            ->whereHas('sharer', function ($q) use ($email) {
+                                $q->where('email', $email);
+                            });
+                    })->where('shareable_type', Diary::class)->count(),
+                    'received' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
+                        $query->where('owner_id', $curUser->id)
+                            ->where('email', $email);
+                    })->where('shareable_type', Diary::class)->count(),
                 ],
-                'since' => SharedItem::where(function ($query) use ($curUser, $email) {
+                'collections' => [
+                    'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
+                        $query->where('receiver_id', $curUser->id)
+                            ->whereHas('sharer', function ($q) use ($email) {
+                                $q->where('email', $email);
+                            });
+                    })->where('shareable_type', Collection::class)->count(),
+                    'received' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
+                        $query->where('owner_id', $curUser->id)
+                            ->where('email', $email);
+                    })->where('shareable_type', Collection::class)->count(),
+                ],
+
+
+                'started_time' => SharedItem::where(function ($query) use ($curUser, $email) {
                     $query->where('owner_id', $curUser->id)
                         ->where('email', $email);
                 })->orWhere(function ($query) use ($curUser, $email) {
@@ -235,38 +236,36 @@ class ShareController extends Controller
                 'name' => '---',
                 'email' => $email,
                 'items' => UserItemsResource::collection($items),
-                'counts' => [
-                    'diary' => [
-                        'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
-                            $query->where('receiver_id', $curUser->id)
-                                ->whereHas('sharer', function ($q) use ($email) {
-                                    $q->where('email', $email);
-                                });
-                        })->where('shareable_type', Diary::class)->count(),
-                        'received' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
-                            $query->where('owner_id', $curUser->id)
-                                ->where('email', $email);
-                        })->where('shareable_type', Diary::class)->count(),
-                    ],
-                    'collection' => [
-                        'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
-                            $query->where('receiver_id', $curUser->id)
-                                ->whereHas('sharer', function ($q) use ($email) {
-                                    $q->where('email', $email);
-                                });
-                        })->where('shareable_type', Collection::class)->count(),
-                        'received' => SharedItem::where(function ($query) use ($curUser, $email) {
-                            // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
-                            $query->where('owner_id', $curUser->id)
-                                ->where('email', $email);
-                        })->where('shareable_type', Collection::class)->count(),
-                    ],
-
+                'diaries' => [
+                    'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
+                        $query->where('receiver_id', $curUser->id)
+                            ->whereHas('sharer', function ($q) use ($email) {
+                                $q->where('email', $email);
+                            });
+                    })->where('shareable_type', Diary::class)->count(),
+                    'received' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
+                        $query->where('owner_id', $curUser->id)
+                            ->where('email', $email);
+                    })->where('shareable_type', Diary::class)->count(),
                 ],
-                'since' => null,
+                'collections' => [
+                    'shared' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 2: Receiver shares  an item (receiver_id = $curuser->id AND owner has email $email)
+                        $query->where('receiver_id', $curUser->id)
+                            ->whereHas('sharer', function ($q) use ($email) {
+                                $q->where('email', $email);
+                            });
+                    })->where('shareable_type', Collection::class)->count(),
+                    'received' => SharedItem::where(function ($query) use ($curUser, $email) {
+                        // Case 1: Owner shares an item (owner_id = $user->id AND email = $email)
+                        $query->where('owner_id', $curUser->id)
+                            ->where('email', $email);
+                    })->where('shareable_type', Collection::class)->count(),
+                ],
+
+                'started_time' => null,
             ];
         }
         return Inertia::render('share/user-detail', compact('user', 'filterSort'));
