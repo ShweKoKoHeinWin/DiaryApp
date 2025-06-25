@@ -28,7 +28,7 @@ class DiaryController extends Controller
         $user = Auth::user();
         $categories = Category::where('user_id', $user->id)->select('id', 'name')->get();
         $emotions = Emotion::where('user_id', $user->id)->select('id', 'name', 'emoji')->get();
-        $diaries = Diary::query()->with('categories', 'emotion', 'files')->where('user_id', $user->id);
+        $diaries = Diary::query()->with('categories', 'emotion', 'files')->where('diaries.user_id', $user->id);
         $collections = Collection::where('user_id', $user->id)->select('id', 'title')->latest()->get();
         [$diaries, $filterSort] = FilterService::getDiariesByFilter($request, $diaries);
         $diaries = DiaryListItemResource::collection($diaries);
